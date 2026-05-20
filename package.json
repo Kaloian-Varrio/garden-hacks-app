@@ -1,0 +1,18 @@
+{
+  "name": "garden-hacks-app",
+  "version": "1.0.0",
+  "description": "Garden Hacks app: Next.js + React + Expo",
+  "license": "ISC",
+  "author": "Kaloian Hristov Varrio",
+  "type": "commonjs",
+  "private": true,
+  "workspaces": [
+    "garden-hacks",
+    "garden-hacks-mobile",
+    "garden-hacks-shared"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "dev": "npx --yes concurrently -k -n web,mobile -c cyan,magenta \"npm run dev --workspace garden-hacks\" \"npm run start --workspace garden-hacks-mobile\""
+  }
+}

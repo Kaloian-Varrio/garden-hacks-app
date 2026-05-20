@@ -1,0 +1,62 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Build output and generated caches
+.next/
+out/
+build/
+dist/
+web-build/
+.expo/
+.turbo/
+coverage/
+
+# Generated native folders
+ios/
+android/
+.kotlin/
+
+# Local tooling
+.vscode/
+.claude/
+.vercel/
+.metro-health-check*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Certificates and local signing files
+*.pem
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# TypeScript and framework generated files
+*.tsbuildinfo
+next-env.d.ts
+expo-env.d.ts
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.orig.*
+
+# Expo template scratch output
+app-example/
