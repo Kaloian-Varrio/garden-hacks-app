@@ -1,267 +1,104 @@
-# 🌱 Garden Hacks App
+# Garden Hacks App
 
-AI-powered full-stack platform for sustainable home gardening, regenerative practices, and community-driven organic garden hacks.
+Build a "Garden Hacks App" platform: a community-driven software product for people who want to share sustainable, organic, and regenerative gardening knowledge.
 
----
-
-# 📖 About The Project
-
-Garden Hacks App is a modern multi-platform application designed to help people grow healthier food using sustainable, chemical-free, and regenerative gardening practices.
-
-The platform combines:
-
-- Community knowledge sharing
-- Personally tested gardening hacks
-- Organic growing techniques
-- Soil regeneration principles
-- Eco-friendly gardening methods
-- AI-assisted content and development workflows
-
-The app focuses on helping individuals and families create healthier home gardens while improving soil quality and reducing harmful agricultural practices.
-
-Garden Hacks App also embraces the emotional and psychological benefits of gardening — turning gardening into a relaxing, rewarding, and meaningful lifestyle activity.
+- The app allows users to publish useful gardening hacks and real-life tested practices.
+- Gardening hacks are organized into thematic categories and interest groups.
+- Registered users can join groups, publish content, comment, and interact with the community.
+- Users receive points and profile balance for active participation and published gardening hacks.
 
 ---
 
-# 🎯 Main Goals
+# Roles in the App
 
-- Promote sustainable gardening practices
-- Educate users about harmful agricultural methods
-- Encourage organic food production at home
-- Build a helpful gardening community
-- Share real-life tested gardening hacks
-- Support regenerative soil practices
-- Create a scalable AI-assisted full-stack application
+- Visitor: can view the home page and register in the app.
+- User: can manage own profile, join groups, publish gardening hacks, comment and interact with the community.
+- Group member: can browse group content, publish hacks inside joined groups, comment and react.
+- Admins: can manage all users, groups, categories, posts and platform content.
 
 ---
 
-# 🚀 Features
+# Registered Users
 
-## Web Application
-- Responsive modern UI
-- User authentication
-- User profiles
-- Community feed
-- Garden hack posts
-- Comments and discussions
-- Categories and tags
-- Admin dashboard
-- Search and filtering
-- Educational content pages
+Registered users in the app have a profile with:
 
-## Mobile Application
-- Cross-platform mobile app with Expo
-- Responsive mobile experience
-- User login/register
-- Browse garden hacks
-- Create and manage posts
-- Community interaction
-- Mobile-friendly navigation
+- Name
+- Email
+- Profile photo (optional)
+- Bio / gardening interests
+- Points balance
+- Published hacks
+- Joined groups
 
-## Backend
-- REST API architecture
-- JWT authentication
-- Role-based authorization
-- Secure password hashing
-- Database pagination
-- Optimized scalable queries
-- Modular backend services
+Registered users can:
+
+- Join existing gardening groups.
+- Leave joined groups.
+- Publish gardening hacks and tips.
+- Select in which group their hack should be published.
+- Edit or delete their own published hacks.
+- Comment and interact with other users.
+- Save favorite hacks.
+- Earn points through activity and community participation.
+
+Users cannot create or manage groups.
 
 ---
 
-# 🧠 AI-Assisted Development
+# Gardening Groups
 
-This project is developed using an AI-first workflow with:
+The platform contains thematic gardening groups based on different interests and gardening topics.
 
-- GitHub Copilot
-- OpenAI Codex
-- AI-assisted architecture planning
-- AI-generated documentation
-- AI-supported component generation
+Examples:
 
-The project follows modern AI-assisted software engineering practices.
+- Organic Vegetables
+- Balcony Gardening
+- Permaculture
+- Soil Regeneration
+- Natural Pest Control
+- Composting
+- Greenhouse Gardening
+- Herbs and Medicinal Plants
 
----
+Groups are created and managed only by platform administrators.
 
-# 🏗️ Tech Stack
+Administrators can:
 
-## Frontend
-- Next.js
-- React
-- TypeScript
-- Tailwind CSS
+- Create and manage groups.
+- Edit group information.
+- Moderate discussions and content.
+- Remove inappropriate content or users.
 
-## Mobile
-- React Native
-- Expo
+Registered users can:
 
-## Backend
-- Next.js API / REST API
-- Node.js
-
-## Database
-- PostgreSQL
-- Drizzle ORM
-
-## Authentication
-- JWT Tokens
-- bcrypt password hashing
-
-## Deployment
-- Vercel
-- Expo EAS
+- Join groups based on their interests.
+- Leave groups at any time.
+- Publish hacks inside joined groups.
+- Participate in discussions and comments.
 
 ---
 
-# 🧱 Architecture
+# Gardening Hacks and Posts
 
-The project follows a client-server architecture:
+Users can create and publish gardening hacks inside selected groups.
 
-```text
-Web App (Next.js)
-        │
-        ├── REST API
-        │
-Mobile App (Expo)
-        │
-        └── PostgreSQL Database
-```
+Each gardening hack can contain:
 
-The application is structured as a scalable full-stack monorepo with separated:
+- Title
+- Description
+- Images
+- Category
+- Tags
+- Difficulty level
+- Organic / eco labels
+- Comments and reactions
 
-- frontend
-- mobile
-- backend
-- shared components
-- database schema
-- utilities
+Users can:
 
----
-
-# 🗃️ Database Structure
-
-The application uses PostgreSQL with Drizzle ORM.
-
-Planned core entities:
-
-- Users
-- Posts
-- Comments
-- Categories
-- Likes
-- Saved Posts
-- Roles
-- Notifications
-
----
-
-# 🔐 Authentication & Authorization
-
-The application implements secure authentication and authorization using:
-
-- JWT-based authentication
-- Secure password hashing with bcrypt
-- Protected API routes
-- Role-based access control
-- Admin and regular user roles
-
----
-
-# 📱 Responsive Design
-
-The project is fully responsive and optimized for:
-
-- Desktop
-- Tablet
-- Mobile devices
-
-Reusable UI components are used to maintain consistency and scalability.
-
----
-
-# ⚡ Scalability
-
-The backend is designed for scalability using:
-
-- Pagination
-- Optimized DB queries
-- Indexed database tables
-- Reusable services
-- Modular architecture
-
----
-
-# 🧪 Planned Future Improvements
-
-- AI gardening assistant
-- Plant disease recognition
-- Weather integrations
-- Smart planting calendar
-- Push notifications
-- Image uploads
-- Video tutorials
-- Community achievements
-- Marketplace for organic products
-
----
-
-# 📂 Project Structure
-
-```text
-garden-hacks-app/
-│
-├── apps/
-│   ├── web/
-│   ├── mobile/
-│
-├── backend/
-│
-├── shared/
-│
-├── database/
-│
-├── docs/
-│
-└── README.md
-```
-
----
-
-# 🛠️ Local Development
-
-## Clone Repository
-
-```bash
-git clone https://github.com/YOUR_USERNAME/garden-hacks-app.git
-```
-
-## Install Dependencies
-
-```bash
-npm install
-```
-
-## Run Development Server
-
-```bash
-npm run dev
-```
-
----
-
-# 🌍 Vision
-
-Garden Hacks App aims to become a trusted platform for sustainable gardening knowledge and a growing community of people who want healthier food, healthier soil, and a healthier future.
-
----
-
-# 👨‍💻 Author
-
-Created by Kaloian Hristov  
-
-
----
-
-# 📜 License
-
-This project is developed for educational and portfolio purposes.
+- Create their own hacks.
+- Select the group where the hack will be published.
+- Edit their own published hacks.
+- Delete their own published hacks.
+- Comment on hacks.
+- Like and save hacks.
+- Share hacks with the community.
