@@ -1,0 +1,130 @@
+import type { PublicGroup, PublicHack } from "./types";
+
+export const fallbackGroups: PublicGroup[] = [
+  {
+    id: 1,
+    title: "Organic Vegetables",
+    slug: "organic-vegetables",
+    description:
+      "Practical ideas for growing healthy vegetables without synthetic fertilizers or pesticides.",
+    imageUrl: "https://placehold.co/1200x800/e8f5dc/31572c/png?text=Organic+Vegetables",
+    membersCount: 4,
+    hacksCount: 2,
+  },
+  {
+    id: 2,
+    title: "Balcony Gardening",
+    slug: "balcony-gardening",
+    description:
+      "Small-space growing for balconies, windowsills, patios, and compact containers.",
+    imageUrl: "https://placehold.co/1200x800/e8f5dc/31572c/png?text=Balcony+Gardening",
+    membersCount: 4,
+    hacksCount: 1,
+  },
+  {
+    id: 3,
+    title: "Composting Masters",
+    slug: "composting-masters",
+    description:
+      "Compost recipes, leaf mold, worm-friendly systems, and soil food web habits.",
+    imageUrl: "https://placehold.co/1200x800/e8f5dc/31572c/png?text=Composting+Masters",
+    membersCount: 4,
+    hacksCount: 1,
+  },
+  {
+    id: 4,
+    title: "Natural Pest Control",
+    slug: "natural-pest-control",
+    description:
+      "Gentle prevention methods that protect crops while keeping the garden alive.",
+    imageUrl: "https://placehold.co/1200x800/e8f5dc/31572c/png?text=Natural+Pest+Control",
+    membersCount: 4,
+    hacksCount: 2,
+  },
+];
+
+export const fallbackHacks: PublicHack[] = [
+  {
+    id: 1,
+    title: "Small Garden Compost Pail That Does Not Smell",
+    slug: "small-garden-compost-pail-that-does-not-smell",
+    excerpt:
+      "A layered kitchen-scrap pail routine that stays balanced until it is ready for the outdoor heap.",
+    content:
+      "Line a lidded pail with dry shredded cardboard, add chopped vegetable scraps in thin layers, and cover each fresh layer with a handful of dry leaves or finished compost. Empty it twice a week into the main pile and rinse with diluted vinegar when needed. The dry carbon layer keeps fruit flies down and gives the pile a better start.",
+    imageUrl: "https://placehold.co/1200x800/e8f5dc/31572c/png?text=Compost+Pail",
+    category: "Composting",
+    group: "Composting Masters",
+    groupSlug: "composting-masters",
+    author: "Georgi Petrov",
+    difficulty: "easy",
+    isOrganic: true,
+    isChemicalFree: true,
+    sweetTomatoesCount: 5,
+    bitterCucumbersCount: 1,
+    ratingScore: 4,
+    commentsCount: 3,
+    comments: [
+      {
+        id: 1,
+        author: "Sofia Raykova",
+        text: "This would fit nicely in a small garden because it does not need special equipment.",
+      },
+      {
+        id: 2,
+        author: "Vasil Todorov",
+        text: "I like that this keeps the soil covered and feeds it slowly.",
+      },
+    ],
+  },
+  {
+    id: 2,
+    title: "Deep-Pot Balcony Tomatoes With Steady Moisture",
+    slug: "deep-pot-balcony-tomatoes-with-steady-moisture",
+    excerpt:
+      "A container setup for tomatoes that reduces drying stress on hot balconies.",
+    content:
+      "Use a deep container with drainage, bury the tomato stem lower than usual, and add a compost-rich mix under a straw mulch cap. Water slowly in the morning until the lower soil is damp, then check again in the evening during heat waves.",
+    imageUrl: "https://placehold.co/1200x800/e8f5dc/31572c/png?text=Balcony+Tomatoes",
+    category: "Balcony Gardening",
+    group: "Balcony Gardening",
+    groupSlug: "balcony-gardening",
+    author: "Mila Stoyanova",
+    difficulty: "medium",
+    isOrganic: true,
+    isChemicalFree: true,
+    sweetTomatoesCount: 5,
+    bitterCucumbersCount: 0,
+    ratingScore: 5,
+    commentsCount: 3,
+    comments: [
+      {
+        id: 3,
+        author: "Elena Markova",
+        text: "The steady moisture tip is useful for hot balconies.",
+      },
+    ],
+  },
+  {
+    id: 3,
+    title: "Leaf Mold Soil Sponge for Tired Beds",
+    slug: "leaf-mold-soil-sponge-for-tired-beds",
+    excerpt:
+      "Use aged leaves to improve water holding and soil texture without synthetic additives.",
+    content:
+      "Collect fallen leaves, moisten them, and pack them into a breathable sack or simple wire ring. After several months, crumble the dark material over beds before mulching. Leaf mold feeds soil life gently, improves moisture retention, and is especially useful in beds that crust after watering.",
+    imageUrl: "https://placehold.co/1200x800/e8f5dc/31572c/png?text=Leaf+Mold",
+    category: "Soil Regeneration",
+    group: "Soil Regeneration",
+    groupSlug: "soil-regeneration",
+    author: "Vasil Todorov",
+    difficulty: "medium",
+    isOrganic: true,
+    isChemicalFree: true,
+    sweetTomatoesCount: 5,
+    bitterCucumbersCount: 1,
+    ratingScore: 4,
+    commentsCount: 3,
+    comments: [],
+  },
+];
