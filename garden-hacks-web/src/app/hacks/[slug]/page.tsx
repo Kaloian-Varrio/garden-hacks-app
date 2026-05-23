@@ -61,7 +61,7 @@ export default async function HackDetailsPage({ params }: HackDetailsPageProps) 
             </h1>
             <p className="mt-4 text-base font-semibold text-[#405046]">
               By {hack.author} in{" "}
-              <Link href={`/groups#${hack.groupSlug}`} className="text-[#2f6f3e]">
+              <Link href={`/groups/${hack.groupSlug}`} className="text-[#2f6f3e]">
                 {hack.group}
               </Link>
             </p>

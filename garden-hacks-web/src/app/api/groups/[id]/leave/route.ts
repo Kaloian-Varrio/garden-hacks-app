@@ -3,17 +3,17 @@ import { and, eq, sql } from "drizzle-orm";
 import { db, groupMembers, groups } from "@/db";
 import { getCurrentUser } from "@/lib/auth/session";
 
-type GroupRouteContext = {
+type LeaveGroupRouteContext = {
   params: Promise<{
     id: string;
   }>;
 };
 
-export async function DELETE(_request: Request, { params }: GroupRouteContext) {
+export async function POST(_request: Request, { params }: LeaveGroupRouteContext) {
   const user = await getCurrentUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    return NextResponse.json({ error: "Login is required to leave groups." }, { status: 401 });
   }
 
   const { id } = await params;
@@ -43,7 +43,6 @@ export async function DELETE(_request: Request, { params }: GroupRouteContext) {
   }
 
   await db.delete(groupMembers).where(eq(groupMembers.id, membership.id));
-
   await db
     .update(groups)
     .set({

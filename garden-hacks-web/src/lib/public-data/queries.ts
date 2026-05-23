@@ -1,6 +1,11 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { fallbackGroups, fallbackHacks } from "./fallback";
-import type { PublicGroup, PublicHack, PublicHackComment } from "./types";
+import type {
+  PublicGroup,
+  PublicGroupDetail,
+  PublicHack,
+  PublicHackComment,
+} from "./types";
 
 const canUseDatabase = () => Boolean(process.env.DATABASE_URL);
 
@@ -27,6 +32,137 @@ export async function getPublicGroups(limit?: number): Promise<PublicGroup[]> {
     }));
   } catch {
     return limit ? fallbackGroups.slice(0, limit) : fallbackGroups;
+  }
+}
+
+export async function getPublicGroupBySlug(
+  slug: string,
+  viewerUserId?: number,
+): Promise<PublicGroupDetail | null> {
+  if (!canUseDatabase()) {
+    const group = fallbackGroups.find((item) => item.slug === slug);
+
+    if (!group) {
+      return null;
+    }
+
+    return {
+      ...group,
+      managers: [],
+      hacks: fallbackHacks.filter((hack) => hack.groupSlug === group.slug),
+      viewerMembership: null,
+    };
+  }
+
+  try {
+    const { db, gardeningHacks, groupMembers, groups } = await import("@/db");
+    const group = await db.query.groups.findFirst({
+      where: eq(groups.slug, slug),
+      with: {
+        members: {
+          where: eq(groupMembers.groupRole, "manager"),
+          with: {
+            user: {
+              columns: {
+                id: true,
+                name: true,
+                photoUrl: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!group) {
+      return null;
+    }
+
+    const [hacks, viewerMembership] = await Promise.all([
+      db.query.gardeningHacks.findMany({
+        where: and(
+          eq(gardeningHacks.groupId, group.id),
+          eq(gardeningHacks.status, "published"),
+        ),
+        orderBy: [
+          desc(gardeningHacks.ratingScore),
+          desc(gardeningHacks.createdAt),
+        ],
+        with: {
+          author: {
+            columns: {
+              name: true,
+            },
+          },
+          category: {
+            columns: {
+              title: true,
+            },
+          },
+          group: {
+            columns: {
+              title: true,
+              slug: true,
+            },
+          },
+        },
+      }),
+      viewerUserId
+        ? db.query.groupMembers.findFirst({
+            where: and(
+              eq(groupMembers.groupId, group.id),
+              eq(groupMembers.userId, viewerUserId),
+            ),
+            columns: {
+              id: true,
+              groupRole: true,
+            },
+          })
+        : Promise.resolve(null),
+    ]);
+
+    return {
+      id: group.id,
+      title: group.title,
+      slug: group.slug,
+      description: group.description,
+      imageUrl: group.imageUrl,
+      membersCount: group.membersCount,
+      hacksCount: group.hacksCount,
+      managers: group.members.map((membership) => ({
+        id: membership.user.id,
+        name: membership.user.name,
+        photoUrl: membership.user.photoUrl,
+      })),
+      hacks: hacks.map((hack) => ({
+        id: hack.id,
+        title: hack.title,
+        slug: hack.slug,
+        excerpt: hack.excerpt,
+        content: hack.content,
+        imageUrl: hack.imageUrl,
+        category: hack.category.title,
+        group: hack.group.title,
+        groupSlug: hack.group.slug,
+        author: hack.author.name,
+        difficulty: hack.difficulty,
+        isOrganic: hack.isOrganic,
+        isChemicalFree: hack.isChemicalFree,
+        sweetTomatoesCount: hack.sweetTomatoesCount,
+        bitterCucumbersCount: hack.bitterCucumbersCount,
+        ratingScore: hack.ratingScore,
+        commentsCount: hack.commentsCount,
+        comments: [],
+      })),
+      viewerMembership: viewerMembership
+        ? {
+            id: viewerMembership.id,
+            groupRole: viewerMembership.groupRole,
+          }
+        : null,
+    };
+  } catch {
+    return null;
   }
 }
 

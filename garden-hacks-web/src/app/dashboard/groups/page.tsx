@@ -57,7 +57,7 @@ export default async function MyGroupsPage() {
                 </div>
                 <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
                   <Link
-                    href={`/groups#${membership.slug}`}
+                    href={`/groups/${membership.slug}`}
                     className="inline-flex min-h-10 items-center justify-center rounded-md border border-[#b7c8ad] bg-white px-3 py-2 text-sm font-semibold text-[#203525] hover:bg-[#f1f7ed]"
                   >
                     Group page

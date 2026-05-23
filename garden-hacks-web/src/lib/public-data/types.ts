@@ -8,6 +8,21 @@ export type PublicGroup = {
   hacksCount: number;
 };
 
+export type PublicGroupManager = {
+  id: number;
+  name: string;
+  photoUrl: string | null;
+};
+
+export type PublicGroupDetail = PublicGroup & {
+  managers: PublicGroupManager[];
+  hacks: PublicHack[];
+  viewerMembership: {
+    id: number;
+    groupRole: "member" | "manager";
+  } | null;
+};
+
 export type PublicHackComment = {
   id: number;
   author: string;

@@ -4,6 +4,7 @@ import {
   categories,
   db,
   gardeningHacks,
+  groupMembers,
   groups,
   userPointsLog,
   users,
@@ -67,6 +68,23 @@ export async function PUT(request: Request, { params }: HackRouteContext) {
 
     if (!category) {
       return NextResponse.json({ error: "Selected category does not exist." }, { status: 400 });
+    }
+
+    if (payload.status === "published" && user.role !== "admin") {
+      const membership = await db.query.groupMembers.findFirst({
+        where: and(
+          eq(groupMembers.groupId, payload.groupId),
+          eq(groupMembers.userId, user.id),
+        ),
+        columns: { id: true },
+      });
+
+      if (!membership) {
+        return NextResponse.json(
+          { error: "Join this group before publishing a hack inside it." },
+          { status: 403 },
+        );
+      }
     }
 
     const publishPointsNeeded =
