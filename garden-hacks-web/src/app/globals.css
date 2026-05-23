@@ -21,3 +21,20 @@ body {
 * {
   box-sizing: border-box;
 }
+
+.dashboard-input {
+  min-height: 2.75rem;
+  width: 100%;
+  border-radius: 0.375rem;
+  border: 1px solid #cbd9c2;
+  background: #f8faf7;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  color: #18231c;
+  outline: none;
+}
+
+.dashboard-input:focus {
+  border-color: #7da06d;
+  box-shadow: 0 0 0 3px rgba(125, 160, 109, 0.22);
+}
