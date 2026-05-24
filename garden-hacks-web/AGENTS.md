@@ -1,3 +1,8 @@
+# Neon MCP Database Access Rules
+-
+Connect Neon MCP only to a database project
+named `Garden Hacks` in my Neon account
+
 # Garden Hacks Next.js app
   - Garden Hacks App is a community-driven platform for sharing sustainable, organic, and regenerative gardening hacks.The platform allows registered users and administrators to publish useful gardening tips, hacks, and real-life tested practices. The platform includes thematic gardening groups and communities where registered users can join discussions based on their interests, exchange experience, ask questions, and share useful knowledge.
 
