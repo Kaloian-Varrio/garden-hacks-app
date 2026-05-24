@@ -1,25 +1,18 @@
 import { NextResponse } from "next/server";
 import { and, eq, sql } from "drizzle-orm";
 import { db, groupMembers, groups } from "@/db";
-import { getCurrentUser } from "@/lib/auth/session";
+import { parseIdParam, requireApiUser, type RouteContext } from "@/lib/api/http";
 
-type JoinGroupRouteContext = {
-  params: Promise<{
-    id: string;
-  }>;
-};
-
-export async function POST(_request: Request, { params }: JoinGroupRouteContext) {
-  const user = await getCurrentUser();
+export async function POST(request: Request, { params }: RouteContext) {
+  const { user, response } = await requireApiUser(request);
 
   if (!user) {
-    return NextResponse.json({ error: "Login is required to join groups." }, { status: 401 });
+    return response;
   }
 
-  const { id } = await params;
-  const groupId = Number(id);
+  const groupId = await parseIdParam(params);
 
-  if (!Number.isInteger(groupId) || groupId <= 0) {
+  if (!groupId) {
     return NextResponse.json({ error: "Invalid group id." }, { status: 400 });
   }
 
@@ -61,5 +54,21 @@ export async function POST(_request: Request, { params }: JoinGroupRouteContext)
     })
     .where(eq(groups.id, groupId));
 
-  return NextResponse.json({ membership }, { status: 201 });
+  const updatedGroup = await db.query.groups.findFirst({
+    where: eq(groups.id, groupId),
+    columns: {
+      id: true,
+      membersCount: true,
+    },
+  });
+
+  return NextResponse.json(
+    {
+      success: true,
+      isJoined: true,
+      membership,
+      membersCount: updatedGroup?.membersCount ?? null,
+    },
+    { status: 201 },
+  );
 }

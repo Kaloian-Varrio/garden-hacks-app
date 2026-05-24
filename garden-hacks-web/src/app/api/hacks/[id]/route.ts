@@ -1,15 +1,17 @@
 import { NextResponse } from "next/server";
-import { and, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 import {
   categories,
   db,
   gardeningHacks,
+  hackComments,
   groupMembers,
   groups,
   userPointsLog,
   users,
 } from "@/db";
 import { getCurrentUser } from "@/lib/auth/session";
+import { getOptionalApiUser } from "@/lib/api/http";
 import { createUniqueHackSlug } from "@/lib/dashboard/slug";
 import { parseHackPayload } from "@/lib/dashboard/validation";
 
@@ -24,6 +26,104 @@ type HackRouteContext = {
 async function getOwnedHack(userId: number, hackId: number) {
   return db.query.gardeningHacks.findFirst({
     where: and(eq(gardeningHacks.id, hackId), eq(gardeningHacks.authorId, userId)),
+  });
+}
+
+export async function GET(request: Request, { params }: HackRouteContext) {
+  const { id } = await params;
+  const hackId = Number(id);
+
+  if (!Number.isInteger(hackId) || hackId <= 0) {
+    return NextResponse.json({ error: "Invalid hack id." }, { status: 400 });
+  }
+
+  const url = new URL(request.url);
+  const commentsOrder = url.searchParams.get("commentsOrder") === "oldest" ? "oldest" : "newest";
+  const viewer = await getOptionalApiUser(request);
+  const hack = await db.query.gardeningHacks.findFirst({
+    where: and(eq(gardeningHacks.id, hackId), eq(gardeningHacks.status, "published")),
+    with: {
+      author: {
+        columns: {
+          id: true,
+          name: true,
+          photoUrl: true,
+        },
+      },
+      group: {
+        columns: {
+          id: true,
+          title: true,
+          slug: true,
+        },
+      },
+      category: {
+        columns: {
+          id: true,
+          title: true,
+          slug: true,
+        },
+      },
+      comments: {
+        orderBy: commentsOrder === "oldest" ? [asc(hackComments.createdAt)] : [desc(hackComments.createdAt)],
+        limit: 50,
+        columns: {
+          id: true,
+          text: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+        with: {
+          user: {
+            columns: {
+              id: true,
+              name: true,
+              photoUrl: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!hack) {
+    return NextResponse.json({ error: "Hack not found." }, { status: 404 });
+  }
+
+  const [like, saved, vote] = viewer
+    ? await Promise.all([
+        db.query.hackLikes.findFirst({
+          where: (row, { and: all, eq: equals }) =>
+            all(equals(row.hackId, hackId), equals(row.userId, viewer.id)),
+          columns: { id: true },
+        }),
+        db.query.savedHacks.findFirst({
+          where: (row, { and: all, eq: equals }) =>
+            all(equals(row.hackId, hackId), equals(row.userId, viewer.id)),
+          columns: { id: true },
+        }),
+        db.query.hackVotes.findFirst({
+          where: (row, { and: all, eq: equals }) =>
+            all(equals(row.hackId, hackId), equals(row.userId, viewer.id)),
+          columns: { voteType: true },
+        }),
+      ])
+    : [null, null, null];
+
+  return NextResponse.json({
+    hack: {
+      ...hack,
+      comments: hack.comments.map((comment) => ({
+        id: comment.id,
+        text: comment.text,
+        createdAt: comment.createdAt,
+        updatedAt: comment.updatedAt,
+        author: comment.user,
+      })),
+      isLiked: Boolean(like),
+      isSaved: Boolean(saved),
+      userVote: vote?.voteType ?? null,
+    },
   });
 }
 

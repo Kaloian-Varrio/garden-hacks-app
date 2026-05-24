@@ -39,12 +39,14 @@ export async function POST(request: Request) {
 
   const token = createJwtToken(user);
   const response = NextResponse.json({
+    token,
     user: {
       id: user.id,
       email: user.email,
       name: user.name,
       role: user.role,
       pointsBalance: user.pointsBalance,
+      photoUrl: user.photoUrl,
     },
   });
 

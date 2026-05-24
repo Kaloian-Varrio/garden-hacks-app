@@ -15,6 +15,7 @@ export type AuthUser = {
   name: string;
   role: "user" | "admin";
   pointsBalance: number;
+  photoUrl: string | null;
 };
 
 type JwtPayload = {
@@ -72,6 +73,61 @@ export function verifyJwtToken(token: string): JwtPayload | null {
   }
 }
 
+export function getJwtTokenFromRequest(request: Request) {
+  const authorization = request.headers.get("authorization");
+
+  if (authorization?.toLowerCase().startsWith("bearer ")) {
+    return authorization.slice(7).trim();
+  }
+
+  const cookieHeader = request.headers.get("cookie");
+
+  if (!cookieHeader) {
+    return null;
+  }
+
+  const cookie = cookieHeader
+    .split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(`${AUTH_COOKIE_NAME}=`));
+
+  return cookie ? decodeURIComponent(cookie.slice(AUTH_COOKIE_NAME.length + 1)) : null;
+}
+
+export async function getUserFromJwtToken(token: string): Promise<AuthUser | null> {
+  const payload = verifyJwtToken(token);
+
+  if (!payload) {
+    return null;
+  }
+
+  const userId = Number(payload.sub);
+
+  if (!Number.isInteger(userId)) {
+    return null;
+  }
+
+  const user = await db.query.users.findFirst({
+    where: eq(users.id, userId),
+    columns: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      pointsBalance: true,
+      photoUrl: true,
+    },
+  });
+
+  return user ?? null;
+}
+
+export function getUserFromRequest(request: Request) {
+  const token = getJwtTokenFromRequest(request);
+
+  return token ? getUserFromJwtToken(token) : Promise.resolve(null);
+}
+
 export function getAuthCookieOptions() {
   return {
     httpOnly: true,
@@ -103,30 +159,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     return null;
   }
 
-  const payload = verifyJwtToken(token);
-
-  if (!payload) {
-    return null;
-  }
-
-  const userId = Number(payload.sub);
-
-  if (!Number.isInteger(userId)) {
-    return null;
-  }
-
-  const user = await db.query.users.findFirst({
-    where: eq(users.id, userId),
-    columns: {
-      id: true,
-      email: true,
-      name: true,
-      role: true,
-      pointsBalance: true,
-    },
-  });
-
-  return user ?? null;
+  return getUserFromJwtToken(token);
 }
 
 export async function requireCurrentUser() {
