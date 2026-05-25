@@ -27,7 +27,7 @@ export default function HomeScreen() {
               <View style={styles.actions}>
                 <Link href="/hacks" asChild>
                   <Pressable style={styles.primaryLink}>
-                    <Text style={styles.primaryLinkText}>Go to Hacks</Text>
+                    <Text style={styles.primaryLinkText}>View Hacks</Text>
                   </Pressable>
                 </Link>
 

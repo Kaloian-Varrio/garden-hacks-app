@@ -51,7 +51,7 @@ function getNetworkErrorMessage() {
   return `Unable to connect to the Garden Hacks API at ${getApiBaseUrl()}. Make sure the Next.js server is running.`;
 }
 
-function getApiBaseUrl() {
+export function getApiBaseUrl() {
   if (!API_BASE_URL) {
     throw new Error("EXPO_PUBLIC_API_BASE_URL is not configured.");
   }
