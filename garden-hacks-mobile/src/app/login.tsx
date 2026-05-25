@@ -121,6 +121,10 @@ export default function LoginScreen() {
                 {isSubmitting ? "Logging in..." : "Login"}
               </Text>
             </Pressable>
+
+            <Text style={styles.registerHint}>
+              Don&apos;t have an account? Register through the web app.
+            </Text>
           </View>
 
           <View style={styles.actions}>
@@ -197,10 +201,9 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     alignItems: "center",
-    alignSelf: "flex-start",
+    alignSelf: "stretch",
     backgroundColor: "#1f6b3a",
     borderRadius: 8,
-    minWidth: 140,
     paddingHorizontal: 18,
     paddingVertical: 13,
   },
@@ -208,6 +211,13 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     fontSize: 16,
     fontWeight: "700",
+  },
+  registerHint: {
+    color: "#6b746d",
+    fontSize: 18,
+    lineHeight: 26,
+    marginTop: 18,
+    textAlign: "center",
   },
   secondaryLink: {
     alignItems: "center",
