@@ -7,12 +7,12 @@
   "type": "commonjs",
   "private": true,
   "workspaces": [
-    "garden-hacks",
+    "garden-hacks-web",
     "garden-hacks-mobile",
     "garden-hacks-shared"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
-    "dev": "npx --yes concurrently -k -n web,mobile -c cyan,magenta \"npm run dev --workspace garden-hacks\" \"npm run start --workspace garden-hacks-mobile\""
+    "dev": "npx --yes concurrently -k -n web,mobile -c cyan,magenta \"npm run dev --workspace garden-hacks-web\" \"npm run start --workspace garden-hacks-mobile\""
   }
 }
