@@ -1,23 +1,30 @@
 import { Link } from "expo-router";
+import Head from "expo-router/head";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function HomeScreen() {
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.eyebrow}>Garden Hacks</Text>
-        <Text style={styles.title}>Welcome to Garden Hacks</Text>
-        <Text style={styles.copy}>
-          Grow healthier food with practical, sustainable gardening ideas.
-        </Text>
+    <>
+      <Head>
+        <title>Garden Hacks | Home</title>
+      </Head>
 
-        <Link href="/login" asChild>
-          <Pressable style={styles.primaryLink}>
-            <Text style={styles.primaryLinkText}>Login</Text>
-          </Pressable>
-        </Link>
+      <View style={styles.container}>
+        <View style={styles.content}>
+          <Text style={styles.eyebrow}>Garden Hacks</Text>
+          <Text style={styles.title}>Welcome to Garden Hacks</Text>
+          <Text style={styles.copy}>
+            Grow healthier food with practical, sustainable gardening ideas.
+          </Text>
+
+          <Link href="/login" asChild>
+            <Pressable style={styles.primaryLink}>
+              <Text style={styles.primaryLinkText}>Login</Text>
+            </Pressable>
+          </Link>
+        </View>
       </View>
-    </View>
+    </>
   );
 }
 

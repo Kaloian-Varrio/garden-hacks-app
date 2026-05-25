@@ -1,25 +1,32 @@
 import { Link } from "expo-router";
+import Head from "expo-router/head";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function LoginScreen() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+    <>
+      <Head>
+        <title>Garden Hacks | Login</title>
+      </Head>
 
-      <View style={styles.actions}>
-        <Link href="/" asChild>
-          <Pressable style={styles.secondaryLink}>
-            <Text style={styles.secondaryLinkText}>Back to Home</Text>
-          </Pressable>
-        </Link>
+      <View style={styles.container}>
+        <Text style={styles.title}>Login</Text>
 
-        <Link href="/hacks" asChild>
-          <Pressable style={styles.primaryLink}>
-            <Text style={styles.primaryLinkText}>Go to Hacks</Text>
-          </Pressable>
-        </Link>
+        <View style={styles.actions}>
+          <Link href="/" asChild>
+            <Pressable style={styles.secondaryLink}>
+              <Text style={styles.secondaryLinkText}>Back to Home</Text>
+            </Pressable>
+          </Link>
+
+          <Link href="/hacks" asChild>
+            <Pressable style={styles.primaryLink}>
+              <Text style={styles.primaryLinkText}>Go to Hacks</Text>
+            </Pressable>
+          </Link>
+        </View>
       </View>
-    </View>
+    </>
   );
 }
 
