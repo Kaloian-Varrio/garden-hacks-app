@@ -8,6 +8,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { DashboardNav } from "../components/dashboard";
 import { getApiBaseUrl, RequireAuth, useAuth } from "../lib/auth";
 
 type HackListItem = {
@@ -96,12 +97,13 @@ function HacksContent() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <DashboardNav />
       <Text style={styles.title}>Garden Hacks</Text>
 
       <View style={styles.menu}>
-        <Link href="/favorite-hacks" asChild>
+        <Link href="/saved-hacks" asChild>
           <Pressable style={styles.menuLink}>
-            <Text style={styles.menuLinkText}>My Favorite Hacks</Text>
+            <Text style={styles.menuLinkText}>Saved Hacks</Text>
           </Pressable>
         </Link>
 

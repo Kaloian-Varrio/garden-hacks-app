@@ -23,10 +23,9 @@ export default function RootLayout() {
         <Stack.Screen name="register" options={{ title: "Register" }} />
         <Stack.Screen name="hacks" options={{ title: "Garden Hacks" }} />
         <Stack.Screen name="hack-details" options={{ title: "Hack Details" }} />
-        <Stack.Screen
-          name="favorite-hacks"
-          options={{ title: "My Favorite Hacks" }}
-        />
+        <Stack.Screen name="my-hacks" options={{ title: "My Hacks" }} />
+        <Stack.Screen name="saved-hacks" options={{ title: "Saved Hacks" }} />
+        <Stack.Screen name="my-groups" options={{ title: "My Groups" }} />
         <Stack.Screen name="add-new-hack" options={{ title: "Add New Hack" }} />
       </Stack>
     </AuthProvider>

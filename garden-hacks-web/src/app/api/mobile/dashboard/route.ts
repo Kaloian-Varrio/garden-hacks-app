@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { and, count, desc, eq } from "drizzle-orm";
-import { db, gardeningHacks, groupMembers, savedHacks } from "@/db";
+import { db, gardeningHacks, groupMembers, savedHacks, userPointsLog } from "@/db";
 import { requireApiUser } from "@/lib/api/http";
 
 export async function GET(request: Request) {
@@ -16,6 +16,8 @@ export async function GET(request: Request) {
     savedHacksRows,
     recentUserHacks,
     joinedGroups,
+    savedHackItems,
+    recentActivity,
   ] = await Promise.all([
     db
       .select({ count: count() })
@@ -88,6 +90,61 @@ export async function GET(request: Request) {
         },
       },
     }),
+    db.query.savedHacks.findMany({
+      where: eq(savedHacks.userId, user.id),
+      orderBy: [desc(savedHacks.createdAt)],
+      limit: 5,
+      columns: {
+        id: true,
+        createdAt: true,
+      },
+      with: {
+        hack: {
+          columns: {
+            id: true,
+            title: true,
+            slug: true,
+            excerpt: true,
+            imageUrl: true,
+            ratingScore: true,
+          },
+          with: {
+            group: {
+              columns: {
+                id: true,
+                title: true,
+                slug: true,
+              },
+            },
+            category: {
+              columns: {
+                id: true,
+                title: true,
+                slug: true,
+              },
+            },
+          },
+        },
+      },
+    }),
+    db.query.userPointsLog.findMany({
+      where: eq(userPointsLog.userId, user.id),
+      orderBy: [desc(userPointsLog.createdAt)],
+      limit: 5,
+      columns: {
+        id: true,
+        reason: true,
+        points: true,
+        createdAt: true,
+      },
+      with: {
+        hack: {
+          columns: {
+            title: true,
+          },
+        },
+      },
+    }),
   ]);
 
   return NextResponse.json({
@@ -103,6 +160,18 @@ export async function GET(request: Request) {
     joinedGroupsCount: Number(joinedGroupsRows[0]?.count ?? 0),
     savedHacksCount: Number(savedHacksRows[0]?.count ?? 0),
     recentUserHacks,
+    recentActivity: recentActivity.map((item) => ({
+      id: item.id,
+      reason: item.reason,
+      points: item.points,
+      hackTitle: item.hack?.title ?? null,
+      createdAt: item.createdAt,
+    })),
+    savedHacks: savedHackItems.map((item) => ({
+      id: item.id,
+      savedAt: item.createdAt,
+      hack: item.hack,
+    })),
     joinedGroups: joinedGroups.map((membership) => ({
       membershipId: membership.id,
       groupRole: membership.groupRole,
@@ -111,4 +180,3 @@ export async function GET(request: Request) {
     })),
   });
 }
-

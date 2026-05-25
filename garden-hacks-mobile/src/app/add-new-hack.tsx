@@ -1,6 +1,7 @@
 import { Link } from "expo-router";
 import Head from "expo-router/head";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { DashboardNav } from "../components/dashboard";
 import { RequireAuth } from "../lib/auth";
 
 export default function AddNewHackScreen() {
@@ -12,6 +13,7 @@ export default function AddNewHackScreen() {
 
       <RequireAuth>
         <View style={styles.container}>
+          <DashboardNav />
           <Text style={styles.title}>Add New Hack</Text>
           <Text style={styles.copy}>
             The mobile hack creation form will be added here.
