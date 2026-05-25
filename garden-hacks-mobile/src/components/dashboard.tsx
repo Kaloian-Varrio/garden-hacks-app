@@ -21,13 +21,16 @@ export function DashboardNav() {
         return (
           <Link href={item.href} asChild key={item.href}>
             <Pressable
-              style={[styles.navItem, isActive ? styles.navItemActive : null]}
+              style={StyleSheet.flatten([
+                styles.navItem,
+                isActive ? styles.navItemActive : null,
+              ])}
             >
               <Text
-                style={[
+                style={StyleSheet.flatten([
                   styles.navItemText,
                   isActive ? styles.navItemTextActive : null,
-                ]}
+                ])}
               >
                 {item.label}
               </Text>
