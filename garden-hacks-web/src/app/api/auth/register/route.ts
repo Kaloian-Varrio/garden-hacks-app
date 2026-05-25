@@ -34,9 +34,9 @@ export async function POST(request: Request) {
     return validationError({ email: "Please enter a valid email address." });
   }
 
-  if (password.length < 6) {
+  if (password.length < 5) {
     return validationError({
-      password: "Password must be at least 6 characters long.",
+      password: "Password must be at least 5 characters long.",
     });
   }
 

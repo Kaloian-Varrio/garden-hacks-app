@@ -27,12 +27,17 @@ type LoginPayload = {
   password: string;
 };
 
+type RegisterPayload = LoginPayload & {
+  name: string;
+};
+
 type AuthContextValue = {
   isReady: boolean;
   token: string | null;
   user: AuthUser | null;
   login: (payload: LoginPayload) => Promise<void>;
   logout: () => void;
+  register: (payload: RegisterPayload) => Promise<void>;
 };
 
 type ErrorResponse = {
@@ -163,15 +168,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setStoredToken(data.token);
   }, []);
 
+  const register = useCallback(
+    async ({ email, name, password }: RegisterPayload) => {
+      let response: Response;
+
+      try {
+        response = await fetch(`${getApiBaseUrl()}/auth/register`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name,
+            email,
+            password,
+          }),
+        });
+      } catch {
+        throw new Error(getNetworkErrorMessage());
+      }
+
+      if (!response.ok) {
+        throw new Error(await readErrorMessage(response));
+      }
+
+      const data = (await response.json()) as {
+        token: string;
+        user: AuthUser;
+      };
+
+      setToken(data.token);
+      setUser(data.user);
+      setStoredToken(data.token);
+    },
+    [],
+  );
+
   const value = useMemo(
     () => ({
       isReady,
       login,
       logout,
+      register,
       token,
       user,
     }),
-    [isReady, login, logout, token, user],
+    [isReady, login, logout, register, token, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

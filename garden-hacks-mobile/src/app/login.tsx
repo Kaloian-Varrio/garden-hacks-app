@@ -122,9 +122,13 @@ export default function LoginScreen() {
               </Text>
             </Pressable>
 
-            <Text style={styles.registerHint}>
-              Don&apos;t have an account? Register through the web app.
-            </Text>
+            <Link href="/register" asChild>
+              <Pressable style={styles.registerLink}>
+                <Text style={styles.registerLinkText}>
+                  Don&apos;t have an account? Create one here.
+                </Text>
+              </Pressable>
+            </Link>
           </View>
 
           <View style={styles.actions}>
@@ -212,11 +216,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
   },
-  registerHint: {
+  registerLink: {
+    alignItems: "center",
+    marginTop: 18,
+  },
+  registerLinkText: {
     color: "#6b746d",
     fontSize: 18,
     lineHeight: 26,
-    marginTop: 18,
     textAlign: "center",
   },
   secondaryLink: {
