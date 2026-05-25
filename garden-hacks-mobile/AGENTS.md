@@ -9,7 +9,8 @@ Read the exact versioned docs at https://docs.expo.dev/versions/v55.0.0/ before 
 # Tech Guidline: 
    - Technologies:React Native + Expo + Expo Router
    - Back-end: Garden Hacks RESTful API, with "Bearer token" auth
-   - Back-end API source code: `..garden-hacks\src\app\api`
+   - Back-end API documentation - http://localhos:3000/api/docs
+   - Back-end API source code: `..garden-hacks-web\src\app\api`
    - Modular design: split the app into meaningfull components, to avoid too much code in a single file andreuse repiting code
     - RESTful API backend
 
