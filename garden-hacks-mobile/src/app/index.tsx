@@ -8,7 +8,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { DashboardNav, DashboardStatCard } from "../components/dashboard";
+import { DashboardHeader, DashboardStatCard } from "../components/dashboard";
 import { useAuth } from "../lib/auth";
 import {
   fetchMobileDashboard,
@@ -17,7 +17,7 @@ import {
 } from "../lib/dashboard";
 
 export default function HomeScreen() {
-  const { logout, token, user } = useAuth();
+  const { token, user } = useAuth();
   const [dashboard, setDashboard] = useState<MobileDashboard | null>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -67,6 +67,8 @@ export default function HomeScreen() {
 
       {user ? (
         <ScrollView contentContainerStyle={styles.dashboardContainer}>
+          <DashboardHeader title="Overview" />
+
           <View style={styles.userPanel}>
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>
@@ -78,10 +80,6 @@ export default function HomeScreen() {
               <Text style={styles.dashboardTitle}>Welcome, {user.name}</Text>
               <Text style={styles.email}>{user.email}</Text>
             </View>
-          </View>
-
-          <View style={styles.navPanel}>
-            <DashboardNav />
           </View>
 
           {isLoading ? <Text style={styles.message}>Loading dashboard...</Text> : null}
@@ -156,10 +154,6 @@ export default function HomeScreen() {
               </View>
             </>
           ) : null}
-
-          <Pressable onPress={logout} style={styles.logoutLink}>
-            <Text style={styles.logoutText}>Logout</Text>
-          </Pressable>
         </ScrollView>
       ) : (
         <View style={styles.guestContainer}>
@@ -281,30 +275,9 @@ const styles = StyleSheet.create({
   list: {
     gap: 10,
   },
-  logoutLink: {
-    alignItems: "center",
-    alignSelf: "flex-start",
-    borderColor: "#1f6b3a",
-    borderRadius: 8,
-    borderWidth: 1,
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-  },
-  logoutText: {
-    color: "#1f6b3a",
-    fontSize: 16,
-    fontWeight: "800",
-  },
   message: {
     color: "#3f5142",
     fontSize: 16,
-  },
-  navPanel: {
-    backgroundColor: "#ffffff",
-    borderColor: "#dfe8d8",
-    borderRadius: 8,
-    borderWidth: 1,
-    padding: 10,
   },
   points: {
     color: "#2f6f3e",

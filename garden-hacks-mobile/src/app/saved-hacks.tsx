@@ -2,7 +2,7 @@ import { Link } from "expo-router";
 import Head from "expo-router/head";
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { DashboardNav } from "../components/dashboard";
+import { DashboardHeader } from "../components/dashboard";
 import { RequireAuth, useAuth } from "../lib/auth";
 import {
   fetchMobileDashboard,
@@ -63,7 +63,7 @@ function SavedHacksContent() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <DashboardNav />
+      <DashboardHeader title="Saved Hacks" />
       <Text style={styles.title}>Saved Hacks</Text>
       {isLoading ? <Text style={styles.message}>Loading saved hacks...</Text> : null}
       {error ? <Text style={styles.error}>{error}</Text> : null}

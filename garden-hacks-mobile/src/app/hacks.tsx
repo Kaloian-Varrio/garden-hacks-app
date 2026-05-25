@@ -8,7 +8,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { DashboardNav } from "../components/dashboard";
+import { DashboardHeader } from "../components/dashboard";
 import { getApiBaseUrl, RequireAuth, useAuth } from "../lib/auth";
 
 type HackListItem = {
@@ -97,7 +97,7 @@ function HacksContent() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <DashboardNav />
+      <DashboardHeader title="Garden Hacks" />
       <Text style={styles.title}>Garden Hacks</Text>
 
       <View style={styles.menu}>

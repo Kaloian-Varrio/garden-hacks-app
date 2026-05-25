@@ -1,7 +1,7 @@
 import Head from "expo-router/head";
 import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { DashboardNav } from "../components/dashboard";
+import { DashboardHeader } from "../components/dashboard";
 import { RequireAuth, useAuth } from "../lib/auth";
 import {
   fetchMobileDashboard,
@@ -62,7 +62,7 @@ function MyGroupsContent() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <DashboardNav />
+      <DashboardHeader title="My Groups" />
       <Text style={styles.title}>My Groups</Text>
       {isLoading ? <Text style={styles.message}>Loading groups...</Text> : null}
       {error ? <Text style={styles.error}>{error}</Text> : null}
