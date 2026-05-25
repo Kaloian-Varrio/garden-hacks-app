@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "node:path";
 
 const nextConfig: NextConfig = {
   images: {
@@ -10,7 +11,7 @@ const nextConfig: NextConfig = {
     ],
   },
   turbopack: {
-    root: __dirname,
+    root: path.join(__dirname, ".."),
   },
 };
 
