@@ -1,5 +1,6 @@
 import { Link } from "expo-router";
 import Head from "expo-router/head";
+import { useEffect, useState } from "react";
 import {
   Pressable,
   ScrollView,
@@ -7,13 +8,56 @@ import {
   Text,
   View,
 } from "react-native";
-import { DashboardHeader } from "../components/dashboard";
+import { DashboardHeader, DashboardStatCard } from "../components/dashboard";
 import { useAuth } from "../lib/auth";
-
-import { HacksContent } from "./hacks";
+import {
+  fetchMobileDashboard,
+  formatActivityReason,
+  type MobileDashboard,
+} from "../lib/dashboard";
 
 export default function HomeScreen() {
-  const { user } = useAuth();
+  const { token, user } = useAuth();
+  const [dashboard, setDashboard] = useState<MobileDashboard | null>(null);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function loadDashboard() {
+      if (!token) {
+        setDashboard(null);
+        setError("");
+        return;
+      }
+
+      setIsLoading(true);
+      setError("");
+
+      try {
+        const data = await fetchMobileDashboard(token);
+
+        if (isActive) {
+          setDashboard(data);
+        }
+      } catch {
+        if (isActive) {
+          setError("Unable to load dashboard. Make sure the API is running.");
+        }
+      } finally {
+        if (isActive) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    loadDashboard();
+
+    return () => {
+      isActive = false;
+    };
+  }, [token]);
 
   return (
     <>
@@ -22,7 +66,95 @@ export default function HomeScreen() {
       </Head>
 
       {user ? (
-        <HacksContent />
+        <ScrollView contentContainerStyle={styles.dashboardContainer}>
+          <DashboardHeader title="Overview" />
+
+          <View style={styles.userPanel}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>
+                {user.name.slice(0, 2).toUpperCase()}
+              </Text>
+            </View>
+            <View style={styles.userText}>
+              <Text style={styles.eyebrow}>Dashboard overview</Text>
+              <Text style={styles.dashboardTitle}>Welcome, {user.name}</Text>
+              <Text style={styles.email}>{user.email}</Text>
+            </View>
+          </View>
+
+          {isLoading ? <Text style={styles.message}>Loading dashboard...</Text> : null}
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+
+          {dashboard ? (
+            <>
+              <View style={styles.statsGrid}>
+                <DashboardStatCard
+                  label="Points balance"
+                  value={dashboard.pointsBalance}
+                />
+                <DashboardStatCard
+                  label="Published hacks"
+                  value={dashboard.publishedHacksCount}
+                />
+                <DashboardStatCard
+                  label="Joined groups"
+                  value={dashboard.joinedGroupsCount}
+                />
+                <DashboardStatCard
+                  label="Saved hacks"
+                  value={dashboard.savedHacksCount}
+                />
+              </View>
+
+              <View style={styles.section}>
+                <View style={styles.sectionHeader}>
+                  <View>
+                    <Text style={styles.sectionTitle}>Recent activity</Text>
+                    <Text style={styles.sectionCopy}>
+                      Points earned from publishing and community reactions.
+                    </Text>
+                  </View>
+
+                  <Link href="/add-new-hack" asChild>
+                    <Pressable style={styles.primaryLink}>
+                      <Text style={styles.primaryLinkText}>Create Hack</Text>
+                    </Pressable>
+                  </Link>
+                </View>
+
+                {dashboard.recentActivity.length > 0 ? (
+                  <View style={styles.list}>
+                    {dashboard.recentActivity.map((item) => (
+                      <View style={styles.activityItem} key={item.id}>
+                        <View style={styles.activityText}>
+                          <Text style={styles.activityTitle}>
+                            {formatActivityReason(item.reason)}
+                          </Text>
+                          <Text style={styles.activityMeta}>
+                            {item.hackTitle ?? "Account activity"}
+                          </Text>
+                        </View>
+                        <Text style={styles.points}>+{item.points}</Text>
+                      </View>
+                    ))}
+                  </View>
+                ) : (
+                  <View style={styles.emptyState}>
+                    <Text style={styles.emptyTitle}>No activity yet</Text>
+                    <Text style={styles.emptyCopy}>
+                      Publish your first gardening hack to start earning points.
+                    </Text>
+                    <Link href="/add-new-hack" asChild>
+                      <Pressable style={styles.secondaryLink}>
+                        <Text style={styles.secondaryLinkText}>Create Hack</Text>
+                      </Pressable>
+                    </Link>
+                  </View>
+                )}
+              </View>
+            </>
+          ) : null}
+        </ScrollView>
       ) : (
         <View style={styles.guestContainer}>
           <View style={styles.content}>

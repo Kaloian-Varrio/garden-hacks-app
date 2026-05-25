@@ -54,7 +54,7 @@ export function DashboardHeader({ title }: { title: string }) {
           onPress={() => setIsOpen(true)}
           style={styles.menuButton}
         >
-          <Text style={styles.menuButtonText}>☰</Text>
+          <Text style={styles.menuButtonText}>Menu</Text>
         </Pressable>
 
         <View style={styles.headerText}>
@@ -64,7 +64,7 @@ export function DashboardHeader({ title }: { title: string }) {
       </View>
 
       {isOpen ? (
-        <View style={StyleSheet.flatten([styles.modalRoot, { height }])}>
+        <View style={StyleSheet.flatten([styles.drawerRoot, { height }])}>
           <Pressable
             accessibilityLabel="Close dashboard menu"
             onPress={closeDrawer}
@@ -87,7 +87,7 @@ export function DashboardHeader({ title }: { title: string }) {
                 onPress={closeDrawer}
                 style={styles.closeButton}
               >
-                <Text style={styles.closeButtonText}>×</Text>
+                <Text style={styles.closeButtonText}>Close</Text>
               </Pressable>
             </View>
 
@@ -152,16 +152,17 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     alignItems: "center",
+    borderColor: "#dfe8d8",
     borderRadius: 8,
-    height: 40,
+    borderWidth: 1,
     justifyContent: "center",
-    width: 40,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
   },
   closeButtonText: {
     color: "#16351f",
-    fontSize: 28,
-    fontWeight: "700",
-    lineHeight: 30,
+    fontSize: 13,
+    fontWeight: "800",
   },
   drawer: {
     backgroundColor: "#f7faf5",
@@ -207,6 +208,14 @@ const styles = StyleSheet.create({
   },
   drawerNav: {
     gap: 8,
+  },
+  drawerRoot: {
+    bottom: 0,
+    left: -24,
+    position: "absolute",
+    right: -24,
+    top: -24,
+    zIndex: 100,
   },
   drawerSubtitle: {
     color: "#59655c",
@@ -259,21 +268,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     height: 44,
     justifyContent: "center",
-    width: 44,
+    paddingHorizontal: 10,
   },
   menuButtonText: {
     color: "#ffffff",
-    fontSize: 24,
+    fontSize: 14,
     fontWeight: "900",
-    lineHeight: 26,
-  },
-  modalRoot: {
-    bottom: 0,
-    left: -24,
-    position: "absolute",
-    right: -24,
-    top: -24,
-    zIndex: 100,
   },
   statCard: {
     backgroundColor: "#ffffff",

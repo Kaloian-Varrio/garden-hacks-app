@@ -1,0 +1,11 @@
+[build]
+  base = "garden-hacks-web"
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NPM_FLAGS = "--include-workspace-root=false"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
