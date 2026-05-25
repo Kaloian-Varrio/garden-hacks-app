@@ -1,8 +1,11 @@
 import { Link } from "expo-router";
 import Head from "expo-router/head";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useAuth } from "../lib/auth";
 
 export default function HomeScreen() {
+  const { logout, user } = useAuth();
+
   return (
     <>
       <Head>
@@ -17,11 +20,29 @@ export default function HomeScreen() {
             Grow healthier food with practical, sustainable gardening ideas.
           </Text>
 
-          <Link href="/login" asChild>
-            <Pressable style={styles.primaryLink}>
-              <Text style={styles.primaryLinkText}>Login</Text>
-            </Pressable>
-          </Link>
+          {user ? (
+            <>
+              <Text style={styles.sessionText}>Logged in as {user.name}</Text>
+
+              <View style={styles.actions}>
+                <Link href="/hacks" asChild>
+                  <Pressable style={styles.primaryLink}>
+                    <Text style={styles.primaryLinkText}>Go to Hacks</Text>
+                  </Pressable>
+                </Link>
+
+                <Pressable onPress={logout} style={styles.secondaryLink}>
+                  <Text style={styles.secondaryLinkText}>Logout</Text>
+                </Pressable>
+              </View>
+            </>
+          ) : (
+            <Link href="/login" asChild>
+              <Pressable style={styles.primaryLink}>
+                <Text style={styles.primaryLinkText}>Login</Text>
+              </Pressable>
+            </Link>
+          )}
         </View>
       </View>
     </>
@@ -29,6 +50,11 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  actions: {
+    alignItems: "flex-start",
+    gap: 12,
+    marginTop: 10,
+  },
   container: {
     flex: 1,
     justifyContent: "center",
@@ -67,6 +93,25 @@ const styles = StyleSheet.create({
   primaryLinkText: {
     color: "#ffffff",
     fontSize: 16,
+    fontWeight: "700",
+  },
+  secondaryLink: {
+    alignItems: "center",
+    borderColor: "#1f6b3a",
+    borderRadius: 8,
+    borderWidth: 1,
+    minWidth: 120,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+  },
+  secondaryLinkText: {
+    color: "#1f6b3a",
+    fontSize: 16,
+    fontWeight: "700",
+  },
+  sessionText: {
+    color: "#1f4d2e",
+    fontSize: 15,
     fontWeight: "700",
   },
 });

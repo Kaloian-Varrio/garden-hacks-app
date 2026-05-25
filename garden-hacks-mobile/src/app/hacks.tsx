@@ -1,6 +1,7 @@
 import { Link } from "expo-router";
 import Head from "expo-router/head";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { RequireAuth } from "../lib/auth";
 
 export default function HacksScreen() {
   return (
@@ -9,7 +10,8 @@ export default function HacksScreen() {
         <title>Garden Hacks | Hacks</title>
       </Head>
 
-      <View style={styles.container}>
+      <RequireAuth>
+        <View style={styles.container}>
         <Text style={styles.title}>Hacks</Text>
 
         <Link href="/hack-details" asChild>
@@ -17,7 +19,8 @@ export default function HacksScreen() {
             <Text style={styles.linkText}>View Hack Details</Text>
           </Pressable>
         </Link>
-      </View>
+        </View>
+      </RequireAuth>
     </>
   );
 }

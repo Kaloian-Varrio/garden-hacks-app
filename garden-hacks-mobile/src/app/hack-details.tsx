@@ -1,5 +1,6 @@
 import Head from "expo-router/head";
 import { StyleSheet, Text, View } from "react-native";
+import { RequireAuth } from "../lib/auth";
 
 export default function HackDetailsScreen() {
   return (
@@ -8,9 +9,11 @@ export default function HackDetailsScreen() {
         <title>Garden Hacks | Hack Details</title>
       </Head>
 
-      <View style={styles.container}>
-        <Text style={styles.title}>Hack Details</Text>
-      </View>
+      <RequireAuth>
+        <View style={styles.container}>
+          <Text style={styles.title}>Hack Details</Text>
+        </View>
+      </RequireAuth>
     </>
   );
 }
