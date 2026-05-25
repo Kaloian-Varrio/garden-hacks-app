@@ -30,7 +30,7 @@ export default function HacksScreen() {
   return (
     <>
       <Head>
-        <title>Garden Hacks | Hacks</title>
+        <title>Garden Hacks | Garden Hacks</title>
       </Head>
 
       <RequireAuth>
@@ -96,7 +96,23 @@ function HacksContent() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Hacks</Text>
+      <Text style={styles.title}>Garden Hacks</Text>
+
+      <View style={styles.menu}>
+        <Link href="/favorite-hacks" asChild>
+          <Pressable style={styles.menuLink}>
+            <Text style={styles.menuLinkText}>My Favorite Hacks</Text>
+          </Pressable>
+        </Link>
+
+        <Text style={styles.menuSeparator}>|</Text>
+
+        <Link href="/add-new-hack" asChild>
+          <Pressable style={styles.menuLink}>
+            <Text style={styles.menuLinkText}>Add New Hack</Text>
+          </Pressable>
+        </Link>
+      </View>
 
       {isLoading ? <Text style={styles.message}>Loading hacks...</Text> : null}
       {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -118,19 +134,25 @@ function HacksContent() {
             <Pressable style={styles.hackItem}>
               <Text style={styles.hackTitle}>{hack.title}</Text>
               <Text style={styles.hackMeta}>
-                {hack.group.title} · {hack.category.title} · {hack.difficulty}
+                {hack.group.title} | {hack.category.title} | {hack.difficulty}
               </Text>
               {hack.excerpt ? (
                 <Text style={styles.excerpt}>{hack.excerpt}</Text>
               ) : null}
               <Text style={styles.hackStats}>
-                Rating {hack.ratingScore} · {hack.likesCount} likes ·{" "}
+                Rating {hack.ratingScore} | {hack.likesCount} likes |{" "}
                 {hack.commentsCount} comments
               </Text>
             </Pressable>
           </Link>
         ))}
       </View>
+
+      <Link href="/" asChild>
+        <Pressable style={styles.homeButton}>
+          <Text style={styles.homeButtonText}>Back to Home</Text>
+        </Pressable>
+      </Link>
     </ScrollView>
   );
 }
@@ -175,8 +197,42 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     lineHeight: 25,
   },
+  homeButton: {
+    alignItems: "center",
+    alignSelf: "flex-start",
+    borderColor: "#1f6b3a",
+    borderRadius: 8,
+    borderWidth: 1,
+    marginTop: 8,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+  },
+  homeButtonText: {
+    color: "#1f6b3a",
+    fontSize: 16,
+    fontWeight: "700",
+  },
   list: {
     gap: 12,
+  },
+  menu: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+  },
+  menuLink: {
+    paddingVertical: 4,
+  },
+  menuLinkText: {
+    color: "#1f6b3a",
+    fontSize: 15,
+    fontWeight: "800",
+  },
+  menuSeparator: {
+    color: "#7a897d",
+    fontSize: 15,
+    fontWeight: "700",
   },
   message: {
     color: "#3f5142",
