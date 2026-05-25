@@ -41,7 +41,7 @@ export default function HacksScreen() {
   );
 }
 
-function HacksContent() {
+export function HacksContent() {
   const { token } = useAuth();
   const [hacks, setHacks] = useState<HackListItem[]>([]);
   const [error, setError] = useState("");
@@ -60,8 +60,8 @@ function HacksContent() {
           {
             headers: token
               ? {
-                  Authorization: `Bearer ${token}`,
-                }
+                Authorization: `Bearer ${token}`,
+              }
               : undefined,
           },
         );
