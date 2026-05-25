@@ -1,11 +1,8 @@
 [build]
-  base = "garden-hacks-web"
+  base = "garden-hacks-mobile"
   command = "npm install --include=optional && npm run build"
-  publish = ".next"
+  publish = "dist"
 
 [build.environment]
   NODE_VERSION = "22"
   NPM_FLAGS = "--include=optional"
-
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
