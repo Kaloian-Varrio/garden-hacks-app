@@ -12,7 +12,13 @@ export const metadata: Metadata = {
   title: "Groups",
 };
 
-export default async function GroupsPage() {
+type GroupsPageProps = {
+  searchParams?: Promise<{
+    left?: string | string[];
+  }>;
+};
+
+export default async function GroupsPage({ searchParams }: GroupsPageProps) {
   const user = await getCurrentUser();
 
   if (!user) {
@@ -21,6 +27,8 @@ export default async function GroupsPage() {
 
   const groups = await getUserGroups(user);
   const canCreateGroups = isAdmin(user);
+  const resolvedSearchParams = await searchParams;
+  const leftGroup = readSearchParam(resolvedSearchParams?.left) === "1";
 
   return (
     <div className="px-4 py-12 sm:px-6 lg:px-8">
@@ -39,6 +47,11 @@ export default async function GroupsPage() {
             </Link>
           ) : null}
         </div>
+        {leftGroup ? (
+          <p className="mt-6 rounded-md border border-[#b8d6ad] bg-[#ecf7e8] px-4 py-3 text-sm font-semibold text-[#285d35]">
+            You left the group.
+          </p>
+        ) : null}
 
         {groups.length > 0 ? (
           <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -114,4 +127,8 @@ export default async function GroupsPage() {
       </div>
     </div>
   );
+}
+
+function readSearchParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
 }

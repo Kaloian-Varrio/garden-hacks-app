@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { and, eq, sql } from "drizzle-orm";
+import { and, count, eq, sql } from "drizzle-orm";
 import { db, groupMembers, groups } from "@/db";
 import { parseIdParam, requireApiUser, type RouteContext } from "@/lib/api/http";
 
@@ -29,10 +29,25 @@ export async function POST(request: Request, { params }: RouteContext) {
   }
 
   if (membership.groupRole === "manager") {
-    return NextResponse.json(
-      { error: "Group managers cannot leave from this flow." },
-      { status: 400 },
-    );
+    const [managerCountRow] = await db
+      .select({ count: count() })
+      .from(groupMembers)
+      .where(
+        and(
+          eq(groupMembers.groupId, groupId),
+          eq(groupMembers.groupRole, "manager"),
+        ),
+      );
+
+    if (Number(managerCountRow?.count ?? 0) <= 1) {
+      return NextResponse.json(
+        {
+          error:
+            "You cannot leave this group because you are the only group manager.",
+        },
+        { status: 400 },
+      );
+    }
   }
 
   await db.delete(groupMembers).where(eq(groupMembers.id, membership.id));

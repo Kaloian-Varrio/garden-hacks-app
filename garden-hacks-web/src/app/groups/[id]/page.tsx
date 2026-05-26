@@ -100,6 +100,16 @@ export default async function GroupDetailsPage({
                 </Link>
               </div>
             ) : null}
+            {group.viewerIsMember ? (
+              <div className={group.canManage ? "mt-3" : "mt-7"}>
+                <Link
+                  href={`/groups/${group.id}/leave`}
+                  className="inline-flex min-h-11 items-center justify-center rounded-md border border-[#efb5a8] bg-white px-5 py-2.5 text-sm font-semibold text-[#8a2d1c] hover:bg-[#fff0eb]"
+                >
+                  Leave Group
+                </Link>
+              </div>
+            ) : null}
           </div>
         </div>
       </section>

@@ -58,3 +58,11 @@ export type GroupFormValues = {
   description: string;
   imageUrl: string;
 };
+
+export type LeaveGroupInfo = {
+  id: number;
+  title: string;
+  membershipId: number;
+  groupRole: "member" | "manager";
+  managerCount: number;
+};

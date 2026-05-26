@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, count, desc, eq } from "drizzle-orm";
 import { db, gardeningHacks, groupMembers, groups } from "@/db";
 import type { AuthUser } from "@/lib/auth/session";
 import { isAdmin } from "./authorization";
@@ -8,6 +8,7 @@ import type {
   GroupHackItem,
   GroupFormValues,
   GroupMemberItem,
+  LeaveGroupInfo,
   UserGroupDetail,
   UserGroupListItem,
 } from "./types";
@@ -168,6 +169,49 @@ export async function getEditableGroup(
         imageUrl: group.imageUrl ?? "",
       }
     : null;
+}
+
+export async function getLeaveGroupInfo(
+  userId: number,
+  groupId: number,
+): Promise<LeaveGroupInfo | null> {
+  const membership = await db.query.groupMembers.findFirst({
+    where: and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)),
+    columns: {
+      id: true,
+      groupRole: true,
+    },
+    with: {
+      group: {
+        columns: {
+          id: true,
+          title: true,
+        },
+      },
+    },
+  });
+
+  if (!membership) {
+    return null;
+  }
+
+  const [managerCountRow] = await db
+    .select({ count: count() })
+    .from(groupMembers)
+    .where(
+      and(
+        eq(groupMembers.groupId, groupId),
+        eq(groupMembers.groupRole, "manager"),
+      ),
+    );
+
+  return {
+    id: membership.group.id,
+    title: membership.group.title,
+    membershipId: membership.id,
+    groupRole: membership.groupRole,
+    managerCount: Number(managerCountRow?.count ?? 0),
+  };
 }
 
 async function buildGroupDetail(

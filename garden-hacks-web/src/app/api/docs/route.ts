@@ -39,7 +39,7 @@ const docsHtml = `<!doctype html>
           <tr><td>GET</td><td><code>/api/groups?page=1&pageSize=10</code></td><td>Optional JWT</td><td>List groups with <code>isJoined</code> when authenticated.</td></tr>
           <tr><td>GET</td><td><code>/api/groups/{id}</code></td><td>Optional JWT</td><td>Group details, managers, recent published hacks, membership state.</td></tr>
           <tr><td>POST</td><td><code>/api/groups/{id}/join</code></td><td><span class="badge">JWT</span></td><td>Join a group as a member.</td></tr>
-          <tr><td>POST</td><td><code>/api/groups/{id}/leave</code></td><td><span class="badge">JWT</span></td><td>Leave a group unless the user is a manager.</td></tr>
+          <tr><td>POST</td><td><code>/api/groups/{id}/leave</code></td><td><span class="badge">JWT</span></td><td>Leave a group. Managers can leave only when another manager remains.</td></tr>
           <tr><td>GET</td><td><code>/api/hacks?page=1&pageSize=10&amp;groupId=1&amp;categoryId=1&amp;difficulty=easy&amp;sort=top</code></td><td>Optional JWT</td><td>List published hacks. Sort values: <code>newest</code>, <code>top</code>, <code>most_liked</code>.</td></tr>
           <tr><td>GET</td><td><code>/api/hacks/{id}?commentsOrder=newest</code></td><td>Optional JWT</td><td>Published hack details with comments and viewer state.</td></tr>
           <tr><td>POST</td><td><code>/api/hacks/{id}/like</code></td><td><span class="badge">JWT</span></td><td>Toggle like. Returns <code>isLiked</code> and <code>likesCount</code>.</td></tr>

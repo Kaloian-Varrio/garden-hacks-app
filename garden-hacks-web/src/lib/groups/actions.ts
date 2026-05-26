@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { and, count, eq, sql } from "drizzle-orm";
 import { db, groupMembers, groups } from "@/db";
 import { getCurrentUser } from "@/lib/auth/session";
 import { slugify } from "@/lib/dashboard/slug";
@@ -130,6 +130,56 @@ export async function deleteGroupAction(groupId: number) {
 
   revalidatePath("/groups");
   redirect("/groups");
+}
+
+export async function leaveGroupAction(groupId: number) {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const membership = await db.query.groupMembers.findFirst({
+    where: and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)),
+    columns: {
+      id: true,
+      groupRole: true,
+    },
+  });
+
+  if (!membership) {
+    redirect(`/groups/${groupId}/leave?error=not-member`);
+  }
+
+  if (membership.groupRole === "manager") {
+    const [managerCountRow] = await db
+      .select({ count: count() })
+      .from(groupMembers)
+      .where(
+        and(
+          eq(groupMembers.groupId, groupId),
+          eq(groupMembers.groupRole, "manager"),
+        ),
+      );
+    const managerCount = Number(managerCountRow?.count ?? 0);
+
+    if (managerCount <= 1) {
+      redirect(`/groups/${groupId}/leave?error=only-manager`);
+    }
+  }
+
+  await db.delete(groupMembers).where(eq(groupMembers.id, membership.id));
+  await db
+    .update(groups)
+    .set({
+      membersCount: sql<number>`greatest(${groups.membersCount} - 1, 0)`,
+      updatedAt: new Date(),
+    })
+    .where(eq(groups.id, groupId));
+
+  revalidatePath("/groups");
+  revalidatePath(`/groups/${groupId}`);
+  redirect("/groups?left=1");
 }
 
 function readGroupFormValues(formData: FormData) {

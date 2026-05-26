@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { LeaveGroupButton } from "@/components/dashboard/leave-group-button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getDashboardGroups } from "@/lib/dashboard/queries";
@@ -62,7 +61,12 @@ export default async function MyGroupsPage() {
                   >
                     Group page
                   </Link>
-                  <LeaveGroupButton groupId={membership.groupId} />
+                  <Link
+                    href={`/groups/${membership.groupId}/leave`}
+                    className="inline-flex min-h-10 items-center justify-center rounded-md border border-[#efb5a8] bg-white px-3 py-2 text-sm font-semibold text-[#8a2d1c] hover:bg-[#fff0eb]"
+                  >
+                    Leave group
+                  </Link>
                 </div>
               </div>
             </div>
