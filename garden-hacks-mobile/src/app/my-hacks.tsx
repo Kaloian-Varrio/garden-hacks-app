@@ -1,8 +1,15 @@
 import { Link } from "expo-router";
 import Head from "expo-router/head";
 import { useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { DashboardHeader } from "../components/dashboard";
+import {
+  GardenBadge,
+  GardenButton,
+  GardenCard,
+  StateNotice,
+  gardenTheme,
+} from "../components/garden-ui";
 import { RequireAuth, useAuth } from "../lib/auth";
 import {
   fetchMobileDashboard,
@@ -65,32 +72,34 @@ function MyHacksContent() {
     <ScrollView contentContainerStyle={styles.container}>
       <DashboardHeader title="My Hacks" />
       <Text style={styles.title}>My Hacks</Text>
-      {isLoading ? <Text style={styles.message}>Loading your hacks...</Text> : null}
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {isLoading ? (
+        <StateNotice tone="loading" title="Loading your hacks..." />
+      ) : null}
+      {error ? <StateNotice tone="error" title={error} /> : null}
       {dashboard && dashboard.recentUserHacks.length === 0 ? (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyTitle}>No hacks yet</Text>
-          <Text style={styles.message}>
-            Create your first gardening hack to start earning points.
-          </Text>
-          <Link href="/add-new-hack" asChild>
-            <Pressable style={styles.link}>
-              <Text style={styles.linkText}>Create Hack</Text>
-            </Pressable>
-          </Link>
-        </View>
+        <StateNotice
+          action={
+            <Link href="/add-new-hack" asChild>
+              <GardenButton>Create Hack</GardenButton>
+            </Link>
+          }
+          copy="Create your first gardening hack to start earning points."
+          title="No hacks yet"
+        />
       ) : null}
       <View style={styles.list}>
         {dashboard?.recentUserHacks.map((hack) => (
-          <View style={styles.item} key={hack.id}>
+          <GardenCard style={styles.item} key={hack.id}>
+            <View style={styles.badges}>
+              <GardenBadge tone="sky">{hack.group.title}</GardenBadge>
+              <GardenBadge tone="mint">{hack.category.title}</GardenBadge>
+              <GardenBadge tone="cream">{hack.status}</GardenBadge>
+            </View>
             <Text style={styles.itemTitle}>{hack.title}</Text>
-            <Text style={styles.meta}>
-              {hack.group.title} | {hack.category.title} | {hack.status}
-            </Text>
             <Text style={styles.meta}>
               Rating {hack.ratingScore} | {hack.commentsCount ?? 0} comments
             </Text>
-          </View>
+          </GardenCard>
         ))}
       </View>
     </ScrollView>
@@ -98,70 +107,35 @@ function MyHacksContent() {
 }
 
 const styles = StyleSheet.create({
+  badges: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
   container: {
     gap: 16,
-    padding: 24,
-  },
-  emptyState: {
-    backgroundColor: "#ffffff",
-    borderColor: "#dfe8d8",
-    borderRadius: 8,
-    borderWidth: 1,
-    gap: 10,
-    padding: 16,
-  },
-  emptyTitle: {
-    color: "#18231c",
-    fontSize: 17,
-    fontWeight: "900",
-  },
-  error: {
-    color: "#a32626",
-    fontSize: 15,
-    fontWeight: "700",
+    padding: 20,
   },
   item: {
-    backgroundColor: "#ffffff",
-    borderColor: "#dfe8d8",
-    borderRadius: 8,
-    borderWidth: 1,
     gap: 8,
-    padding: 16,
   },
   itemTitle: {
-    color: "#16351f",
-    fontSize: 18,
+    color: gardenTheme.colors.text,
+    fontSize: 20,
     fontWeight: "900",
-  },
-  link: {
-    alignItems: "center",
-    alignSelf: "flex-start",
-    backgroundColor: "#1f6b3a",
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 11,
-  },
-  linkText: {
-    color: "#ffffff",
-    fontSize: 15,
-    fontWeight: "800",
+    lineHeight: 25,
   },
   list: {
     gap: 12,
   },
-  message: {
-    color: "#3f5142",
-    fontSize: 15,
-    lineHeight: 21,
-  },
   meta: {
-    color: "#59655c",
+    color: gardenTheme.colors.leaf,
     fontSize: 13,
-    fontWeight: "700",
+    fontWeight: "900",
     textTransform: "capitalize",
   },
   title: {
-    color: "#16351f",
+    color: gardenTheme.colors.text,
     fontSize: 28,
     fontWeight: "900",
   },

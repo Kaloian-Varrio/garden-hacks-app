@@ -2,6 +2,12 @@ import Head from "expo-router/head";
 import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { DashboardHeader } from "../components/dashboard";
+import {
+  GardenBadge,
+  GardenCard,
+  StateNotice,
+  gardenTheme,
+} from "../components/garden-ui";
 import { RequireAuth, useAuth } from "../lib/auth";
 import {
   fetchMobileDashboard,
@@ -64,22 +70,24 @@ function MyGroupsContent() {
     <ScrollView contentContainerStyle={styles.container}>
       <DashboardHeader title="My Groups" />
       <Text style={styles.title}>My Groups</Text>
-      {isLoading ? <Text style={styles.message}>Loading groups...</Text> : null}
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {isLoading ? <StateNotice tone="loading" title="Loading groups..." /> : null}
+      {error ? <StateNotice tone="error" title={error} /> : null}
       {dashboard && dashboard.joinedGroups.length === 0 ? (
-        <Text style={styles.message}>You have not joined any groups yet.</Text>
+        <StateNotice title="You have not joined any groups yet" />
       ) : null}
       <View style={styles.list}>
         {dashboard?.joinedGroups.map((group) => (
-          <View style={styles.item} key={group.membershipId}>
+          <GardenCard style={styles.item} key={group.membershipId}>
+            <View style={styles.badges}>
+              <GardenBadge tone="mint">{group.groupRole}</GardenBadge>
+              <GardenBadge tone="sky">{group.membersCount} members</GardenBadge>
+              <GardenBadge tone="cream">{group.hacksCount} hacks</GardenBadge>
+            </View>
             <Text style={styles.itemTitle}>{group.title}</Text>
-            <Text style={styles.meta}>
-              {group.groupRole} | {group.membersCount} members | {group.hacksCount} hacks
-            </Text>
             {group.description ? (
               <Text style={styles.message}>{group.description}</Text>
             ) : null}
-          </View>
+          </GardenCard>
         ))}
       </View>
     </ScrollView>
@@ -87,44 +95,33 @@ function MyGroupsContent() {
 }
 
 const styles = StyleSheet.create({
+  badges: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
   container: {
     gap: 16,
-    padding: 24,
-  },
-  error: {
-    color: "#a32626",
-    fontSize: 15,
-    fontWeight: "700",
+    padding: 20,
   },
   item: {
-    backgroundColor: "#ffffff",
-    borderColor: "#dfe8d8",
-    borderRadius: 8,
-    borderWidth: 1,
     gap: 8,
-    padding: 16,
   },
   itemTitle: {
-    color: "#16351f",
-    fontSize: 18,
+    color: gardenTheme.colors.text,
+    fontSize: 20,
     fontWeight: "900",
   },
   list: {
     gap: 12,
   },
   message: {
-    color: "#3f5142",
+    color: gardenTheme.colors.muted,
     fontSize: 15,
     lineHeight: 21,
   },
-  meta: {
-    color: "#59655c",
-    fontSize: 13,
-    fontWeight: "700",
-    textTransform: "capitalize",
-  },
   title: {
-    color: "#16351f",
+    color: gardenTheme.colors.text,
     fontSize: 28,
     fontWeight: "900",
   },

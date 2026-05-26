@@ -11,6 +11,14 @@ import {
   TextInput,
   View,
 } from "react-native";
+import {
+  BrandLogo,
+  GardenButton,
+  GardenCard,
+  HackVisual,
+  StateNotice,
+  gardenTheme,
+} from "../components/garden-ui";
 import { useAuth } from "../lib/auth";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -106,12 +114,17 @@ export default function RegisterScreen() {
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
         >
-          <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.copy}>
-            Join Garden Hacks to save ideas and open protected app screens.
-          </Text>
+          <BrandLogo />
+          <HackVisual title="Garden Hacks Account" />
+          <View style={styles.heading}>
+            <Text style={styles.eyebrow}>Join the garden</Text>
+            <Text style={styles.title}>Create Account</Text>
+            <Text style={styles.copy}>
+              Join Garden Hacks to save ideas and open protected app screens.
+            </Text>
+          </View>
 
-          <View style={styles.form}>
+          <GardenCard style={styles.form}>
             <View style={styles.field}>
               <Text style={styles.label}>Name</Text>
               <TextInput
@@ -182,20 +195,17 @@ export default function RegisterScreen() {
               ) : null}
             </View>
 
-            {formError ? <Text style={styles.error}>{formError}</Text> : null}
+            {formError ? (
+              <StateNotice tone="error" title={formError} />
+            ) : null}
 
-            <Pressable
+            <GardenButton
               disabled={isSubmitting}
               onPress={handleRegister}
-              style={({ pressed }) => [
-                styles.primaryButton,
-                (pressed || isSubmitting) && styles.buttonPressed,
-              ]}
+              style={styles.fullButton}
             >
-              <Text style={styles.primaryButtonText}>
-                {isSubmitting ? "Creating account..." : "Create Account"}
-              </Text>
-            </Pressable>
+              {isSubmitting ? "Creating account..." : "Create Account"}
+            </GardenButton>
 
             <Link href="/login" asChild>
               <Pressable style={styles.loginLink}>
@@ -204,7 +214,7 @@ export default function RegisterScreen() {
                 </Text>
               </Pressable>
             </Link>
-          </View>
+          </GardenCard>
         </ScrollView>
       </KeyboardAvoidingView>
     </>
@@ -212,9 +222,6 @@ export default function RegisterScreen() {
 }
 
 const styles = StyleSheet.create({
-  buttonPressed: {
-    opacity: 0.72,
-  },
   container: {
     flex: 1,
   },
@@ -225,14 +232,20 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   copy: {
-    color: "#3f5142",
+    color: gardenTheme.colors.muted,
     fontSize: 16,
     lineHeight: 23,
   },
+  eyebrow: {
+    color: gardenTheme.colors.primaryDark,
+    fontSize: 12,
+    fontWeight: "900",
+    textTransform: "uppercase",
+  },
   error: {
-    color: "#a32626",
+    color: gardenTheme.colors.danger,
     fontSize: 14,
-    fontWeight: "700",
+    fontWeight: "800",
   },
   field: {
     gap: 7,
@@ -240,47 +253,40 @@ const styles = StyleSheet.create({
   form: {
     gap: 14,
   },
+  fullButton: {
+    alignSelf: "stretch",
+  },
+  heading: {
+    gap: 7,
+  },
   input: {
     backgroundColor: "#ffffff",
-    borderColor: "#c9d8c8",
-    borderRadius: 8,
+    borderColor: gardenTheme.colors.border,
+    borderRadius: 18,
     borderWidth: 1,
-    color: "#16351f",
+    color: gardenTheme.colors.text,
     fontSize: 16,
     paddingHorizontal: 14,
     paddingVertical: 12,
   },
   label: {
-    color: "#263c2b",
+    color: gardenTheme.colors.text,
     fontSize: 14,
-    fontWeight: "700",
+    fontWeight: "900",
   },
   loginLink: {
     alignItems: "center",
     marginTop: 8,
   },
   loginLinkText: {
-    color: "#1f6b3a",
+    color: gardenTheme.colors.primaryDark,
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: "800",
     textAlign: "center",
   },
-  primaryButton: {
-    alignItems: "center",
-    alignSelf: "stretch",
-    backgroundColor: "#1f6b3a",
-    borderRadius: 8,
-    paddingHorizontal: 18,
-    paddingVertical: 13,
-  },
-  primaryButtonText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "700",
-  },
   title: {
-    color: "#16351f",
-    fontSize: 28,
-    fontWeight: "800",
+    color: gardenTheme.colors.text,
+    fontSize: 34,
+    fontWeight: "900",
   },
 });

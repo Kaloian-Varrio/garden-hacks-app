@@ -1,5 +1,6 @@
 import { Stack } from "expo-router";
 import { AuthProvider } from "../lib/auth";
+import { gardenTheme } from "../components/garden-ui";
 
 export default function RootLayout() {
   return (
@@ -7,14 +8,15 @@ export default function RootLayout() {
       <Stack
         screenOptions={{
           headerStyle: {
-            backgroundColor: "#f7faf5",
+            backgroundColor: gardenTheme.colors.background,
           },
-          headerTintColor: "#16351f",
+          headerShadowVisible: false,
+          headerTintColor: gardenTheme.colors.text,
           headerTitleStyle: {
-            fontWeight: "700",
+            fontWeight: "900",
           },
           contentStyle: {
-            backgroundColor: "#f7faf5",
+            backgroundColor: gardenTheme.colors.background,
           },
         }}
       >

@@ -9,6 +9,17 @@ import {
   TextInput,
   View,
 } from "react-native";
+import {
+  CommentIcon,
+  GardenBadge,
+  GardenButton,
+  GardenCard,
+  HackVisual,
+  SectionHeader,
+  StateNotice,
+  VoteButton,
+  gardenTheme,
+} from "../components/garden-ui";
 import { getApiBaseUrl, useAuth } from "../lib/auth";
 
 type HackComment = {
@@ -30,6 +41,7 @@ type HackDetail = {
   title: string;
   content: string;
   excerpt: string | null;
+  imageUrl?: string | null;
   difficulty: "easy" | "medium" | "hard";
   isOrganic: boolean;
   isChemicalFree: boolean;
@@ -341,40 +353,39 @@ function HackDetailsContent() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Link href="/hacks" asChild>
-        <Pressable style={styles.backLink}>
-          <Text style={styles.backLinkText}>Back to Hacks</Text>
-        </Pressable>
+        <GardenButton variant="secondary">Back to Hacks</GardenButton>
       </Link>
 
-      {isLoading ? <Text style={styles.message}>Loading hack...</Text> : null}
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {isLoading ? <StateNotice tone="loading" title="Loading hack..." /> : null}
+      {error ? <StateNotice tone="error" title={error} /> : null}
 
       {hack ? (
         <View style={styles.content}>
-          <Text style={styles.title}>{hack.title}</Text>
-          <Text style={styles.meta}>
-            {hack.group.title} | {hack.category.title} | {hack.difficulty}
-          </Text>
-          {hack.excerpt ? <Text style={styles.excerpt}>{hack.excerpt}</Text> : null}
-          <Text style={styles.body}>{hack.content}</Text>
-          <Text style={styles.meta}>By {hack.author.name}</Text>
-          <View style={styles.stats}>
-            <Text style={styles.stat}>Rating {hack.ratingScore}</Text>
-            <Text style={styles.stat}>{hack.likesCount} likes</Text>
-            <Text style={styles.stat}>{hack.commentsCount} comments</Text>
-            <Text style={styles.stat}>
-              {hack.sweetTomatoesCount} Sweet Tomatoes
-            </Text>
-            <Text style={styles.stat}>
-              {hack.bitterCucumbersCount} Bitter Cucumbers
-            </Text>
+          <HackVisual imageUrl={hack.imageUrl} size="hero" title={hack.title} />
+          <View style={styles.badges}>
+            <GardenBadge tone="mint">{hack.category.title}</GardenBadge>
+            <GardenBadge tone="sky">{hack.group.title}</GardenBadge>
+            <GardenBadge tone="cream">{hack.difficulty}</GardenBadge>
+            {hack.isOrganic ? <GardenBadge tone="mint">Organic</GardenBadge> : null}
+            {hack.isChemicalFree ? (
+              <GardenBadge tone="tomato">Chemical-free</GardenBadge>
+            ) : null}
           </View>
+          <Text style={styles.title}>{hack.title}</Text>
+          {hack.excerpt ? <Text style={styles.excerpt}>{hack.excerpt}</Text> : null}
+          <Text style={styles.meta}>By {hack.author.name}</Text>
 
-          <View style={styles.votePanel}>
-            <View style={styles.voteHeader}>
-              <Text style={styles.voteTitle}>Vote for this hack</Text>
-              <Text style={styles.voteScore}>Rating: {hack.ratingScore}</Text>
-            </View>
+          <GardenCard style={styles.stats}>
+            <Stat label="Rating" value={hack.ratingScore} />
+            <Stat label="Likes" value={hack.likesCount} />
+            <Stat label="Comments" value={hack.commentsCount} />
+          </GardenCard>
+
+          <GardenCard style={styles.votePanel}>
+            <SectionHeader
+              copy={!token ? "Log in to vote on this hack." : undefined}
+              title="Vote for this hack"
+            />
             <View style={styles.voteActions}>
               <VoteButton
                 canVote={Boolean(token)}
@@ -383,6 +394,7 @@ function HackDetailsContent() {
                 isPending={pendingVote === "sweet_tomato"}
                 label="Sweet Tomatoes"
                 onPress={() => handleVote("sweet_tomato")}
+                type="positive"
               />
               <VoteButton
                 canVote={Boolean(token)}
@@ -391,22 +403,28 @@ function HackDetailsContent() {
                 isPending={pendingVote === "bitter_cucumber"}
                 label="Bitter Cucumbers"
                 onPress={() => handleVote("bitter_cucumber")}
+                type="negative"
               />
             </View>
-            {!token ? (
-              <Text style={styles.loginPrompt}>
-                Log in to vote.
-              </Text>
-            ) : null}
-            {voteError ? <Text style={styles.error}>{voteError}</Text> : null}
-          </View>
+            {voteError ? <StateNotice tone="error" title={voteError} /> : null}
+          </GardenCard>
 
-          <View style={styles.commentsSection}>
+          <GardenCard style={styles.article}>
+            <SectionHeader title="How it works" />
+            <Text style={styles.body}>{hack.content}</Text>
+          </GardenCard>
+
+          <GardenCard style={styles.commentsSection}>
             <View style={styles.commentsHeader}>
-              <Text style={styles.commentsTitle}>Comments</Text>
-              <Text style={styles.commentsCount}>
-                {comments.length} {comments.length === 1 ? "comment" : "comments"}
-              </Text>
+              <View style={styles.commentsTitleRow}>
+                <CommentIcon />
+                <View>
+                  <Text style={styles.commentsTitle}>Comments</Text>
+                  <Text style={styles.commentsCount}>
+                    {comments.length} {comments.length === 1 ? "comment" : "comments"}
+                  </Text>
+                </View>
+              </View>
             </View>
 
             <View style={styles.commentList}>
@@ -414,6 +432,11 @@ function HackDetailsContent() {
                 comments.map((comment) => (
                   <View style={styles.commentCard} key={comment.id}>
                     <View style={styles.commentHeader}>
+                      <View style={styles.commentAvatar}>
+                        <Text style={styles.commentAvatarText}>
+                          {getInitials(comment.author.name)}
+                        </Text>
+                      </View>
                       <View style={styles.commentAuthorBlock}>
                         <Text style={styles.commentAuthor}>
                           {comment.author.name}
@@ -451,32 +474,22 @@ function HackDetailsContent() {
                           value={editingCommentText}
                         />
                         {commentError ? (
-                          <Text style={styles.error}>{commentError}</Text>
+                          <StateNotice tone="error" title={commentError} />
                         ) : null}
                         <View style={styles.commentActions}>
-                          <Pressable
+                          <GardenButton
                             disabled={commentAction === "edit"}
                             onPress={handleSaveComment}
-                            style={({ pressed }) => [
-                              styles.primaryButton,
-                              (pressed || commentAction === "edit") &&
-                                styles.buttonPressed,
-                            ]}
                           >
-                            <Text style={styles.primaryButtonText}>
-                              {commentAction === "edit" ? "Saving..." : "Save"}
-                            </Text>
-                          </Pressable>
-                          <Pressable
+                            {commentAction === "edit" ? "Saving..." : "Save"}
+                          </GardenButton>
+                          <GardenButton
                             disabled={commentAction === "edit"}
                             onPress={cancelEditingComment}
-                            style={({ pressed }) => [
-                              styles.secondaryButton,
-                              pressed && styles.buttonPressed,
-                            ]}
+                            variant="secondary"
                           >
-                            <Text style={styles.secondaryButtonText}>Cancel</Text>
-                          </Pressable>
+                            Cancel
+                          </GardenButton>
                         </View>
                       </View>
                     ) : (
@@ -485,7 +498,10 @@ function HackDetailsContent() {
                   </View>
                 ))
               ) : (
-                <Text style={styles.emptyComments}>No comments yet.</Text>
+                <StateNotice
+                  copy="Start the conversation with a practical note or question."
+                  title="No comments yet"
+                />
               )}
             </View>
 
@@ -502,62 +518,28 @@ function HackDetailsContent() {
                 value={newCommentText}
               />
               {commentError && editingCommentId === null ? (
-                <Text style={styles.error}>{commentError}</Text>
+                <StateNotice tone="error" title={commentError} />
               ) : null}
-              <Pressable
+              <GardenButton
                 disabled={commentAction === "create"}
                 onPress={handleCreateComment}
-                style={({ pressed }) => [
-                  styles.primaryButton,
-                  (pressed || commentAction === "create") &&
-                    styles.buttonPressed,
-                ]}
               >
-                <Text style={styles.primaryButtonText}>
-                  {commentAction === "create" ? "Posting..." : "Post Comment"}
-                </Text>
-              </Pressable>
+                {commentAction === "create" ? "Posting..." : "Post Comment"}
+              </GardenButton>
             </View>
-          </View>
+          </GardenCard>
         </View>
       ) : null}
     </ScrollView>
   );
 }
 
-function VoteButton({
-  canVote,
-  count,
-  isActive,
-  isPending,
-  label,
-  onPress,
-}: {
-  canVote: boolean;
-  count: number;
-  isActive: boolean;
-  isPending: boolean;
-  label: string;
-  onPress: () => void;
-}) {
+function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <Pressable
-      disabled={!canVote || isPending}
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.voteButton,
-        isActive && styles.voteButtonActive,
-        (pressed || isPending) && styles.buttonPressed,
-      ]}
-    >
-      <View style={styles.voteButtonText}>
-        <Text style={styles.voteButtonLabel}>{label}</Text>
-        <Text style={styles.voteButtonStatus}>
-          {isActive ? "Your vote" : "Vote"}
-        </Text>
-      </View>
-      <Text style={styles.voteButtonCount}>{isPending ? "..." : count}</Text>
-    </Pressable>
+    <View style={styles.statItem}>
+      <Text style={styles.statValue}>{value}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
+    </View>
   );
 }
 
@@ -579,6 +561,17 @@ function withCommentPermissions(comment: HackComment, user: CommentViewer) {
   };
 }
 
+function getInitials(name: string) {
+  return (
+    name
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join("") || "?"
+  );
+}
+
 function formatDate(value: string | null) {
   if (!value) {
     return "Unknown date";
@@ -593,28 +586,23 @@ function formatDate(value: string | null) {
 
 const styles = StyleSheet.create({
   addCommentForm: {
-    borderTopColor: "#edf2e8",
+    borderTopColor: gardenTheme.colors.border,
     borderTopWidth: 1,
     gap: 10,
     paddingTop: 16,
   },
-  backLink: {
-    alignSelf: "flex-start",
-    borderColor: "#1f6b3a",
-    borderRadius: 8,
-    borderWidth: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+  article: {
+    gap: 12,
   },
-  backLinkText: {
-    color: "#1f6b3a",
-    fontSize: 15,
-    fontWeight: "700",
+  badges: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
   },
   body: {
     color: "#263c2b",
     fontSize: 16,
-    lineHeight: 24,
+    lineHeight: 25,
   },
   buttonPressed: {
     opacity: 0.72,
@@ -625,42 +613,56 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   commentAuthor: {
-    color: "#203525",
+    color: gardenTheme.colors.text,
     fontSize: 15,
-    fontWeight: "800",
+    fontWeight: "900",
   },
   commentAuthorBlock: {
     flex: 1,
     gap: 4,
   },
+  commentAvatar: {
+    alignItems: "center",
+    backgroundColor: gardenTheme.colors.mint,
+    borderColor: "#b7e7d1",
+    borderRadius: 15,
+    borderWidth: 1,
+    height: 40,
+    justifyContent: "center",
+    width: 40,
+  },
+  commentAvatarText: {
+    color: gardenTheme.colors.leaf,
+    fontSize: 13,
+    fontWeight: "900",
+  },
   commentCard: {
-    backgroundColor: "#f8faf7",
-    borderColor: "#edf2e8",
-    borderRadius: 8,
+    backgroundColor: "#fbfffd",
+    borderColor: gardenTheme.colors.border,
+    borderRadius: 22,
     borderWidth: 1,
     gap: 12,
     padding: 14,
   },
   commentDate: {
-    color: "#6c786f",
+    color: gardenTheme.colors.muted,
     fontSize: 12,
-    fontWeight: "700",
+    fontWeight: "800",
     textTransform: "uppercase",
   },
   commentHeader: {
     alignItems: "flex-start",
     flexDirection: "row",
-    gap: 12,
-    justifyContent: "space-between",
+    gap: 10,
   },
   commentInput: {
     backgroundColor: "#ffffff",
-    borderColor: "#c9d8c8",
-    borderRadius: 8,
+    borderColor: "#b7e7d1",
+    borderRadius: 18,
     borderWidth: 1,
-    color: "#16351f",
+    color: gardenTheme.colors.text,
     fontSize: 15,
-    minHeight: 92,
+    minHeight: 98,
     paddingHorizontal: 14,
     paddingVertical: 12,
   },
@@ -670,33 +672,32 @@ const styles = StyleSheet.create({
   commentText: {
     color: "#405046",
     fontSize: 15,
-    lineHeight: 22,
+    lineHeight: 23,
   },
   commentsCount: {
-    color: "#59655c",
+    color: gardenTheme.colors.muted,
     fontSize: 13,
-    fontWeight: "700",
+    fontWeight: "800",
   },
   commentsHeader: {
     gap: 3,
   },
   commentsSection: {
-    backgroundColor: "#ffffff",
-    borderColor: "#dfe8d8",
-    borderRadius: 8,
-    borderWidth: 1,
     gap: 16,
-    marginTop: 8,
-    padding: 16,
   },
   commentsTitle: {
-    color: "#18231c",
+    color: gardenTheme.colors.text,
     fontSize: 22,
     fontWeight: "900",
   },
+  commentsTitleRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 10,
+  },
   container: {
-    gap: 18,
-    padding: 24,
+    gap: 16,
+    padding: 20,
   },
   content: {
     gap: 14,
@@ -704,160 +705,70 @@ const styles = StyleSheet.create({
   editForm: {
     gap: 10,
   },
-  emptyComments: {
-    backgroundColor: "#f8faf7",
-    borderColor: "#cbdac3",
-    borderRadius: 8,
-    borderStyle: "dashed",
-    borderWidth: 1,
-    color: "#59655c",
-    fontSize: 14,
-    lineHeight: 20,
-    padding: 14,
-  },
-  error: {
-    color: "#a32626",
-    fontSize: 15,
-    fontWeight: "700",
-  },
   excerpt: {
-    color: "#3f5142",
+    color: gardenTheme.colors.muted,
     fontSize: 17,
-    lineHeight: 24,
+    lineHeight: 25,
   },
   formLabel: {
-    color: "#203525",
+    color: gardenTheme.colors.text,
     fontSize: 14,
-    fontWeight: "800",
-  },
-  loginPrompt: {
-    color: "#59655c",
-    fontSize: 14,
-    fontWeight: "700",
-    lineHeight: 20,
-  },
-  message: {
-    color: "#3f5142",
-    fontSize: 16,
+    fontWeight: "900",
   },
   meta: {
-    color: "#526356",
+    color: gardenTheme.colors.primaryDark,
     fontSize: 14,
-    fontWeight: "700",
-    textTransform: "capitalize",
-  },
-  primaryButton: {
-    alignItems: "center",
-    alignSelf: "flex-start",
-    backgroundColor: "#1f6b3a",
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 11,
-  },
-  primaryButtonText: {
-    color: "#ffffff",
-    fontSize: 15,
-    fontWeight: "800",
-  },
-  secondaryButton: {
-    alignItems: "center",
-    alignSelf: "flex-start",
-    borderColor: "#1f6b3a",
-    borderRadius: 8,
-    borderWidth: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 11,
-  },
-  secondaryButtonText: {
-    color: "#1f6b3a",
-    fontSize: 15,
-    fontWeight: "800",
+    fontWeight: "900",
   },
   smallButton: {
     alignItems: "center",
-    borderColor: "#b7c8ad",
-    borderRadius: 8,
+    backgroundColor: "#ffffff",
+    borderColor: "#b7e7d1",
+    borderRadius: 999,
     borderWidth: 1,
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
   smallButtonText: {
-    color: "#203525",
+    color: gardenTheme.colors.primaryDark,
     fontSize: 13,
-    fontWeight: "800",
+    fontWeight: "900",
   },
-  stat: {
-    color: "#1f4d2e",
-    fontSize: 14,
-    fontWeight: "700",
+  statItem: {
+    backgroundColor: "#fbfffd",
+    borderColor: gardenTheme.colors.border,
+    borderRadius: 18,
+    borderWidth: 1,
+    flex: 1,
+    minWidth: 92,
+    padding: 12,
+  },
+  statLabel: {
+    color: gardenTheme.colors.muted,
+    fontSize: 11,
+    fontWeight: "900",
+    textTransform: "uppercase",
+  },
+  statValue: {
+    color: gardenTheme.colors.text,
+    fontSize: 24,
+    fontWeight: "900",
   },
   stats: {
-    gap: 7,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
   },
   title: {
-    color: "#16351f",
-    fontSize: 28,
-    fontWeight: "800",
-    lineHeight: 34,
+    color: gardenTheme.colors.text,
+    fontSize: 32,
+    fontWeight: "900",
+    lineHeight: 38,
   },
   voteActions: {
     gap: 10,
   },
-  voteButton: {
-    alignItems: "center",
-    backgroundColor: "#ffffff",
-    borderColor: "#c9d8c8",
-    borderRadius: 8,
-    borderWidth: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    minHeight: 68,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-  },
-  voteButtonActive: {
-    backgroundColor: "#e7f2df",
-    borderColor: "#2f6f3e",
-  },
-  voteButtonCount: {
-    color: "#18231c",
-    fontSize: 24,
-    fontWeight: "900",
-  },
-  voteButtonLabel: {
-    color: "#203525",
-    fontSize: 15,
-    fontWeight: "900",
-  },
-  voteButtonStatus: {
-    color: "#59655c",
-    fontSize: 11,
-    fontWeight: "800",
-    textTransform: "uppercase",
-  },
-  voteButtonText: {
-    flex: 1,
-    gap: 4,
-  },
-  voteHeader: {
-    gap: 4,
-  },
   votePanel: {
-    backgroundColor: "#f8faf7",
-    borderColor: "#dfe8d8",
-    borderRadius: 8,
-    borderWidth: 1,
     gap: 14,
-    padding: 16,
-  },
-  voteScore: {
-    color: "#203525",
-    fontSize: 14,
-    fontWeight: "800",
-  },
-  voteTitle: {
-    color: "#18231c",
-    fontSize: 20,
-    fontWeight: "900",
   },
 });

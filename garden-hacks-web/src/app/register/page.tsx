@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { RegisterForm } from "@/components/auth/register-form";
+import { BrandLogo } from "@/components/layout/brand-logo";
 import { Button } from "@/components/ui/button";
-import { SproutIcon } from "@/components/ui/garden-icons";
 import { getCurrentUser } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
@@ -20,10 +20,10 @@ export default async function RegisterPage() {
   return (
     <div className="px-4 py-16 sm:px-6 lg:px-8">
       <div className="garden-shell mx-auto max-w-xl rounded-[2rem] p-8">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#dff8e9] text-[#0f766e]">
-          <SproutIcon size={28} />
+        <div className="flex justify-center">
+          <BrandLogo />
         </div>
-        <h1 className="mt-5 text-3xl font-black tracking-tight text-[#10231c]">
+        <h1 className="mt-7 text-3xl font-black tracking-tight text-[#10231c]">
           Join Garden Hacks
         </h1>
         <p className="mt-4 text-base leading-7 text-[#59655c]">

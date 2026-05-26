@@ -10,6 +10,14 @@ import {
   TextInput,
   View,
 } from "react-native";
+import {
+  BrandLogo,
+  GardenButton,
+  GardenCard,
+  HackVisual,
+  StateNotice,
+  gardenTheme,
+} from "../components/garden-ui";
 import { useAuth } from "../lib/auth";
 
 export default function LoginScreen() {
@@ -64,19 +72,22 @@ export default function LoginScreen() {
         style={styles.container}
       >
         <View style={styles.content}>
-          <Text style={styles.title}>Login</Text>
-          <Text style={styles.copy}>
-            Sign in to open your garden hacks, saved ideas, and protected app
-            screens.
-          </Text>
+          <BrandLogo />
+          <HackVisual title="Garden Hacks Login" />
+          <View style={styles.heading}>
+            <Text style={styles.eyebrow}>Welcome back</Text>
+            <Text style={styles.title}>Login</Text>
+            <Text style={styles.copy}>
+              Sign in to open your garden hacks, saved ideas, and protected app
+              screens.
+            </Text>
+          </View>
 
           {user ? (
-            <View style={styles.notice}>
-              <Text style={styles.noticeText}>Logged in as {user.name}</Text>
-            </View>
+            <StateNotice tone="success" title={`Logged in as ${user.name}`} />
           ) : null}
 
-          <View style={styles.form}>
+          <GardenCard style={styles.form}>
             <View style={styles.field}>
               <Text style={styles.label}>Email</Text>
               <TextInput
@@ -107,20 +118,17 @@ export default function LoginScreen() {
               />
             </View>
 
-            {error ? <Text style={styles.error}>{error}</Text> : null}
+            {error ? (
+              <StateNotice tone="error" title={error} />
+            ) : null}
 
-            <Pressable
+            <GardenButton
               disabled={isSubmitting}
               onPress={handleLogin}
-              style={({ pressed }) => [
-                styles.primaryButton,
-                (pressed || isSubmitting) && styles.buttonPressed,
-              ]}
+              style={styles.fullButton}
             >
-              <Text style={styles.primaryButtonText}>
-                {isSubmitting ? "Logging in..." : "Login"}
-              </Text>
-            </Pressable>
+              {isSubmitting ? "Logging in..." : "Login"}
+            </GardenButton>
 
             <Link href="/register" asChild>
               <Pressable style={styles.registerLink}>
@@ -129,13 +137,11 @@ export default function LoginScreen() {
                 </Text>
               </Pressable>
             </Link>
-          </View>
+          </GardenCard>
 
           <View style={styles.actions}>
             <Link href="/" asChild>
-              <Pressable style={styles.secondaryLink}>
-                <Text style={styles.secondaryLinkText}>Back to Home</Text>
-              </Pressable>
+              <GardenButton variant="secondary">Back to Home</GardenButton>
             </Link>
           </View>
         </View>
@@ -149,9 +155,6 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     marginTop: 8,
   },
-  buttonPressed: {
-    opacity: 0.72,
-  },
   container: {
     flex: 1,
     justifyContent: "center",
@@ -161,14 +164,15 @@ const styles = StyleSheet.create({
     gap: 18,
   },
   copy: {
-    color: "#3f5142",
+    color: gardenTheme.colors.muted,
     fontSize: 16,
     lineHeight: 23,
   },
-  error: {
-    color: "#a32626",
-    fontSize: 14,
-    fontWeight: "700",
+  eyebrow: {
+    color: gardenTheme.colors.primaryDark,
+    fontSize: 12,
+    fontWeight: "900",
+    textTransform: "uppercase",
   },
   field: {
     gap: 7,
@@ -176,73 +180,41 @@ const styles = StyleSheet.create({
   form: {
     gap: 14,
   },
+  fullButton: {
+    alignSelf: "stretch",
+  },
+  heading: {
+    gap: 7,
+  },
   input: {
     backgroundColor: "#ffffff",
-    borderColor: "#c9d8c8",
-    borderRadius: 8,
+    borderColor: gardenTheme.colors.border,
+    borderRadius: 18,
     borderWidth: 1,
-    color: "#16351f",
+    color: gardenTheme.colors.text,
     fontSize: 16,
     paddingHorizontal: 14,
     paddingVertical: 12,
   },
   label: {
-    color: "#263c2b",
+    color: gardenTheme.colors.text,
     fontSize: 14,
-    fontWeight: "700",
-  },
-  notice: {
-    backgroundColor: "#e7f2df",
-    borderColor: "#c9d8c8",
-    borderRadius: 8,
-    borderWidth: 1,
-    padding: 12,
-  },
-  noticeText: {
-    color: "#1f4d2e",
-    fontSize: 14,
-    fontWeight: "700",
-  },
-  primaryButton: {
-    alignItems: "center",
-    alignSelf: "stretch",
-    backgroundColor: "#1f6b3a",
-    borderRadius: 8,
-    paddingHorizontal: 18,
-    paddingVertical: 13,
-  },
-  primaryButtonText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "700",
+    fontWeight: "900",
   },
   registerLink: {
     alignItems: "center",
-    marginTop: 18,
+    marginTop: 6,
   },
   registerLinkText: {
-    color: "#6b746d",
-    fontSize: 18,
-    lineHeight: 26,
+    color: gardenTheme.colors.primaryDark,
+    fontSize: 15,
+    fontWeight: "800",
+    lineHeight: 22,
     textAlign: "center",
   },
-  secondaryLink: {
-    alignItems: "center",
-    borderColor: "#1f6b3a",
-    borderRadius: 8,
-    borderWidth: 1,
-    minWidth: 140,
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-  },
-  secondaryLinkText: {
-    color: "#1f6b3a",
-    fontSize: 16,
-    fontWeight: "700",
-  },
   title: {
-    color: "#16351f",
-    fontSize: 28,
-    fontWeight: "800",
+    color: gardenTheme.colors.text,
+    fontSize: 34,
+    fontWeight: "900",
   },
 });

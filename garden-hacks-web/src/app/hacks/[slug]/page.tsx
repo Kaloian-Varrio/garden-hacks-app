@@ -1,9 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { HackComments } from "@/components/garden/hack-comments";
+import { HackVisual } from "@/components/garden/hack-visual";
 import { HackVotePanel } from "@/components/garden/hack-vote-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -57,17 +57,12 @@ export default async function HackDetailsPage({ params }: HackDetailsPageProps) 
     <article>
       <section className="px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
-          <div className="garden-shell relative aspect-[4/3] overflow-hidden rounded-[2rem] bg-[#dfe8d8]">
-            <Image
-              src={hack.imageUrl ?? "https://placehold.co/1200x800/e8f5dc/31572c/png?text=Garden+Hack"}
-              alt=""
-              fill
-              priority
-              sizes="(min-width: 1024px) 50vw, 100vw"
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#10231c]/30 via-transparent to-transparent" />
-          </div>
+          <HackVisual
+            category={hack.category}
+            className="garden-shell aspect-[4/3]"
+            imageUrl={hack.imageUrl}
+            title={hack.title}
+          />
           <div>
             <div className="flex flex-wrap gap-2">
               <Badge>{hack.category}</Badge>

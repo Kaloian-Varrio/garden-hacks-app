@@ -6,11 +6,11 @@ export function DashboardStatCard({
   value: string | number;
 }) {
   return (
-    <div className="rounded-lg border border-[#dfe8d8] bg-white p-5 shadow-sm">
-      <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#59655c]">
+    <div className="garden-card p-5">
+      <p className="text-xs font-black uppercase tracking-[0.12em] text-[#0f766e]">
         {label}
       </p>
-      <p className="mt-2 break-words text-3xl font-black text-[#18231c]">
+      <p className="mt-2 break-words text-3xl font-black text-[#10231c]">
         {value}
       </p>
     </div>

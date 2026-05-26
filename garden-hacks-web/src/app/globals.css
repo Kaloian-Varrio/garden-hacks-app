@@ -354,7 +354,7 @@ body {
 }
 
 .garden-focus:focus-visible {
-  outline-color: var(--garden-teal);
+  outline-color: var(--garden-primary);
   box-shadow: 0 0 0 5px rgba(91, 216, 208, 0.24);
 }
 

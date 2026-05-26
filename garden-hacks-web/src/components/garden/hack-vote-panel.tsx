@@ -88,7 +88,7 @@ export function HackVotePanel({
   }
 
   return (
-    <section className="mt-6 rounded-lg border border-[#dfe8d8] bg-[#f8faf7] p-4">
+    <section className="garden-card-glass mt-6 rounded-3xl p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="text-lg font-black text-[#18231c]">
@@ -101,8 +101,8 @@ export function HackVotePanel({
             </p>
           ) : null}
         </div>
-        <div className="text-sm font-bold text-[#203525]">
-          Rating: {ratingScore}
+        <div className="rounded-full bg-white/80 px-3 py-1.5 text-sm font-black text-[#134c40] shadow-sm">
+          Rating {ratingScore}
         </div>
       </div>
 
@@ -128,11 +128,11 @@ export function HackVotePanel({
       </div>
 
       {error ? (
-        <p className="mt-3 text-sm font-semibold text-[#8a2d1c]">{error}</p>
+        <p className="garden-error-state mt-3 py-3 text-sm font-semibold">{error}</p>
       ) : null}
 
       {!isLoggedIn ? (
-        <p className="mt-3 text-sm text-[#59655c]">
+        <p className="mt-3 rounded-2xl border border-dashed border-[#b7e7d1] bg-white/65 px-4 py-3 text-sm text-[#59655c]">
           <Link href="/login" className="font-bold text-[#2f6f3e]">
             Log in
           </Link>{" "}
@@ -167,26 +167,47 @@ function VoteButton({
   return (
     <button
       type="button"
+      aria-pressed={isActive}
+      aria-label={`${label}: ${count} votes${isActive ? ", your current vote" : ""}`}
       disabled={isDisabled || isPending}
       onClick={onClick}
-      className={`flex min-h-16 items-center justify-between rounded-md border px-4 py-3 text-left transition ${
-        isActive
-          ? "border-[#2f6f3e] bg-[#e7f2df] text-[#16351f]"
-          : "border-[#c9d8c8] bg-white text-[#203525] hover:bg-[#f1f7ed]"
-      } disabled:cursor-not-allowed disabled:opacity-70`}
+      className={`group relative flex min-h-20 items-center justify-between overflow-hidden rounded-3xl border px-4 py-3 text-left shadow-sm transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0f9f93] disabled:cursor-not-allowed disabled:opacity-60 ${
+        label === "Sweet Tomatoes"
+          ? isActive
+            ? "border-[#f0643c] bg-[#fff0eb] text-[#7a2d17] shadow-[#f0643c]/15"
+            : "border-[#ffc2ad] bg-white text-[#7a2d17] hover:-translate-y-0.5 hover:border-[#f0643c] hover:bg-[#fff7f0] hover:shadow-lg hover:shadow-[#f0643c]/10"
+          : isActive
+            ? "border-[#38a15f] bg-[#e9fbef] text-[#134c40] shadow-[#38a15f]/15"
+            : "border-[#aee7c3] bg-white text-[#134c40] hover:-translate-y-0.5 hover:border-[#38a15f] hover:bg-[#f4fff7] hover:shadow-lg hover:shadow-[#38a15f]/10"
+      }`}
     >
-      <span>
-        <span className="flex items-center gap-2 text-sm font-black">
-          <span className={isActive ? "text-[#0f766e]" : "text-[#f0643c]"}>
-            {icon}
-          </span>
-          {label}
+      <span
+        className={`absolute inset-y-0 left-0 w-1.5 ${
+          label === "Sweet Tomatoes" ? "bg-[#f0643c]" : "bg-[#38a15f]"
+        } ${isActive ? "opacity-100" : "opacity-35 group-hover:opacity-75"}`}
+      />
+      <span className="relative flex min-w-0 items-center gap-3">
+        <span
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${
+            label === "Sweet Tomatoes"
+              ? "bg-[#fff0eb] text-[#f0643c]"
+              : "bg-[#e9fbef] text-[#38a15f]"
+          }`}
+        >
+          {icon}
         </span>
-        <span className="mt-1 block text-xs font-bold uppercase tracking-[0.12em] text-[#59655c]">
-          {isActive ? "Your vote" : "Vote"}
+        <span className="flex items-center gap-2 text-sm font-black">
+          <span>
+            <span className="block">{label}</span>
+            <span className="mt-1 block text-xs font-bold uppercase tracking-[0.12em] text-[#59655c]">
+              {isActive ? "Your vote" : isDisabled ? "Login required" : "Tap to vote"}
+            </span>
+          </span>
         </span>
       </span>
-      <span className="text-2xl font-black">{isPending ? "..." : count}</span>
+      <span className="relative rounded-2xl bg-white/80 px-3 py-2 text-3xl font-black shadow-sm">
+        {isPending ? "..." : count}
+      </span>
     </button>
   );
 }

@@ -3,6 +3,13 @@ import Head from "expo-router/head";
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { DashboardHeader } from "../components/dashboard";
+import {
+  GardenBadge,
+  GardenCard,
+  HackVisual,
+  StateNotice,
+  gardenTheme,
+} from "../components/garden-ui";
 import { RequireAuth, useAuth } from "../lib/auth";
 import {
   fetchMobileDashboard,
@@ -65,10 +72,15 @@ function SavedHacksContent() {
     <ScrollView contentContainerStyle={styles.container}>
       <DashboardHeader title="Saved Hacks" />
       <Text style={styles.title}>Saved Hacks</Text>
-      {isLoading ? <Text style={styles.message}>Loading saved hacks...</Text> : null}
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {isLoading ? (
+        <StateNotice tone="loading" title="Loading saved hacks..." />
+      ) : null}
+      {error ? <StateNotice tone="error" title={error} /> : null}
       {dashboard && dashboard.savedHacks.length === 0 ? (
-        <Text style={styles.message}>You have not saved any hacks yet.</Text>
+        <StateNotice
+          copy="Save useful ideas from the hack list and they will appear here."
+          title="You have not saved any hacks yet"
+        />
       ) : null}
       <View style={styles.list}>
         {dashboard?.savedHacks.map((item) => (
@@ -80,12 +92,16 @@ function SavedHacksContent() {
             }}
             key={item.id}
           >
-            <Pressable style={styles.item}>
+            <Pressable style={({ pressed }) => [pressed && styles.pressed]}>
+              <GardenCard style={styles.item}>
+                <HackVisual imageUrl={item.hack.imageUrl} title={item.hack.title} />
+                <View style={styles.badges}>
+                  <GardenBadge tone="sky">{item.hack.group.title}</GardenBadge>
+                  <GardenBadge tone="mint">{item.hack.category.title}</GardenBadge>
+                </View>
               <Text style={styles.itemTitle}>{item.hack.title}</Text>
-              <Text style={styles.meta}>
-                {item.hack.group.title} | {item.hack.category.title}
-              </Text>
               <Text style={styles.meta}>Rating {item.hack.ratingScore}</Text>
+              </GardenCard>
             </Pressable>
           </Link>
         ))}
@@ -95,43 +111,37 @@ function SavedHacksContent() {
 }
 
 const styles = StyleSheet.create({
+  badges: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
   container: {
     gap: 16,
-    padding: 24,
-  },
-  error: {
-    color: "#a32626",
-    fontSize: 15,
-    fontWeight: "700",
+    padding: 20,
   },
   item: {
-    backgroundColor: "#ffffff",
-    borderColor: "#dfe8d8",
-    borderRadius: 8,
-    borderWidth: 1,
     gap: 8,
-    padding: 16,
   },
   itemTitle: {
-    color: "#16351f",
-    fontSize: 18,
+    color: gardenTheme.colors.text,
+    fontSize: 20,
     fontWeight: "900",
+    lineHeight: 25,
   },
   list: {
     gap: 12,
   },
-  message: {
-    color: "#3f5142",
-    fontSize: 15,
-    lineHeight: 21,
-  },
   meta: {
-    color: "#59655c",
+    color: gardenTheme.colors.leaf,
     fontSize: 13,
-    fontWeight: "700",
+    fontWeight: "900",
+  },
+  pressed: {
+    opacity: 0.74,
   },
   title: {
-    color: "#16351f",
+    color: gardenTheme.colors.text,
     fontSize: 28,
     fontWeight: "900",
   },

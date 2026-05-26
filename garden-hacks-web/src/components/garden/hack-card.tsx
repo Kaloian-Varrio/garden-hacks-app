@@ -1,9 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
+import { HackVisual } from "@/components/garden/hack-visual";
 import { HackVotePanel } from "@/components/garden/hack-vote-panel";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { CommentIcon, LightbulbIcon, SparkIcon } from "@/components/ui/garden-icons";
+import { CommentIcon, SparkIcon } from "@/components/ui/garden-icons";
 import type { PublicHack } from "@/lib/public-data/types";
 
 export function HackCard({
@@ -15,20 +15,12 @@ export function HackCard({
 }) {
   return (
     <Card className="grid overflow-hidden sm:grid-cols-[260px_1fr]">
-      <div className="relative min-h-64 overflow-hidden bg-gradient-to-br from-[#dff8e9] via-[#c7f4ee] to-[#fff0d8] sm:min-h-full">
-        <Image
-          src={hack.imageUrl ?? "https://placehold.co/1200x800/e8f5dc/31572c/png?text=Garden+Hack"}
-          alt=""
-          fill
-          sizes="(min-width: 1024px) 240px, 100vw"
-          className="object-cover transition duration-500 hover:scale-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#10231c]/35 via-transparent to-transparent" />
-        <div className="absolute bottom-4 left-4 flex items-center gap-2 rounded-full bg-white/90 px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#0f766e] shadow-lg backdrop-blur">
-          <LightbulbIcon size={16} />
-          Clever hack
-        </div>
-      </div>
+      <HackVisual
+        category={hack.category}
+        className="min-h-64 rounded-none sm:min-h-full"
+        imageUrl={hack.imageUrl}
+        title={hack.title}
+      />
       <div className="flex flex-col p-6">
         <div className="flex flex-wrap gap-2">
           <Badge>{hack.category}</Badge>

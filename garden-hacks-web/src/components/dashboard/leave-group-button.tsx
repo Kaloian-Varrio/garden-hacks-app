@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { TrashIcon } from "@/components/ui/garden-icons";
 
 export function LeaveGroupButton({ groupId }: { groupId: number }) {
   const router = useRouter();
@@ -24,8 +25,9 @@ export function LeaveGroupButton({ groupId }: { groupId: number }) {
       type="button"
       disabled={isLeaving}
       onClick={handleLeave}
-      className="inline-flex min-h-10 items-center justify-center rounded-md border border-[#efb5a8] bg-white px-3 py-2 text-sm font-semibold text-[#8a2d1c] hover:bg-[#fff0eb] disabled:cursor-not-allowed disabled:opacity-70"
+      className="garden-btn garden-btn-destructive min-h-10 gap-1 px-3 py-2 disabled:cursor-not-allowed disabled:opacity-70"
     >
+      <TrashIcon size={14} />
       {isLeaving ? "Leaving..." : "Leave group"}
     </button>
   );

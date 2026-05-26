@@ -7,6 +7,7 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
+import { BrandLogo, GardenButton, gardenTheme } from "./garden-ui";
 import { useAuth } from "../lib/auth";
 
 type DashboardRoute =
@@ -16,12 +17,12 @@ type DashboardRoute =
   | "/saved-hacks"
   | "/my-groups";
 
-const navItems: Array<{ href: DashboardRoute; label: string }> = [
-  { href: "/", label: "Overview" },
-  { href: "/my-hacks", label: "My Hacks" },
-  { href: "/add-new-hack", label: "Create Hack" },
-  { href: "/saved-hacks", label: "Saved Hacks" },
-  { href: "/my-groups", label: "My Groups" },
+const navItems: Array<{ href: DashboardRoute; icon: string; label: string }> = [
+  { href: "/", icon: "GH", label: "Overview" },
+  { href: "/my-hacks", icon: "H", label: "My Hacks" },
+  { href: "/add-new-hack", icon: "+", label: "Create Hack" },
+  { href: "/saved-hacks", icon: "S", label: "Saved Hacks" },
+  { href: "/my-groups", icon: "G", label: "My Groups" },
 ];
 
 export function DashboardHeader({ title }: { title: string }) {
@@ -58,7 +59,7 @@ export function DashboardHeader({ title }: { title: string }) {
         </Pressable>
 
         <View style={styles.headerText}>
-          <Text style={styles.headerEyebrow}>Dashboard</Text>
+          <Text style={styles.headerEyebrow}>Garden dashboard</Text>
           <Text style={styles.headerTitle}>{title}</Text>
         </View>
       </View>
@@ -74,7 +75,7 @@ export function DashboardHeader({ title }: { title: string }) {
           <View style={styles.drawer}>
             <View style={styles.drawerHeader}>
               <View>
-                <Text style={styles.drawerTitle}>Garden Hacks</Text>
+                <BrandLogo />
                 {user ? (
                   <Text numberOfLines={1} style={styles.drawerSubtitle}>
                     {user.name}
@@ -107,6 +108,21 @@ export function DashboardHeader({ title }: { title: string }) {
                       isActive ? styles.drawerItemActive : null,
                     ])}
                   >
+                    <View
+                      style={StyleSheet.flatten([
+                        styles.drawerItemIcon,
+                        isActive ? styles.drawerItemIconActive : null,
+                      ])}
+                    >
+                      <Text
+                        style={StyleSheet.flatten([
+                          styles.drawerItemIconText,
+                          isActive ? styles.drawerItemIconTextActive : null,
+                        ])}
+                      >
+                        {item.icon}
+                      </Text>
+                    </View>
                     <Text
                       style={StyleSheet.flatten([
                         styles.drawerItemText,
@@ -120,9 +136,9 @@ export function DashboardHeader({ title }: { title: string }) {
               })}
             </View>
 
-            <Pressable onPress={handleLogout} style={styles.logoutButton}>
-              <Text style={styles.logoutButtonText}>Logout</Text>
-            </Pressable>
+            <GardenButton onPress={handleLogout} style={styles.logoutButton} variant="secondary">
+              Logout
+            </GardenButton>
           </View>
         </View>
       ) : null}
@@ -148,26 +164,28 @@ export function DashboardStatCard({
 const styles = StyleSheet.create({
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.34)",
+    backgroundColor: "rgba(11, 37, 29, 0.34)",
   },
   closeButton: {
     alignItems: "center",
-    borderColor: "#dfe8d8",
-    borderRadius: 8,
+    backgroundColor: "#ffffff",
+    borderColor: gardenTheme.colors.border,
+    borderRadius: 999,
     borderWidth: 1,
     justifyContent: "center",
-    paddingHorizontal: 10,
+    minHeight: 40,
+    paddingHorizontal: 14,
     paddingVertical: 8,
   },
   closeButtonText: {
-    color: "#16351f",
+    color: gardenTheme.colors.text,
     fontSize: 13,
-    fontWeight: "800",
+    fontWeight: "900",
   },
   drawer: {
-    backgroundColor: "#f2fbf7",
+    backgroundColor: "#f7fffb",
     borderBottomRightRadius: 24,
-    borderColor: "#b7e7d1",
+    borderColor: gardenTheme.colors.border,
     borderRightWidth: 1,
     borderTopRightRadius: 24,
     elevation: 8,
@@ -183,7 +201,7 @@ const styles = StyleSheet.create({
   },
   drawerHeader: {
     alignItems: "flex-start",
-    borderBottomColor: "#dfe8d8",
+    borderBottomColor: gardenTheme.colors.border,
     borderBottomWidth: 1,
     flexDirection: "row",
     gap: 12,
@@ -191,17 +209,39 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   drawerItem: {
-    borderRadius: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 13,
+    alignItems: "center",
+    borderRadius: 18,
+    flexDirection: "row",
+    gap: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
   },
   drawerItemActive: {
-    backgroundColor: "#0f9f93",
+    backgroundColor: gardenTheme.colors.primary,
+  },
+  drawerItemIcon: {
+    alignItems: "center",
+    backgroundColor: gardenTheme.colors.mint,
+    borderRadius: 13,
+    height: 34,
+    justifyContent: "center",
+    width: 34,
+  },
+  drawerItemIconActive: {
+    backgroundColor: "rgba(255, 255, 255, 0.18)",
+  },
+  drawerItemIconText: {
+    color: gardenTheme.colors.leaf,
+    fontSize: 12,
+    fontWeight: "900",
+  },
+  drawerItemIconTextActive: {
+    color: "#ffffff",
   },
   drawerItemText: {
     color: "#405046",
     fontSize: 16,
-    fontWeight: "800",
+    fontWeight: "900",
   },
   drawerItemTextActive: {
     color: "#ffffff",
@@ -223,20 +263,21 @@ const styles = StyleSheet.create({
     marginTop: 4,
     maxWidth: 230,
   },
-  drawerTitle: {
-    color: "#10231c",
-    fontSize: 22,
-    fontWeight: "900",
-  },
   header: {
     alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.78)",
+    borderColor: gardenTheme.colors.border,
+    borderRadius: 24,
+    borderWidth: 1,
     flexDirection: "row",
     gap: 12,
+    padding: 10,
+    ...gardenTheme.shadow,
   },
   headerEyebrow: {
-    color: "#0f766e",
+    color: gardenTheme.colors.primaryDark,
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "900",
     textTransform: "uppercase",
   },
   headerText: {
@@ -244,31 +285,20 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   headerTitle: {
-    color: "#10231c",
+    color: gardenTheme.colors.text,
     fontSize: 24,
     fontWeight: "900",
   },
   logoutButton: {
-    alignItems: "center",
-    borderColor: "#0f9f93",
-    borderRadius: 999,
-    borderWidth: 1,
     marginTop: "auto",
-    paddingHorizontal: 16,
-    paddingVertical: 13,
-  },
-  logoutButtonText: {
-    color: "#0f766e",
-    fontSize: 16,
-    fontWeight: "800",
   },
   menuButton: {
     alignItems: "center",
-    backgroundColor: "#0f9f93",
+    backgroundColor: gardenTheme.colors.primary,
     borderRadius: 999,
-    height: 44,
+    height: 48,
     justifyContent: "center",
-    paddingHorizontal: 10,
+    paddingHorizontal: 14,
   },
   menuButtonText: {
     color: "#ffffff",
@@ -276,21 +306,22 @@ const styles = StyleSheet.create({
     fontWeight: "900",
   },
   statCard: {
-    backgroundColor: "#ffffff",
-    borderColor: "#b7e7d1",
-    borderRadius: 18,
+    backgroundColor: gardenTheme.colors.card,
+    borderColor: gardenTheme.colors.border,
+    borderRadius: 22,
     borderWidth: 1,
     gap: 8,
     padding: 16,
+    ...gardenTheme.shadow,
   },
   statLabel: {
-    color: "#0f766e",
+    color: gardenTheme.colors.primaryDark,
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "900",
     textTransform: "uppercase",
   },
   statValue: {
-    color: "#10231c",
+    color: gardenTheme.colors.text,
     fontSize: 28,
     fontWeight: "900",
   },

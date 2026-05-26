@@ -1,7 +1,13 @@
 import { Link } from "expo-router";
 import Head from "expo-router/head";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { DashboardHeader } from "../components/dashboard";
+import {
+  GardenButton,
+  GardenCard,
+  HackVisual,
+  gardenTheme,
+} from "../components/garden-ui";
 import { RequireAuth } from "../lib/auth";
 
 export default function AddNewHackScreen() {
@@ -14,16 +20,18 @@ export default function AddNewHackScreen() {
       <RequireAuth>
         <View style={styles.container}>
           <DashboardHeader title="Create Hack" />
-          <Text style={styles.title}>Add New Hack</Text>
-          <Text style={styles.copy}>
-            The mobile hack creation form will be added here.
-          </Text>
+          <GardenCard style={styles.card}>
+            <HackVisual title="Add New Hack" />
+            <Text style={styles.title}>Add New Hack</Text>
+            <Text style={styles.copy}>
+              Create and manage full hack drafts from the web app. This mobile
+              screen keeps the path ready for a compact creation flow.
+            </Text>
 
-          <Link href="/hacks" asChild>
-            <Pressable style={styles.link}>
-              <Text style={styles.linkText}>Back to Garden Hacks</Text>
-            </Pressable>
-          </Link>
+            <Link href="/hacks" asChild>
+              <GardenButton variant="secondary">Back to Garden Hacks</GardenButton>
+            </Link>
+          </GardenCard>
         </View>
       </RequireAuth>
     </>
@@ -35,30 +43,19 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 16,
     justifyContent: "center",
-    padding: 24,
+    padding: 20,
+  },
+  card: {
+    gap: 14,
   },
   copy: {
-    color: "#3f5142",
+    color: gardenTheme.colors.muted,
     fontSize: 16,
     lineHeight: 23,
   },
-  link: {
-    alignItems: "center",
-    alignSelf: "flex-start",
-    borderColor: "#1f6b3a",
-    borderRadius: 8,
-    borderWidth: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  linkText: {
-    color: "#1f6b3a",
-    fontSize: 15,
-    fontWeight: "700",
-  },
   title: {
-    color: "#16351f",
+    color: gardenTheme.colors.text,
     fontSize: 28,
-    fontWeight: "800",
+    fontWeight: "900",
   },
 });
