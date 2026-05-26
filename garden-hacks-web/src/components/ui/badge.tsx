@@ -1,13 +1,26 @@
 import type { ReactNode } from "react";
 
-type BadgeTone = "green" | "amber" | "tomato" | "sky" | "slate";
+type BadgeTone =
+  | "green"
+  | "amber"
+  | "tomato"
+  | "sky"
+  | "slate"
+  | "category"
+  | "status"
+  | "featured"
+  | "admin";
 
 const toneClasses: Record<BadgeTone, string> = {
-  green: "border-[#b8d6ad] bg-[#ecf7e8] text-[#285d35]",
-  amber: "border-[#e9cf8d] bg-[#fff8e1] text-[#6a4a08]",
-  tomato: "border-[#efb5a8] bg-[#fff0eb] text-[#8a2d1c]",
-  sky: "border-[#b8d7e8] bg-[#eef8fd] text-[#17536a]",
-  slate: "border-[#d6d9d2] bg-white text-[#435047]",
+  green: "garden-badge-category",
+  amber: "garden-badge-featured",
+  tomato: "garden-badge-admin",
+  sky: "garden-badge-status",
+  slate: "border-[#d7e7df] bg-white/75 text-[#405046]",
+  category: "garden-badge-category",
+  status: "garden-badge-status",
+  featured: "garden-badge-featured",
+  admin: "garden-badge-admin",
 };
 
 export function Badge({
@@ -19,7 +32,7 @@ export function Badge({
 }) {
   return (
     <span
-      className={`inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-semibold ${toneClasses[tone]}`}
+      className={`garden-badge shadow-sm ${toneClasses[tone]}`}
     >
       {children}
     </span>

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/auth/login-form";
 import { Button } from "@/components/ui/button";
+import { UserIcon } from "@/components/ui/garden-icons";
 import { getSafeInternalRedirect } from "@/lib/auth/redirect";
 import { getCurrentUser } from "@/lib/auth/session";
 
@@ -29,15 +30,18 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
   return (
     <div className="px-4 py-16 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-xl rounded-lg border border-[#dfe8d8] bg-white p-8">
-        <h1 className="text-3xl font-black tracking-normal text-[#18231c]">
+      <div className="garden-shell mx-auto max-w-xl rounded-[2rem] p-8">
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#dff8e9] text-[#0f766e]">
+          <UserIcon size={28} />
+        </div>
+        <h1 className="mt-5 text-3xl font-black tracking-tight text-[#10231c]">
           Login
         </h1>
         <p className="mt-4 text-base leading-7 text-[#59655c]">
           Welcome back. Login to reach your Garden Hacks dashboard.
         </p>
         {registered === "1" ? (
-          <p className="mt-5 rounded-md border border-[#b8d6ad] bg-[#ecf7e8] px-4 py-3 text-sm font-semibold text-[#285d35]">
+          <p className="mt-5 rounded-2xl border border-[#aee7c3] bg-[#e9fbef] px-4 py-3 text-sm font-bold text-[#176b49]">
             Account created. You can log in now.
           </p>
         ) : null}

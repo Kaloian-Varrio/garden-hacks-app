@@ -2,10 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { HackComments } from "@/components/garden/hack-comments";
 import { HackVotePanel } from "@/components/garden/hack-vote-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { CommentIcon, SparkIcon, TomatoIcon, CucumberIcon } from "@/components/ui/garden-icons";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getPublicHackBySlug } from "@/lib/public-data/queries";
 
@@ -53,9 +55,9 @@ export default async function HackDetailsPage({ params }: HackDetailsPageProps) 
 
   return (
     <article>
-      <section className="bg-white px-4 py-10 sm:px-6 lg:px-8">
+      <section className="px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-lg border border-[#dfe8d8] bg-[#dfe8d8]">
+          <div className="garden-shell relative aspect-[4/3] overflow-hidden rounded-[2rem] bg-[#dfe8d8]">
             <Image
               src={hack.imageUrl ?? "https://placehold.co/1200x800/e8f5dc/31572c/png?text=Garden+Hack"}
               alt=""
@@ -64,6 +66,7 @@ export default async function HackDetailsPage({ params }: HackDetailsPageProps) 
               sizes="(min-width: 1024px) 50vw, 100vw"
               className="object-cover"
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#10231c]/30 via-transparent to-transparent" />
           </div>
           <div>
             <div className="flex flex-wrap gap-2">
@@ -75,7 +78,7 @@ export default async function HackDetailsPage({ params }: HackDetailsPageProps) 
                 <Badge tone="amber">Chemical-free</Badge>
               ) : null}
             </div>
-            <h1 className="mt-5 text-4xl font-black tracking-normal text-[#18231c] sm:text-5xl">
+            <h1 className="mt-5 text-4xl font-black tracking-tight text-[#10231c] sm:text-6xl">
               {hack.title}
             </h1>
             <p className="mt-4 text-base font-semibold text-[#405046]">
@@ -88,10 +91,10 @@ export default async function HackDetailsPage({ params }: HackDetailsPageProps) 
               {hack.excerpt}
             </p>
             <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <Metric label="Sweet Tomatoes" value={hack.sweetTomatoesCount} />
-              <Metric label="Bitter Cucumbers" value={hack.bitterCucumbersCount} />
-              <Metric label="Rating" value={hack.ratingScore} />
-              <Metric label="Comments" value={hack.commentsCount} />
+              <Metric icon={<TomatoIcon />} label="Sweet Tomatoes" value={hack.sweetTomatoesCount} />
+              <Metric icon={<CucumberIcon />} label="Bitter Cucumbers" value={hack.bitterCucumbersCount} />
+              <Metric icon={<SparkIcon />} label="Rating" value={hack.ratingScore} />
+              <Metric icon={<CommentIcon />} label="Comments" value={hack.commentsCount} />
             </div>
             <HackVotePanel
               hackId={hack.id}
@@ -112,8 +115,8 @@ export default async function HackDetailsPage({ params }: HackDetailsPageProps) 
           }`}
         >
           <div className="space-y-8">
-            <div className="rounded-lg border border-[#dfe8d8] bg-white p-6 sm:p-8">
-              <h2 className="text-2xl font-black tracking-normal text-[#18231c]">
+            <div className="garden-shell rounded-3xl p-6 sm:p-8">
+              <h2 className="text-2xl font-black tracking-tight text-[#10231c]">
                 The hack
               </h2>
               <p className="mt-5 whitespace-pre-line text-base leading-8 text-[#405046]">
@@ -153,10 +156,21 @@ export default async function HackDetailsPage({ params }: HackDetailsPageProps) 
   );
 }
 
-function Metric({ label, value }: { label: string; value: number }) {
+function Metric({
+  icon,
+  label,
+  value,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: number;
+}) {
   return (
-    <div className="rounded-lg border border-[#dfe8d8] bg-[#f8faf7] p-4">
-      <p className="text-2xl font-black text-[#18231c]">{value}</p>
+    <div className="rounded-3xl border border-[#d9eee4] bg-white/78 p-4 shadow-sm">
+      <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-2xl bg-[#dff8e9] text-[#0f766e]">
+        {icon}
+      </div>
+      <p className="text-3xl font-black text-[#10231c]">{value}</p>
       <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] text-[#59655c]">
         {label}
       </p>

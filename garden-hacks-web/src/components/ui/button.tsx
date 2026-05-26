@@ -1,7 +1,14 @@
 import Link from "next/link";
 import type { AnchorHTMLAttributes, ReactNode } from "react";
 
-type ButtonVariant = "primary" | "secondary" | "ghost";
+type ButtonVariant =
+  | "primary"
+  | "secondary"
+  | "ghost"
+  | "outline"
+  | "destructive"
+  | "vote-positive"
+  | "vote-negative";
 
 type ButtonProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
   children: ReactNode;
@@ -10,12 +17,13 @@ type ButtonProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
 };
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary:
-    "bg-[#2f6f3e] text-white shadow-sm hover:bg-[#285d35] focus-visible:outline-[#2f6f3e]",
-  secondary:
-    "border border-[#b7c8ad] bg-white text-[#203525] hover:border-[#7da06d] hover:bg-[#f1f7ed] focus-visible:outline-[#7da06d]",
-  ghost:
-    "text-[#28472f] hover:bg-[#eaf2e6] focus-visible:outline-[#7da06d]",
+  primary: "garden-btn-primary",
+  secondary: "garden-btn-secondary",
+  ghost: "garden-btn-ghost",
+  outline: "garden-btn-outline",
+  destructive: "garden-btn-destructive",
+  "vote-positive": "garden-btn-vote-positive",
+  "vote-negative": "garden-btn-vote-negative",
 };
 
 export function Button({
@@ -26,7 +34,7 @@ export function Button({
 }: ButtonProps) {
   return (
     <Link
-      className={`inline-flex min-h-11 items-center justify-center rounded-md px-5 py-2.5 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${variantClasses[variant]} ${className}`}
+      className={`garden-btn garden-focus ${variantClasses[variant]} ${className}`}
       {...props}
     >
       {children}

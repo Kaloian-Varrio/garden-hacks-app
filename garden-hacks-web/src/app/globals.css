@@ -1,19 +1,50 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8faf7;
-  --foreground: #18231c;
+  --background: #f2fbf7;
+  --foreground: #10231c;
+  --garden-primary: #0f9f93;
+  --garden-primary-dark: #075f60;
+  --garden-primary-light: #5bd8d0;
+  --garden-leaf: #38a15f;
+  --garden-mint: #dff8e9;
+  --garden-sky: #e9fbff;
+  --garden-tomato: #f0643c;
+  --garden-orange: #ffb35c;
+  --garden-cream: #fffaf0;
+  --garden-soil: #7a4f2a;
+  --garden-muted: #59655c;
+  --garden-surface: rgba(255, 255, 255, 0.86);
+  --garden-border: rgba(15, 111, 83, 0.16);
+  --garden-shadow: 0 18px 60px rgba(18, 74, 58, 0.14);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-garden-primary: var(--garden-primary);
+  --color-garden-primary-dark: var(--garden-primary-dark);
+  --color-garden-primary-light: var(--garden-primary-light);
+  --color-garden-leaf: var(--garden-leaf);
+  --color-garden-mint: var(--garden-mint);
+  --color-garden-sky: var(--garden-sky);
+  --color-garden-tomato: var(--garden-tomato);
+  --color-garden-orange: var(--garden-orange);
+  --color-garden-cream: var(--garden-cream);
+  --color-garden-soil: var(--garden-soil);
+  --color-garden-muted: var(--garden-muted);
+  --color-garden-surface: var(--garden-surface);
   --font-sans: Arial, Helvetica, sans-serif;
   --font-mono: "Courier New", Courier, monospace;
+  --text-garden-hero: clamp(3rem, 7vw, 5.75rem);
+  --text-garden-display: clamp(2.25rem, 4.5vw, 4rem);
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(circle at top left, rgba(91, 216, 208, 0.28), transparent 32rem),
+    radial-gradient(circle at 85% 10%, rgba(255, 179, 92, 0.18), transparent 26rem),
+    linear-gradient(180deg, #f5fffb 0%, var(--background) 42%, #eef9f2 100%);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -25,16 +56,309 @@ body {
 .dashboard-input {
   min-height: 2.75rem;
   width: 100%;
-  border-radius: 0.375rem;
-  border: 1px solid #cbd9c2;
-  background: #f8faf7;
-  padding-left: 0.75rem;
-  padding-right: 0.75rem;
-  color: #18231c;
+  border-radius: 1rem;
+  border: 1px solid #b7e7d1;
+  background: rgba(255, 255, 255, 0.9);
+  padding-left: 1rem;
+  padding-right: 1rem;
+  color: #10231c;
   outline: none;
 }
 
+::selection {
+  background: rgba(91, 216, 208, 0.35);
+}
+
+.garden-shell {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.88), rgba(233, 250, 242, 0.82)),
+    radial-gradient(circle at top right, rgba(91, 216, 208, 0.18), transparent 18rem);
+  border: 1px solid var(--garden-border);
+  box-shadow: var(--garden-shadow);
+  backdrop-filter: blur(18px);
+}
+
+.garden-container {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 80rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .garden-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .garden-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+.garden-section {
+  padding-top: 3.5rem;
+  padding-bottom: 3.5rem;
+}
+
+.garden-card {
+  background: var(--garden-surface);
+  border: 1px solid var(--garden-border);
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 30px rgba(18, 74, 58, 0.08);
+}
+
+.garden-card-interactive {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+.garden-card-interactive:hover {
+  border-color: rgba(91, 216, 208, 0.58);
+  box-shadow: var(--garden-shadow);
+  transform: translateY(-0.25rem);
+}
+
+.garden-card-glass {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(233, 250, 242, 0.78)),
+    radial-gradient(circle at top right, rgba(91, 216, 208, 0.16), transparent 18rem);
+  border: 1px solid var(--garden-border);
+  border-radius: 1.5rem;
+  box-shadow: var(--garden-shadow);
+  backdrop-filter: blur(18px);
+}
+
+.garden-card-hack {
+  border-radius: 1.5rem;
+  overflow: hidden;
+}
+
+.garden-card-comment {
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid #d9eee4;
+  border-radius: 1rem;
+}
+
+.garden-card-admin {
+  background: #fff7e8;
+  border: 1px solid #ffd69a;
+  border-radius: 1rem;
+}
+
+.garden-btn {
+  align-items: center;
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 0.875rem;
+  font-weight: 800;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.625rem 1.25rem;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease;
+}
+
+.garden-btn:hover {
+  transform: translateY(-0.125rem);
+}
+
+.garden-btn-primary {
+  background: linear-gradient(90deg, var(--garden-primary), var(--garden-leaf), #176b49);
+  box-shadow: 0 12px 28px rgba(18, 74, 58, 0.16);
+  color: white;
+}
+
+.garden-btn-secondary {
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid #b7e7d1;
+  color: #134c40;
+}
+
+.garden-btn-ghost {
+  color: #175c4d;
+}
+
+.garden-btn-ghost:hover {
+  background: rgba(223, 248, 233, 0.82);
+}
+
+.garden-btn-outline {
+  background: transparent;
+  border: 1px solid #8bdccf;
+  color: #075f60;
+}
+
+.garden-btn-destructive {
+  background: #fff0eb;
+  border: 1px solid #ffc2ad;
+  color: #a33a20;
+}
+
+.garden-btn-vote-positive {
+  background: #fff0eb;
+  border: 1px solid #ffc2ad;
+  color: #a33a20;
+}
+
+.garden-btn-vote-negative {
+  background: #e9fbef;
+  border: 1px solid #aee7c3;
+  color: #176b49;
+}
+
+.garden-badge {
+  align-items: center;
+  border-radius: 999px;
+  border-style: solid;
+  border-width: 1px;
+  display: inline-flex;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1rem;
+  padding: 0.25rem 0.75rem;
+  text-transform: uppercase;
+}
+
+.garden-badge-category {
+  background: #e9fbef;
+  border-color: #aee7c3;
+  color: #176b49;
+}
+
+.garden-badge-status {
+  background: #e9fbff;
+  border-color: #a7e9ef;
+  color: #08747d;
+}
+
+.garden-badge-featured {
+  background: #fff7e8;
+  border-color: #ffd69a;
+  color: #8a4d08;
+}
+
+.garden-badge-admin {
+  background: #fff0eb;
+  border-color: #ffc2ad;
+  color: #a33a20;
+}
+
+.garden-input,
+.garden-textarea,
+.garden-select {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #b7e7d1;
+  border-radius: 1rem;
+  color: #10231c;
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+  width: 100%;
+}
+
+.garden-input,
+.garden-select {
+  min-height: 3rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.garden-textarea {
+  min-height: 8rem;
+  padding: 1rem;
+}
+
+.garden-input:focus,
+.garden-textarea:focus,
+.garden-select:focus {
+  border-color: var(--garden-primary);
+  box-shadow: 0 0 0 4px rgba(91, 216, 208, 0.2);
+}
+
+.garden-form-error {
+  color: #a33a20;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.garden-section-header {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 48rem;
+  text-align: center;
+}
+
+.garden-image-shell {
+  background: linear-gradient(135deg, var(--garden-mint), #c7f4ee, #fff0d8);
+  border-radius: 1.5rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.garden-image-fallback {
+  background:
+    radial-gradient(circle at 25% 20%, rgba(91, 216, 208, 0.55), transparent 14rem),
+    radial-gradient(circle at 80% 15%, rgba(255, 179, 92, 0.34), transparent 16rem),
+    linear-gradient(135deg, #dff8e9, #e9fbff);
+}
+
+.garden-loading-state,
+.garden-empty-state,
+.garden-error-state {
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.garden-loading-state {
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--garden-muted);
+}
+
+.garden-empty-state {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px dashed #b7e7d1;
+  color: var(--garden-muted);
+}
+
+.garden-error-state {
+  background: #fff0eb;
+  border: 1px solid #ffc2ad;
+  color: #a33a20;
+}
+
+.garden-gradient-text {
+  background: linear-gradient(135deg, #075f60 0%, #148f71 48%, #f0643c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.garden-focus {
+  outline: 2px solid transparent;
+  outline-offset: 3px;
+}
+
+.garden-focus:focus-visible {
+  outline-color: var(--garden-teal);
+  box-shadow: 0 0 0 5px rgba(91, 216, 208, 0.24);
+}
+
 .dashboard-input:focus {
-  border-color: #7da06d;
-  box-shadow: 0 0 0 3px rgba(125, 160, 109, 0.22);
+  border-color: var(--garden-primary);
+  box-shadow: 0 0 0 4px rgba(91, 216, 208, 0.2);
 }

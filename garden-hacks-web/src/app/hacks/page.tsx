@@ -45,7 +45,7 @@ export default async function HacksPage({ searchParams }: HacksPageProps) {
           group, difficulty, and rating.
         </SectionTitle>
 
-        <div className="mt-10 grid gap-3 rounded-lg border border-[#dfe8d8] bg-white p-4 md:grid-cols-4">
+        <div className="garden-shell mt-10 grid gap-3 rounded-3xl p-4 md:grid-cols-4">
           <FilterSelect label="Category" options={filters.categories} />
           <FilterSelect label="Group" options={filters.groups} />
           <FilterSelect label="Difficulty" options={filters.difficulties} />
@@ -63,7 +63,7 @@ export default async function HacksPage({ searchParams }: HacksPageProps) {
                 />
               ))}
             </div>
-            <div className="mt-6 flex flex-col gap-3 rounded-lg border border-[#dfe8d8] bg-white p-4 text-sm text-[#59655c] sm:flex-row sm:items-center sm:justify-between">
+            <div className="garden-shell mt-6 flex flex-col gap-3 rounded-3xl p-4 text-sm text-[#59655c] sm:flex-row sm:items-center sm:justify-between">
               <p>
                 Showing {firstVisibleItem}-{lastVisibleItem} of {totalItems} hacks
               </p>
@@ -145,7 +145,7 @@ function PaginationLink({
   return (
     <Link
       href={href}
-      className={`${className} border-[#b7c8ad] bg-white text-[#203525] hover:bg-[#f1f7ed]`}
+      className={`${className} border-[#b7e7d1] bg-white text-[#203525] hover:bg-[#e9fbef]`}
     >
       {children}
     </Link>
@@ -154,10 +154,10 @@ function PaginationLink({
 
 function FilterSelect({ label, options }: { label: string; options: string[] }) {
   return (
-    <label className="grid gap-2 text-sm font-semibold text-[#405046]">
+    <label className="grid gap-2 text-sm font-bold text-[#405046]">
       {label}
       <select
-        className="h-11 rounded-md border border-[#cbd9c2] bg-[#f8faf7] px-3 text-sm text-[#18231c]"
+        className="h-11 rounded-2xl border border-[#b7e7d1] bg-white/80 px-3 text-sm text-[#10231c] outline-none focus:border-[#0f9f93] focus:ring-4 focus:ring-[#5bd8d0]/20"
         defaultValue=""
       >
         <option value="">All {label.toLowerCase()}</option>

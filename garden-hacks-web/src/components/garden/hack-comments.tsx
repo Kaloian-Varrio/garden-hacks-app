@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { CommentIcon, EditIcon, TrashIcon, UserIcon } from "@/components/ui/garden-icons";
 
 type CommentItem = {
   id: number;
@@ -104,10 +105,13 @@ export function HackComments({
   }
 
   return (
-    <section className="rounded-lg border border-[#dfe8d8] bg-white p-6 sm:p-8">
+    <section className="garden-shell rounded-3xl p-6 sm:p-8">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-2xl font-black tracking-normal text-[#18231c]">
+          <h2 className="flex items-center gap-2 text-2xl font-black tracking-tight text-[#10231c]">
+            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#e9fbff] text-[#08747d]">
+              <CommentIcon />
+            </span>
             Comments
           </h2>
           <p className="mt-2 text-sm text-[#59655c]">
@@ -126,11 +130,12 @@ export function HackComments({
           comments.map((comment) => (
             <article
               key={comment.id}
-              className="rounded-lg border border-[#edf2e8] bg-[#f8faf7] p-4"
+              className="rounded-2xl border border-[#d9eee4] bg-white/75 p-4 shadow-sm"
             >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <p className="font-bold text-[#203525]">
+                  <p className="flex items-center gap-2 font-black text-[#203525]">
+                    <UserIcon size={17} />
                     {comment.authorName}
                   </p>
                   <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-[#6c786f]">
@@ -143,8 +148,9 @@ export function HackComments({
                       <button
                         type="button"
                         onClick={() => startEditing(comment)}
-                        className="inline-flex min-h-9 items-center justify-center rounded-md border border-[#b7c8ad] bg-white px-3 py-1.5 text-sm font-semibold text-[#203525] hover:bg-[#f1f7ed]"
+                        className="inline-flex min-h-9 items-center justify-center gap-1 rounded-full border border-[#b7e7d1] bg-white px-3 py-1.5 text-sm font-bold text-[#134c40] transition hover:bg-[#e9fbef]"
                       >
+                        <EditIcon size={14} />
                         Edit
                       </button>
                     )}
@@ -153,8 +159,9 @@ export function HackComments({
                         type="button"
                         disabled={pendingAction === `delete-${comment.id}`}
                         onClick={() => handleDelete(comment.id)}
-                        className="inline-flex min-h-9 items-center justify-center rounded-md border border-[#efb5a8] bg-white px-3 py-1.5 text-sm font-semibold text-[#8a2d1c] hover:bg-[#fff0eb] disabled:cursor-not-allowed disabled:opacity-70"
+                        className="inline-flex min-h-9 items-center justify-center gap-1 rounded-full border border-[#ffc2ad] bg-white px-3 py-1.5 text-sm font-bold text-[#a33a20] transition hover:bg-[#fff0eb] disabled:cursor-not-allowed disabled:opacity-70"
                       >
+                        <TrashIcon size={14} />
                         {pendingAction === `delete-${comment.id}`
                           ? "Deleting..."
                           : "Delete"}
@@ -169,7 +176,7 @@ export function HackComments({
                   <textarea
                     value={editingText}
                     onChange={(event) => setEditingText(event.target.value)}
-                    className="min-h-28 rounded-md border border-[#b7c8ad] bg-white p-3 text-sm leading-6 text-[#203525] outline-none focus:border-[#2f6f3e] focus:ring-2 focus:ring-[#cfe4c5]"
+                    className="min-h-28 rounded-2xl border border-[#b7e7d1] bg-white p-4 text-sm leading-6 text-[#203525] outline-none focus:border-[#0f9f93] focus:ring-4 focus:ring-[#5bd8d0]/20"
                     required
                   />
                   {commentError && (
@@ -181,7 +188,7 @@ export function HackComments({
                     <button
                       type="submit"
                       disabled={pendingAction === `edit-${comment.id}`}
-                      className="inline-flex min-h-10 items-center justify-center rounded-md bg-[#2f6f3e] px-4 py-2 text-sm font-semibold text-white hover:bg-[#285d35] disabled:cursor-not-allowed disabled:opacity-70"
+                      className="inline-flex min-h-10 items-center justify-center rounded-full bg-[#0f9f93] px-4 py-2 text-sm font-bold text-white hover:bg-[#0f766e] disabled:cursor-not-allowed disabled:opacity-70"
                     >
                       {pendingAction === `edit-${comment.id}`
                         ? "Saving..."
@@ -190,7 +197,7 @@ export function HackComments({
                     <button
                       type="button"
                       onClick={() => setEditingId(null)}
-                      className="inline-flex min-h-10 items-center justify-center rounded-md border border-[#b7c8ad] bg-white px-4 py-2 text-sm font-semibold text-[#203525] hover:bg-[#f1f7ed]"
+                      className="inline-flex min-h-10 items-center justify-center rounded-full border border-[#b7e7d1] bg-white px-4 py-2 text-sm font-bold text-[#203525] hover:bg-[#e9fbef]"
                     >
                       Cancel
                     </button>
@@ -204,7 +211,7 @@ export function HackComments({
             </article>
           ))
         ) : (
-          <p className="rounded-lg border border-dashed border-[#cbdac3] bg-[#f8faf7] p-4 text-sm leading-6 text-[#59655c]">
+          <p className="rounded-2xl border border-dashed border-[#b7e7d1] bg-white/70 p-4 text-sm leading-6 text-[#59655c]">
             No comments yet.
           </p>
         )}
@@ -215,7 +222,7 @@ export function HackComments({
           <form onSubmit={handleCreate} className="grid gap-3">
             <label
               htmlFor="comment-text"
-              className="text-sm font-bold text-[#203525]"
+              className="text-sm font-black text-[#203525]"
             >
               Add a comment
             </label>
@@ -223,7 +230,7 @@ export function HackComments({
               id="comment-text"
               value={newText}
               onChange={(event) => setNewText(event.target.value)}
-              className="min-h-32 rounded-md border border-[#b7c8ad] bg-white p-3 text-sm leading-6 text-[#203525] outline-none focus:border-[#2f6f3e] focus:ring-2 focus:ring-[#cfe4c5]"
+              className="min-h-32 rounded-2xl border border-[#b7e7d1] bg-white p-4 text-sm leading-6 text-[#203525] outline-none focus:border-[#0f9f93] focus:ring-4 focus:ring-[#5bd8d0]/20"
               required
             />
             {formError && (
@@ -234,26 +241,26 @@ export function HackComments({
             <button
               type="submit"
               disabled={pendingAction === "create"}
-              className="inline-flex min-h-11 w-fit items-center justify-center rounded-md bg-[#2f6f3e] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#285d35] disabled:cursor-not-allowed disabled:opacity-70"
+              className="inline-flex min-h-11 w-fit items-center justify-center rounded-full bg-gradient-to-r from-[#0f9f93] to-[#176b49] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-emerald-900/15 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {pendingAction === "create" ? "Posting..." : "Post comment"}
             </button>
           </form>
         ) : (
-          <div className="rounded-lg border border-[#dfe8d8] bg-[#f8faf7] p-4">
+          <div className="rounded-2xl border border-[#dfe8d8] bg-white/75 p-4">
             <p className="text-sm font-semibold text-[#203525]">
               Log in to add a comment.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <Link
                 href="/login"
-                className="inline-flex min-h-10 items-center justify-center rounded-md bg-[#2f6f3e] px-4 py-2 text-sm font-semibold text-white hover:bg-[#285d35]"
+                className="inline-flex min-h-10 items-center justify-center rounded-full bg-[#0f9f93] px-4 py-2 text-sm font-bold text-white hover:bg-[#0f766e]"
               >
                 Login
               </Link>
               <Link
                 href="/register"
-                className="inline-flex min-h-10 items-center justify-center rounded-md border border-[#b7c8ad] bg-white px-4 py-2 text-sm font-semibold text-[#203525] hover:bg-[#f1f7ed]"
+                className="inline-flex min-h-10 items-center justify-center rounded-full border border-[#b7e7d1] bg-white px-4 py-2 text-sm font-bold text-[#203525] hover:bg-[#e9fbef]"
               >
                 Register
               </Link>

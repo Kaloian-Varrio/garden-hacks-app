@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import type { ReactNode } from "react";
 import { useState } from "react";
+import { CucumberIcon, TomatoIcon } from "@/components/ui/garden-icons";
 
 type VoteType = "sweet_tomato" | "bitter_cucumber";
 
@@ -107,6 +109,7 @@ export function HackVotePanel({
       <div className={`mt-4 grid gap-3 ${compact ? "" : "sm:grid-cols-2"}`}>
         <VoteButton
           count={sweetTomatoesCount}
+          icon={<TomatoIcon size={22} />}
           isActive={userVote === "sweet_tomato"}
           isDisabled={!isLoggedIn}
           isPending={pendingVote === "sweet_tomato"}
@@ -115,6 +118,7 @@ export function HackVotePanel({
         />
         <VoteButton
           count={bitterCucumbersCount}
+          icon={<CucumberIcon size={22} />}
           isActive={userVote === "bitter_cucumber"}
           isDisabled={!isLoggedIn}
           isPending={pendingVote === "bitter_cucumber"}
@@ -145,6 +149,7 @@ export function HackVotePanel({
 
 function VoteButton({
   count,
+  icon,
   isActive,
   isDisabled,
   isPending,
@@ -152,6 +157,7 @@ function VoteButton({
   onClick,
 }: {
   count: number;
+  icon: ReactNode;
   isActive: boolean;
   isDisabled: boolean;
   isPending: boolean;
@@ -170,7 +176,12 @@ function VoteButton({
       } disabled:cursor-not-allowed disabled:opacity-70`}
     >
       <span>
-        <span className="block text-sm font-black">{label}</span>
+        <span className="flex items-center gap-2 text-sm font-black">
+          <span className={isActive ? "text-[#0f766e]" : "text-[#f0643c]"}>
+            {icon}
+          </span>
+          {label}
+        </span>
         <span className="mt-1 block text-xs font-bold uppercase tracking-[0.12em] text-[#59655c]">
           {isActive ? "Your vote" : "Vote"}
         </span>
