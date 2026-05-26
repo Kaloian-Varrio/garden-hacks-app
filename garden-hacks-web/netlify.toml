@@ -1,0 +1,10 @@
+[build]
+  command = "npm install --include=optional && npm run build --workspace garden-hacks"
+  publish = "garden-hacks-web/.next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NPM_FLAGS = "--include=optional"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

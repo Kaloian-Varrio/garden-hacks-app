@@ -1,0 +1,7 @@
+[build]
+  command = "npm install --include=optional && npm run build --workspace garden-hacks-mobile"
+  publish = "garden-hacks-mobile/dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NPM_FLAGS = "--include=optional"
