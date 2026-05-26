@@ -7,6 +7,7 @@ import { navLinks } from "./nav-links";
 
 export async function Header() {
   const user = await getCurrentUser();
+  const visibleNavLinks = navLinks.filter((link) => user || !link.authRequired);
 
   return (
     <header className="sticky top-0 z-40 border-b border-[#dfe8d8] bg-[#f8faf7]/95 backdrop-blur">
@@ -20,7 +21,7 @@ export async function Header() {
           </span>
         </Link>
         <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
-          {navLinks.map((link) => (
+          {visibleNavLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}

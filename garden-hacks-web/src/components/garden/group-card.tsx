@@ -28,7 +28,7 @@ export function GroupCard({ group }: { group: PublicGroup }) {
             {group.hacksCount} hacks
           </span>
         </div>
-        <Button href={`/groups/${group.slug}`} variant="secondary" className="mt-5 w-full">
+        <Button href={`/groups/${group.id}`} variant="secondary" className="mt-5 w-full">
           View group details
         </Button>
       </div>

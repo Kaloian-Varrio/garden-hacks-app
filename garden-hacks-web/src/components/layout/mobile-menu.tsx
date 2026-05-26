@@ -7,6 +7,7 @@ import { navLinks } from "./nav-links";
 
 export function MobileMenu({ user }: { user: { name: string } | null }) {
   const [isOpen, setIsOpen] = useState(false);
+  const visibleNavLinks = navLinks.filter((link) => user || !link.authRequired);
 
   return (
     <div className="md:hidden">
@@ -22,7 +23,7 @@ export function MobileMenu({ user }: { user: { name: string } | null }) {
       {isOpen ? (
         <div className="absolute left-4 right-4 top-16 z-50 rounded-lg border border-[#dfe8d8] bg-white p-3 shadow-lg">
           <nav className="grid gap-1" aria-label="Mobile navigation">
-            {navLinks.map((link) => (
+            {visibleNavLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
