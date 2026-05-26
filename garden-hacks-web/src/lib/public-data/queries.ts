@@ -1,13 +1,17 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq } from "drizzle-orm";
 import { fallbackGroups, fallbackHacks } from "./fallback";
 import type {
   PublicGroup,
   PublicGroupDetail,
   PublicHack,
   PublicHackComment,
+  PublicHackPage,
 } from "./types";
 
 const canUseDatabase = () => Boolean(process.env.DATABASE_URL);
+const DEFAULT_PUBLIC_HACKS_PAGE = 1;
+const DEFAULT_PUBLIC_HACKS_PAGE_SIZE = 10;
+const MAX_PUBLIC_HACKS_PAGE_SIZE = 50;
 
 export async function getPublicGroups(limit?: number): Promise<PublicGroup[]> {
   if (!canUseDatabase()) {
@@ -170,18 +174,62 @@ export async function getPublicGroupBySlug(
 }
 
 export async function getPublicHacks(limit?: number): Promise<PublicHack[]> {
+  const page = await getPublicHacksPage({
+    page: DEFAULT_PUBLIC_HACKS_PAGE,
+    pageSize: limit ?? MAX_PUBLIC_HACKS_PAGE_SIZE,
+  });
+
+  return page.hacks;
+}
+
+export async function getPublicHacksPage(
+  options: {
+    page?: number;
+    pageSize?: number;
+  } = {},
+): Promise<PublicHackPage> {
+  const requestedPage =
+    Number.isInteger(options.page) && options.page && options.page > 0
+      ? options.page
+      : DEFAULT_PUBLIC_HACKS_PAGE;
+  const requestedPageSize =
+    Number.isInteger(options.pageSize) &&
+    options.pageSize &&
+    options.pageSize > 0
+      ? options.pageSize
+      : DEFAULT_PUBLIC_HACKS_PAGE_SIZE;
+  const pageSize = Math.min(requestedPageSize, MAX_PUBLIC_HACKS_PAGE_SIZE);
+
   if (!canUseDatabase()) {
-    return limit ? fallbackHacks.slice(0, limit) : fallbackHacks;
+    const totalItems = fallbackHacks.length;
+    const totalPages = Math.ceil(totalItems / pageSize);
+    const currentPage = totalPages > 0 ? Math.min(requestedPage, totalPages) : 1;
+    const offset = (currentPage - 1) * pageSize;
+
+    return {
+      hacks: fallbackHacks.slice(offset, offset + pageSize),
+      currentPage,
+      pageSize,
+      totalItems,
+      totalPages,
+    };
   }
 
   try {
-    const { categories, db, gardeningHacks, groups, users } = await import(
-      "@/db"
-    );
+    const { db, gardeningHacks } = await import("@/db");
+    const totalRows = await db
+      .select({ count: count() })
+      .from(gardeningHacks)
+      .where(eq(gardeningHacks.status, "published"));
+    const totalItems = Number(totalRows[0]?.count ?? 0);
+    const totalPages = Math.ceil(totalItems / pageSize);
+    const currentPage = totalPages > 0 ? Math.min(requestedPage, totalPages) : 1;
+
     const rows = await db.query.gardeningHacks.findMany({
       where: eq(gardeningHacks.status, "published"),
       orderBy: [desc(gardeningHacks.ratingScore), desc(gardeningHacks.createdAt)],
-      limit,
+      limit: pageSize,
+      offset: (currentPage - 1) * pageSize,
       with: {
         author: {
           columns: {
@@ -203,34 +251,47 @@ export async function getPublicHacks(limit?: number): Promise<PublicHack[]> {
       },
     });
 
-    void categories;
-    void groups;
-    void users;
-
-    return rows.map((hack) => ({
-      id: hack.id,
-      title: hack.title,
-      slug: hack.slug,
-      excerpt: hack.excerpt,
-      content: hack.content,
-      imageUrl: hack.imageUrl,
-      category: hack.category.title,
-      group: hack.group.title,
-      groupId: hack.group.id,
-      groupSlug: hack.group.slug,
-      author: hack.author.name,
-      difficulty: hack.difficulty,
-      isOrganic: hack.isOrganic,
-      isChemicalFree: hack.isChemicalFree,
-      sweetTomatoesCount: hack.sweetTomatoesCount,
-      bitterCucumbersCount: hack.bitterCucumbersCount,
-      ratingScore: hack.ratingScore,
-      commentsCount: hack.commentsCount,
-      comments: [],
-      viewerGroupRole: null,
-    }));
+    return {
+      hacks: rows.map((hack) => ({
+        id: hack.id,
+        title: hack.title,
+        slug: hack.slug,
+        excerpt: hack.excerpt,
+        content: hack.content,
+        imageUrl: hack.imageUrl,
+        category: hack.category.title,
+        group: hack.group.title,
+        groupId: hack.group.id,
+        groupSlug: hack.group.slug,
+        author: hack.author.name,
+        difficulty: hack.difficulty,
+        isOrganic: hack.isOrganic,
+        isChemicalFree: hack.isChemicalFree,
+        sweetTomatoesCount: hack.sweetTomatoesCount,
+        bitterCucumbersCount: hack.bitterCucumbersCount,
+        ratingScore: hack.ratingScore,
+        commentsCount: hack.commentsCount,
+        comments: [],
+        viewerGroupRole: null,
+      })),
+      currentPage,
+      pageSize,
+      totalItems,
+      totalPages,
+    };
   } catch {
-    return limit ? fallbackHacks.slice(0, limit) : fallbackHacks;
+    const totalItems = fallbackHacks.length;
+    const totalPages = Math.ceil(totalItems / pageSize);
+    const currentPage = totalPages > 0 ? Math.min(requestedPage, totalPages) : 1;
+    const offset = (currentPage - 1) * pageSize;
+
+    return {
+      hacks: fallbackHacks.slice(offset, offset + pageSize),
+      currentPage,
+      pageSize,
+      totalItems,
+      totalPages,
+    };
   }
 }
 
@@ -335,13 +396,41 @@ export async function getPublicHackBySlug(
 }
 
 export async function getFilterOptions() {
-  const [groups, hacks] = await Promise.all([getPublicGroups(), getPublicHacks()]);
-  const categories = [...new Set(hacks.map((hack) => hack.category))].sort();
+  if (!canUseDatabase()) {
+    const categories = [...new Set(fallbackHacks.map((hack) => hack.category))].sort();
 
-  return {
-    categories,
-    groups: groups.map((group) => group.title),
-    difficulties: ["easy", "medium", "hard"],
-    ratings: ["Highest rated", "Most sweet tomatoes", "Most discussed"],
-  };
+    return {
+      categories,
+      groups: fallbackGroups.map((group) => group.title),
+      difficulties: ["easy", "medium", "hard"],
+      ratings: ["Highest rated", "Most sweet tomatoes", "Most discussed"],
+    };
+  }
+
+  try {
+    const { categories: categoryTable, db } = await import("@/db");
+    const [groups, categoryRows] = await Promise.all([
+      getPublicGroups(),
+      db
+        .select({ title: categoryTable.title })
+        .from(categoryTable)
+        .orderBy(categoryTable.title),
+    ]);
+
+    return {
+      categories: categoryRows.map((category) => category.title),
+      groups: groups.map((group) => group.title),
+      difficulties: ["easy", "medium", "hard"],
+      ratings: ["Highest rated", "Most sweet tomatoes", "Most discussed"],
+    };
+  } catch {
+    const categories = [...new Set(fallbackHacks.map((hack) => hack.category))].sort();
+
+    return {
+      categories,
+      groups: fallbackGroups.map((group) => group.title),
+      difficulties: ["easy", "medium", "hard"],
+      ratings: ["Highest rated", "Most sweet tomatoes", "Most discussed"],
+    };
+  }
 }

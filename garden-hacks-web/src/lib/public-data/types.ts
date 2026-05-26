@@ -55,3 +55,11 @@ export type PublicHack = {
   comments: PublicHackComment[];
   viewerGroupRole: "member" | "manager" | null;
 };
+
+export type PublicHackPage = {
+  hacks: PublicHack[];
+  currentPage: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+};
