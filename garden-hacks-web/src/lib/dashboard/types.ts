@@ -31,6 +31,14 @@ export type DashboardHackListItem = {
   createdAt: Date;
 };
 
+export type DashboardHackPage = {
+  hacks: DashboardHackListItem[];
+  currentPage: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+};
+
 export type DashboardActivityItem = {
   id: number;
   reason: string;

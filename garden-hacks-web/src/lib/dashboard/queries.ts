@@ -14,11 +14,15 @@ import {
 import type {
   DashboardActivityItem,
   DashboardGroupItem,
+  DashboardHackPage,
   DashboardHackFormValues,
-  DashboardHackListItem,
   DashboardSavedHackItem,
   SelectOption,
 } from "./types";
+
+const DEFAULT_DASHBOARD_HACKS_PAGE = 1;
+const DEFAULT_DASHBOARD_HACKS_PAGE_SIZE = 10;
+const MAX_DASHBOARD_HACKS_PAGE_SIZE = 50;
 
 async function countRows<T extends number>(query: Promise<Array<{ count: T }>>) {
   const [row] = await query;
@@ -109,10 +113,39 @@ export async function getRecentActivity(
 
 export async function getDashboardHacks(
   userId: number,
-): Promise<DashboardHackListItem[]> {
+  options: {
+    page?: number;
+    pageSize?: number;
+  } = {},
+): Promise<DashboardHackPage> {
+  const requestedPage =
+    Number.isInteger(options.page) && options.page && options.page > 0
+      ? options.page
+      : DEFAULT_DASHBOARD_HACKS_PAGE;
+  const requestedPageSize =
+    Number.isInteger(options.pageSize) &&
+    options.pageSize &&
+    options.pageSize > 0
+      ? options.pageSize
+      : DEFAULT_DASHBOARD_HACKS_PAGE_SIZE;
+  const pageSize = Math.min(
+    requestedPageSize,
+    MAX_DASHBOARD_HACKS_PAGE_SIZE,
+  );
+  const totalItems = await countRows(
+    db
+      .select({ count: count() })
+      .from(gardeningHacks)
+      .where(eq(gardeningHacks.authorId, userId)),
+  );
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const currentPage = totalPages > 0 ? Math.min(requestedPage, totalPages) : 1;
+
   const rows = await db.query.gardeningHacks.findMany({
     where: eq(gardeningHacks.authorId, userId),
     orderBy: [desc(gardeningHacks.createdAt)],
+    limit: pageSize,
+    offset: (currentPage - 1) * pageSize,
     with: {
       group: {
         columns: {
@@ -127,19 +160,25 @@ export async function getDashboardHacks(
     },
   });
 
-  return rows.map((hack) => ({
-    id: hack.id,
-    title: hack.title,
-    slug: hack.slug,
-    status: hack.status,
-    group: hack.group.title,
-    category: hack.category.title,
-    sweetTomatoesCount: hack.sweetTomatoesCount,
-    bitterCucumbersCount: hack.bitterCucumbersCount,
-    ratingScore: hack.ratingScore,
-    commentsCount: hack.commentsCount,
-    createdAt: hack.createdAt,
-  }));
+  return {
+    hacks: rows.map((hack) => ({
+      id: hack.id,
+      title: hack.title,
+      slug: hack.slug,
+      status: hack.status,
+      group: hack.group.title,
+      category: hack.category.title,
+      sweetTomatoesCount: hack.sweetTomatoesCount,
+      bitterCucumbersCount: hack.bitterCucumbersCount,
+      ratingScore: hack.ratingScore,
+      commentsCount: hack.commentsCount,
+      createdAt: hack.createdAt,
+    })),
+    currentPage,
+    pageSize,
+    totalItems,
+    totalPages,
+  };
 }
 
 export async function getDashboardSavedHacks(

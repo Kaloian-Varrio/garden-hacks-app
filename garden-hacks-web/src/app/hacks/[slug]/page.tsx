@@ -2,8 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { HackComments } from "@/components/garden/hack-comments";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { getCurrentUser } from "@/lib/auth/session";
 import { getPublicHackBySlug } from "@/lib/public-data/queries";
 
 type HackDetailsPageProps = {
@@ -26,11 +28,27 @@ export async function generateMetadata({
 
 export default async function HackDetailsPage({ params }: HackDetailsPageProps) {
   const { slug } = await params;
-  const hack = await getPublicHackBySlug(slug);
+  const currentUser = await getCurrentUser();
+  const hack = await getPublicHackBySlug(slug, currentUser?.id);
 
   if (!hack) {
     notFound();
   }
+
+  const canModerateGroupComments = hack.viewerGroupRole === "manager";
+  const comments = hack.comments.map((comment) => ({
+    id: comment.id,
+    text: comment.text,
+    authorName: comment.authorName,
+    createdAt: comment.createdAt?.toISOString() ?? null,
+    updatedAt: comment.updatedAt?.toISOString() ?? null,
+    canEdit:
+      currentUser?.role === "admin" || currentUser?.id === comment.authorId,
+    canDelete:
+      currentUser?.role === "admin" ||
+      currentUser?.id === comment.authorId ||
+      canModerateGroupComments,
+  }));
 
   return (
     <article>
@@ -79,60 +97,47 @@ export default async function HackDetailsPage({ params }: HackDetailsPageProps) 
       </section>
 
       <section className="px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1fr_360px]">
-          <div className="rounded-lg border border-[#dfe8d8] bg-white p-6 sm:p-8">
-            <h2 className="text-2xl font-black tracking-normal text-[#18231c]">
-              The hack
-            </h2>
-            <p className="mt-5 whitespace-pre-line text-base leading-8 text-[#405046]">
-              {hack.content}
-            </p>
+        <div
+          className={`mx-auto grid max-w-7xl gap-8 ${
+            !currentUser ? "lg:grid-cols-[1fr_360px]" : ""
+          }`}
+        >
+          <div className="space-y-8">
+            <div className="rounded-lg border border-[#dfe8d8] bg-white p-6 sm:p-8">
+              <h2 className="text-2xl font-black tracking-normal text-[#18231c]">
+                The hack
+              </h2>
+              <p className="mt-5 whitespace-pre-line text-base leading-8 text-[#405046]">
+                {hack.content}
+              </p>
+            </div>
+
+            <HackComments
+              hackId={hack.id}
+              comments={comments}
+              isLoggedIn={Boolean(currentUser)}
+            />
           </div>
 
-          <aside className="space-y-5">
-            <div className="rounded-lg border border-[#dfe8d8] bg-white p-5">
-              <h2 className="text-lg font-black text-[#18231c]">
-                Join to interact
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-[#59655c]">
-                Login or register to vote with Sweet Tomatoes or Bitter
-                Cucumbers, like, comment, save hacks, and earn community points.
-              </p>
-              <div className="mt-5 grid gap-2">
-                <Button href="/login">Login</Button>
-                <Button href="/register" variant="secondary">
-                  Register
-                </Button>
+          {!currentUser && (
+            <aside className="space-y-5">
+              <div className="rounded-lg border border-[#dfe8d8] bg-white p-5">
+                <h2 className="text-lg font-black text-[#18231c]">
+                  Join to interact
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-[#59655c]">
+                  Login or register to vote with Sweet Tomatoes or Bitter
+                  Cucumbers, like, comment, save hacks, and earn community points.
+                </p>
+                <div className="mt-5 grid gap-2">
+                  <Button href="/login">Login</Button>
+                  <Button href="/register" variant="secondary">
+                    Register
+                  </Button>
+                </div>
               </div>
-            </div>
-            <div className="rounded-lg border border-[#dfe8d8] bg-white p-5">
-              <h2 className="text-lg font-black text-[#18231c]">
-                Comments preview
-              </h2>
-              <div className="mt-4 grid gap-3">
-                {hack.comments.length > 0 ? (
-                  hack.comments.map((comment) => (
-                    <div
-                      key={comment.id}
-                      className="rounded-md bg-[#f8faf7] p-3 text-sm"
-                    >
-                      <p className="font-bold text-[#203525]">
-                        {comment.author}
-                      </p>
-                      <p className="mt-1 leading-6 text-[#59655c]">
-                        {comment.text}
-                      </p>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm leading-6 text-[#59655c]">
-                    Comments will appear here when community members discuss
-                    this hack.
-                  </p>
-                )}
-              </div>
-            </div>
-          </aside>
+            </aside>
+          )}
         </div>
       </section>
     </article>

@@ -101,6 +101,7 @@ export async function getPublicGroupBySlug(
           },
           group: {
             columns: {
+              id: true,
               title: true,
               slug: true,
             },
@@ -143,6 +144,7 @@ export async function getPublicGroupBySlug(
         imageUrl: hack.imageUrl,
         category: hack.category.title,
         group: hack.group.title,
+        groupId: hack.groupId,
         groupSlug: hack.group.slug,
         author: hack.author.name,
         difficulty: hack.difficulty,
@@ -153,6 +155,7 @@ export async function getPublicGroupBySlug(
         ratingScore: hack.ratingScore,
         commentsCount: hack.commentsCount,
         comments: [],
+        viewerGroupRole: null,
       })),
       viewerMembership: viewerMembership
         ? {
@@ -192,6 +195,7 @@ export async function getPublicHacks(limit?: number): Promise<PublicHack[]> {
         },
         group: {
           columns: {
+            id: true,
             title: true,
             slug: true,
           },
@@ -212,6 +216,7 @@ export async function getPublicHacks(limit?: number): Promise<PublicHack[]> {
       imageUrl: hack.imageUrl,
       category: hack.category.title,
       group: hack.group.title,
+      groupId: hack.group.id,
       groupSlug: hack.group.slug,
       author: hack.author.name,
       difficulty: hack.difficulty,
@@ -222,6 +227,7 @@ export async function getPublicHacks(limit?: number): Promise<PublicHack[]> {
       ratingScore: hack.ratingScore,
       commentsCount: hack.commentsCount,
       comments: [],
+      viewerGroupRole: null,
     }));
   } catch {
     return limit ? fallbackHacks.slice(0, limit) : fallbackHacks;
@@ -230,13 +236,14 @@ export async function getPublicHacks(limit?: number): Promise<PublicHack[]> {
 
 export async function getPublicHackBySlug(
   slug: string,
+  viewerUserId?: number,
 ): Promise<PublicHack | null> {
   if (!canUseDatabase()) {
     return fallbackHacks.find((hack) => hack.slug === slug) ?? null;
   }
 
   try {
-    const { db, gardeningHacks } = await import("@/db");
+    const { db, gardeningHacks, groupMembers } = await import("@/db");
     const hack = await db.query.gardeningHacks.findFirst({
       where: eq(gardeningHacks.slug, slug),
       with: {
@@ -252,19 +259,21 @@ export async function getPublicHackBySlug(
         },
         group: {
           columns: {
+            id: true,
             title: true,
             slug: true,
           },
         },
         comments: {
-          limit: 4,
           orderBy: (comments, { desc: descending }) => [
             descending(comments.createdAt),
           ],
           with: {
             user: {
               columns: {
+                id: true,
                 name: true,
+                photoUrl: true,
               },
             },
           },
@@ -276,10 +285,26 @@ export async function getPublicHackBySlug(
       return null;
     }
 
+    const viewerMembership = viewerUserId
+      ? await db.query.groupMembers.findFirst({
+          where: and(
+            eq(groupMembers.groupId, hack.group.id),
+            eq(groupMembers.userId, viewerUserId),
+          ),
+          columns: {
+            groupRole: true,
+          },
+        })
+      : null;
+
     const comments: PublicHackComment[] = hack.comments.map((comment) => ({
       id: comment.id,
-      author: comment.user.name,
+      authorId: comment.user.id,
+      authorName: comment.user.name,
+      authorPhotoUrl: comment.user.photoUrl,
       text: comment.text,
+      createdAt: comment.createdAt,
+      updatedAt: comment.updatedAt,
     }));
 
     return {
@@ -291,6 +316,7 @@ export async function getPublicHackBySlug(
       imageUrl: hack.imageUrl,
       category: hack.category.title,
       group: hack.group.title,
+      groupId: hack.group.id,
       groupSlug: hack.group.slug,
       author: hack.author.name,
       difficulty: hack.difficulty,
@@ -301,6 +327,7 @@ export async function getPublicHackBySlug(
       ratingScore: hack.ratingScore,
       commentsCount: hack.commentsCount,
       comments,
+      viewerGroupRole: viewerMembership?.groupRole ?? null,
     };
   } catch {
     return fallbackHacks.find((hack) => hack.slug === slug) ?? null;

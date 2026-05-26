@@ -46,6 +46,9 @@ const docsHtml = `<!doctype html>
           <tr><td>POST</td><td><code>/api/hacks/{id}/save</code></td><td><span class="badge">JWT</span></td><td>Toggle saved state.</td></tr>
           <tr><td>POST</td><td><code>/api/hacks/{id}/vote</code></td><td><span class="badge">JWT</span></td><td>Vote with <code>sweet_tomato</code> or <code>bitter_cucumber</code>.</td></tr>
           <tr><td>POST</td><td><code>/api/hacks/{id}/comments</code></td><td><span class="badge">JWT</span></td><td>Create a comment. Body: <code>{ "text": "Very useful hack." }</code>.</td></tr>
+          <tr><td>PATCH</td><td><code>/api/hacks/{id}/comments/{commentId}</code></td><td><span class="badge">JWT</span></td><td>Edit an owned comment, or any comment as an admin.</td></tr>
+          <tr><td>DELETE</td><td><code>/api/hacks/{id}/comments/{commentId}</code></td><td><span class="badge">JWT</span></td><td>Delete an owned comment, any comment as an admin, or group comments as a manager.</td></tr>
+          <tr><td>GET</td><td><code>/api/dashboard/hacks?page=1&pageSize=10</code></td><td><span class="badge">JWT</span></td><td>List the current user's hacks with server-side pagination.</td></tr>
           <tr><td>GET</td><td><code>/api/categories</code></td><td>Public</td><td>List categories for filters and forms.</td></tr>
           <tr><td>GET</td><td><code>/api/mobile/dashboard</code></td><td><span class="badge">JWT</span></td><td>Compact profile, counts, recent hacks, and joined groups.</td></tr>
         </tbody>
@@ -78,4 +81,3 @@ export async function GET() {
     },
   });
 }
-

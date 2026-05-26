@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { DeleteHackButton } from "@/components/dashboard/delete-hack-button";
 import { StatusBadge } from "@/components/dashboard/status-badge";
@@ -12,14 +13,32 @@ export const metadata: Metadata = {
   title: "My Hacks",
 };
 
-export default async function MyHacksPage() {
+type MyHacksPageProps = {
+  searchParams?: Promise<{
+    page?: string | string[];
+    pageSize?: string | string[];
+  }>;
+};
+
+export default async function MyHacksPage({ searchParams }: MyHacksPageProps) {
   const user = await getCurrentUser();
 
   if (!user) {
     redirect("/login");
   }
 
-  const hacks = await getDashboardHacks(user.id);
+  const resolvedSearchParams = await searchParams;
+  const result = await getDashboardHacks(user.id, {
+    page: parsePositiveInteger(readSearchParam(resolvedSearchParams?.page)),
+    pageSize: parsePositiveInteger(
+      readSearchParam(resolvedSearchParams?.pageSize),
+    ),
+  });
+  const { hacks, currentPage, pageSize, totalItems, totalPages } = result;
+  const displayTotalPages = Math.max(totalPages, 1);
+  const firstVisibleItem =
+    totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+  const lastVisibleItem = Math.min(currentPage * pageSize, totalItems);
 
   return (
     <div className="rounded-lg border border-[#dfe8d8] bg-white p-6 shadow-sm">
@@ -92,6 +111,28 @@ export default async function MyHacksPage() {
               ))}
             </tbody>
           </table>
+          <div className="mt-5 flex flex-col gap-3 border-t border-[#edf2e8] pt-5 text-sm text-[#59655c] sm:flex-row sm:items-center sm:justify-between">
+            <p>
+              Showing {firstVisibleItem}-{lastVisibleItem} of {totalItems} hacks
+            </p>
+            <div className="flex items-center gap-2">
+              <PaginationLink
+                href={getPageHref(currentPage - 1, pageSize)}
+                disabled={currentPage <= 1}
+              >
+                Previous
+              </PaginationLink>
+              <span className="min-w-24 text-center font-bold text-[#18231c]">
+                Page {currentPage} of {displayTotalPages}
+              </span>
+              <PaginationLink
+                href={getPageHref(currentPage + 1, pageSize)}
+                disabled={currentPage >= displayTotalPages}
+              >
+                Next
+              </PaginationLink>
+            </div>
+          </div>
         </div>
       ) : (
         <div className="mt-6">
@@ -104,6 +145,59 @@ export default async function MyHacksPage() {
         </div>
       )}
     </div>
+  );
+}
+
+function readSearchParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function parsePositiveInteger(value: string | undefined) {
+  if (!value) {
+    return undefined;
+  }
+
+  const parsedValue = Number(value);
+
+  return Number.isInteger(parsedValue) && parsedValue > 0
+    ? parsedValue
+    : undefined;
+}
+
+function getPageHref(page: number, pageSize: number) {
+  return `/dashboard/hacks?page=${page}&pageSize=${pageSize}`;
+}
+
+function PaginationLink({
+  children,
+  disabled,
+  href,
+}: {
+  children: ReactNode;
+  disabled: boolean;
+  href: string;
+}) {
+  const className =
+    "inline-flex min-h-10 items-center justify-center rounded-md border px-3 py-2 text-sm font-semibold";
+
+  if (disabled) {
+    return (
+      <span
+        aria-disabled="true"
+        className={`${className} cursor-not-allowed border-[#dfe8d8] bg-[#f8faf7] text-[#8a968d]`}
+      >
+        {children}
+      </span>
+    );
+  }
+
+  return (
+    <Link
+      href={href}
+      className={`${className} border-[#b7c8ad] bg-white text-[#203525] hover:bg-[#f1f7ed]`}
+    >
+      {children}
+    </Link>
   );
 }
 

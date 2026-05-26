@@ -25,8 +25,12 @@ export type PublicGroupDetail = PublicGroup & {
 
 export type PublicHackComment = {
   id: number;
-  author: string;
+  authorId: number | null;
+  authorName: string;
+  authorPhotoUrl: string | null;
   text: string;
+  createdAt: Date | null;
+  updatedAt: Date | null;
 };
 
 export type PublicHack = {
@@ -38,6 +42,7 @@ export type PublicHack = {
   imageUrl: string | null;
   category: string;
   group: string;
+  groupId: number;
   groupSlug: string;
   author: string;
   difficulty: "easy" | "medium" | "hard";
@@ -48,4 +53,5 @@ export type PublicHack = {
   ratingScore: number;
   commentsCount: number;
   comments: PublicHackComment[];
+  viewerGroupRole: "member" | "manager" | null;
 };
