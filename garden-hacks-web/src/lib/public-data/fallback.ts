@@ -85,6 +85,7 @@ export const fallbackHacks: PublicHack[] = [
         updatedAt: new Date("2026-05-19T11:30:00.000Z"),
       },
     ],
+    userVote: null,
     viewerGroupRole: null,
   },
   {
@@ -119,6 +120,7 @@ export const fallbackHacks: PublicHack[] = [
         updatedAt: new Date("2026-05-20T14:15:00.000Z"),
       },
     ],
+    userVote: null,
     viewerGroupRole: null,
   },
   {
@@ -143,6 +145,7 @@ export const fallbackHacks: PublicHack[] = [
     ratingScore: 4,
     commentsCount: 3,
     comments: [],
+    userVote: null,
     viewerGroupRole: null,
   },
 ];

@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { HackCard } from "@/components/garden/hack-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { SectionTitle } from "@/components/ui/section-title";
+import { getCurrentUser } from "@/lib/auth/session";
 import { getFilterOptions, getPublicHacksPage } from "@/lib/public-data/queries";
 
 export const metadata: Metadata = {
@@ -19,12 +20,14 @@ type HacksPageProps = {
 
 export default async function HacksPage({ searchParams }: HacksPageProps) {
   const resolvedSearchParams = await searchParams;
+  const currentUser = await getCurrentUser();
   const [hackPage, filters] = await Promise.all([
     getPublicHacksPage({
       page: parsePositiveInteger(readSearchParam(resolvedSearchParams?.page)),
       pageSize: parsePositiveInteger(
         readSearchParam(resolvedSearchParams?.pageSize),
       ),
+      viewerUserId: currentUser?.id,
     }),
     getFilterOptions(),
   ]);
@@ -53,7 +56,11 @@ export default async function HacksPage({ searchParams }: HacksPageProps) {
           <div className="mt-8">
             <div className="grid gap-5">
               {hacks.map((hack) => (
-                <HackCard key={hack.id} hack={hack} />
+                <HackCard
+                  key={hack.id}
+                  hack={hack}
+                  isLoggedIn={Boolean(currentUser)}
+                />
               ))}
             </div>
             <div className="mt-6 flex flex-col gap-3 rounded-lg border border-[#dfe8d8] bg-white p-4 text-sm text-[#59655c] sm:flex-row sm:items-center sm:justify-between">

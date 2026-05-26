@@ -160,6 +160,7 @@ export async function getPublicGroupBySlug(
         ratingScore: hack.ratingScore,
         commentsCount: hack.commentsCount,
         comments: [],
+        userVote: null,
         viewerGroupRole: null,
       })),
       viewerMembership: viewerMembership
@@ -174,10 +175,14 @@ export async function getPublicGroupBySlug(
   }
 }
 
-export async function getPublicHacks(limit?: number): Promise<PublicHack[]> {
+export async function getPublicHacks(
+  limit?: number,
+  viewerUserId?: number,
+): Promise<PublicHack[]> {
   const page = await getPublicHacksPage({
     page: DEFAULT_PUBLIC_HACKS_PAGE,
     pageSize: limit ?? MAX_PUBLIC_HACKS_PAGE_SIZE,
+    viewerUserId,
   });
 
   return page.hacks;
@@ -187,6 +192,7 @@ export async function getPublicHacksPage(
   options: {
     page?: number;
     pageSize?: number;
+    viewerUserId?: number;
   } = {},
 ): Promise<PublicHackPage> {
   const requestedPage =
@@ -217,7 +223,7 @@ export async function getPublicHacksPage(
   }
 
   try {
-    const { db, gardeningHacks } = await import("@/db");
+    const { db, gardeningHacks, hackVotes } = await import("@/db");
     const totalRows = await db
       .select({ count: count() })
       .from(gardeningHacks)
@@ -252,6 +258,24 @@ export async function getPublicHacksPage(
       },
     });
 
+    const hackIds = rows.map((hack) => hack.id);
+    const votes = options.viewerUserId && hackIds.length > 0
+      ? await db.query.hackVotes.findMany({
+          where: (vote, { and: all, eq: equals, inArray: inValues }) =>
+            all(
+              equals(vote.userId, options.viewerUserId!),
+              inValues(vote.hackId, hackIds),
+            ),
+          columns: {
+            hackId: true,
+            voteType: true,
+          },
+        })
+      : [];
+    const votesByHackId = new Map(
+      votes.map((vote) => [vote.hackId, vote.voteType] as const),
+    );
+
     return {
       hacks: rows.map((hack) => ({
         id: hack.id,
@@ -273,6 +297,7 @@ export async function getPublicHacksPage(
         ratingScore: hack.ratingScore,
         commentsCount: hack.commentsCount,
         comments: [],
+        userVote: votesByHackId.get(hack.id) ?? null,
         viewerGroupRole: null,
       })),
       currentPage,
@@ -305,7 +330,7 @@ export async function getPublicHackBySlug(
   }
 
   try {
-    const { db, gardeningHacks, groupMembers } = await import("@/db");
+    const { db, gardeningHacks, groupMembers, hackVotes } = await import("@/db");
     const hack = await db.query.gardeningHacks.findFirst({
       where: eq(gardeningHacks.slug, slug),
       with: {
@@ -349,17 +374,28 @@ export async function getPublicHackBySlug(
 
     const viewerUserId = typeof viewer === "number" ? viewer : viewer?.id;
     const viewerRole = typeof viewer === "number" ? "user" : viewer?.role;
-    const viewerMembership = viewerUserId
-      ? await db.query.groupMembers.findFirst({
-          where: and(
-            eq(groupMembers.groupId, hack.group.id),
-            eq(groupMembers.userId, viewerUserId),
-          ),
-          columns: {
-            groupRole: true,
-          },
-        })
-      : null;
+    const [viewerMembership, viewerVote] = viewerUserId
+      ? await Promise.all([
+          db.query.groupMembers.findFirst({
+            where: and(
+              eq(groupMembers.groupId, hack.group.id),
+              eq(groupMembers.userId, viewerUserId),
+            ),
+            columns: {
+              groupRole: true,
+            },
+          }),
+          db.query.hackVotes.findFirst({
+            where: and(
+              eq(hackVotes.hackId, hack.id),
+              eq(hackVotes.userId, viewerUserId),
+            ),
+            columns: {
+              voteType: true,
+            },
+          }),
+        ])
+      : [null, null];
 
     if (
       hack.status !== "published" &&
@@ -399,6 +435,7 @@ export async function getPublicHackBySlug(
       ratingScore: hack.ratingScore,
       commentsCount: hack.commentsCount,
       comments,
+      userVote: viewerVote?.voteType ?? null,
       viewerGroupRole: viewerMembership?.groupRole ?? null,
     };
   } catch {

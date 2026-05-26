@@ -4,12 +4,14 @@ import { HackCard } from "@/components/garden/hack-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SectionTitle } from "@/components/ui/section-title";
+import { getCurrentUser } from "@/lib/auth/session";
 import { getPublicGroups, getPublicHacks } from "@/lib/public-data/queries";
 
 export default async function Home() {
+  const currentUser = await getCurrentUser();
   const [groups, hacks] = await Promise.all([
     getPublicGroups(3),
-    getPublicHacks(3),
+    getPublicHacks(3, currentUser?.id),
   ]);
 
   return (
@@ -90,7 +92,11 @@ export default async function Home() {
           </SectionTitle>
           <div className="mt-10 grid gap-5">
             {hacks.map((hack) => (
-              <HackCard key={hack.id} hack={hack} />
+              <HackCard
+                key={hack.id}
+                hack={hack}
+                isLoggedIn={Boolean(currentUser)}
+              />
             ))}
           </div>
         </div>

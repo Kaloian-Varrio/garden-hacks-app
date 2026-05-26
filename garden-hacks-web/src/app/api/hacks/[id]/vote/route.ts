@@ -11,6 +11,23 @@ import {
 import { readStringField } from "@/lib/auth/validation";
 
 const VOTE_TYPES = ["sweet_tomato", "bitter_cucumber"] as const;
+type VoteType = (typeof VOTE_TYPES)[number];
+
+function normalizeVoteType(value: string): VoteType | null {
+  if (value === "sweet_tomato" || value === "positive" || value === "upvote") {
+    return "sweet_tomato";
+  }
+
+  if (
+    value === "bitter_cucumber" ||
+    value === "negative" ||
+    value === "downvote"
+  ) {
+    return "bitter_cucumber";
+  }
+
+  return null;
+}
 
 export async function POST(request: Request, { params }: RouteContext) {
   const { user, response } = await requireApiUser(request);
@@ -26,10 +43,10 @@ export async function POST(request: Request, { params }: RouteContext) {
   }
 
   const body = await readJsonBody(request);
-  const voteType = readStringField(body, "voteType");
+  const voteType = normalizeVoteType(readStringField(body, "voteType"));
   const feedbackText = readStringField(body, "feedbackText") || null;
 
-  if (!VOTE_TYPES.includes(voteType as (typeof VOTE_TYPES)[number])) {
+  if (!voteType) {
     return validationError({
       voteType: "Vote type must be sweet_tomato or bitter_cucumber.",
     });
@@ -57,7 +74,7 @@ export async function POST(request: Request, { params }: RouteContext) {
     await db
       .update(hackVotes)
       .set({
-        voteType: voteType as (typeof VOTE_TYPES)[number],
+        voteType,
         feedbackText,
         updatedAt: new Date(),
       })
@@ -66,7 +83,7 @@ export async function POST(request: Request, { params }: RouteContext) {
     await db.insert(hackVotes).values({
       hackId,
       userId: user.id,
-      voteType: voteType as (typeof VOTE_TYPES)[number],
+      voteType,
       feedbackText,
     });
   }
@@ -97,9 +114,12 @@ export async function POST(request: Request, { params }: RouteContext) {
     .where(eq(gardeningHacks.id, hackId));
 
   return NextResponse.json({
+    hackId,
     userVote: voteType,
     sweetTomatoesCount,
     bitterCucumbersCount,
     ratingScore,
+    positiveVotes: sweetTomatoesCount,
+    negativeVotes: bitterCucumbersCount,
   });
 }

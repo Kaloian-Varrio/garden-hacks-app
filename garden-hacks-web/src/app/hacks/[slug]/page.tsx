@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { HackComments } from "@/components/garden/hack-comments";
+import { HackVotePanel } from "@/components/garden/hack-vote-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -89,9 +90,17 @@ export default async function HackDetailsPage({ params }: HackDetailsPageProps) 
             <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
               <Metric label="Sweet Tomatoes" value={hack.sweetTomatoesCount} />
               <Metric label="Bitter Cucumbers" value={hack.bitterCucumbersCount} />
-              <Metric label="Rating score" value={hack.ratingScore} />
+              <Metric label="Rating" value={hack.ratingScore} />
               <Metric label="Comments" value={hack.commentsCount} />
             </div>
+            <HackVotePanel
+              hackId={hack.id}
+              initialUserVote={hack.userVote}
+              initialSweetTomatoesCount={hack.sweetTomatoesCount}
+              initialBitterCucumbersCount={hack.bitterCucumbersCount}
+              initialRatingScore={hack.ratingScore}
+              isLoggedIn={Boolean(currentUser)}
+            />
           </div>
         </div>
       </section>

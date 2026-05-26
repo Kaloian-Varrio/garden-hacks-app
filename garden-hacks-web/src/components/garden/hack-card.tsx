@@ -1,10 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
+import { HackVotePanel } from "@/components/garden/hack-vote-panel";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import type { PublicHack } from "@/lib/public-data/types";
 
-export function HackCard({ hack }: { hack: PublicHack }) {
+export function HackCard({
+  hack,
+  isLoggedIn,
+}: {
+  hack: PublicHack;
+  isLoggedIn: boolean;
+}) {
   return (
     <Card className="grid overflow-hidden sm:grid-cols-[240px_1fr]">
       <div className="relative min-h-56 bg-[#dfe8d8] sm:min-h-full">
@@ -31,20 +38,23 @@ export function HackCard({ hack }: { hack: PublicHack }) {
         <p className="mt-4 text-sm font-semibold text-[#405046]">
           By {hack.author}
         </p>
-        <div className="mt-5 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
-          <span className="rounded-md bg-[#fff0eb] px-3 py-2 font-semibold text-[#8a2d1c]">
-            {hack.sweetTomatoesCount} Sweet
-          </span>
-          <span className="rounded-md bg-[#edf5e9] px-3 py-2 font-semibold text-[#285d35]">
-            {hack.bitterCucumbersCount} Bitter
-          </span>
+        <div className="mt-5 grid grid-cols-2 gap-2 text-sm">
           <span className="rounded-md bg-[#fff8e1] px-3 py-2 font-semibold text-[#6a4a08]">
-            Score {hack.ratingScore}
+            Rating {hack.ratingScore}
           </span>
           <span className="rounded-md bg-[#eef8fd] px-3 py-2 font-semibold text-[#17536a]">
             {hack.commentsCount} comments
           </span>
         </div>
+        <HackVotePanel
+          compact
+          hackId={hack.id}
+          initialUserVote={hack.userVote}
+          initialSweetTomatoesCount={hack.sweetTomatoesCount}
+          initialBitterCucumbersCount={hack.bitterCucumbersCount}
+          initialRatingScore={hack.ratingScore}
+          isLoggedIn={isLoggedIn}
+        />
         <Link
           href={`/hacks/${hack.slug}`}
           className="mt-5 text-sm font-bold text-[#2f6f3e] hover:text-[#203525]"

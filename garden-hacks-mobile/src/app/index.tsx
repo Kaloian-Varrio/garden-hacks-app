@@ -169,6 +169,12 @@ export default function HomeScreen() {
                 <Text style={styles.primaryLinkText}>Login</Text>
               </Pressable>
             </Link>
+
+            <Link href="/register" asChild>
+              <Pressable style={styles.secondaryLink}>
+                <Text style={styles.secondaryLinkText}>Create Account</Text>
+              </Pressable>
+            </Link>
           </View>
         </View>
       )}
