@@ -29,7 +29,7 @@ export async function generateMetadata({
 export default async function HackDetailsPage({ params }: HackDetailsPageProps) {
   const { slug } = await params;
   const currentUser = await getCurrentUser();
-  const hack = await getPublicHackBySlug(slug, currentUser?.id);
+  const hack = await getPublicHackBySlug(slug, currentUser ?? undefined);
 
   if (!hack) {
     notFound();

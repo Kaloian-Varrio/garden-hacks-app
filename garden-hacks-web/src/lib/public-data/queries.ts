@@ -1,4 +1,5 @@
 import { and, count, desc, eq } from "drizzle-orm";
+import type { AuthUser } from "@/lib/auth/session";
 import { fallbackGroups, fallbackHacks } from "./fallback";
 import type {
   PublicGroup,
@@ -297,7 +298,7 @@ export async function getPublicHacksPage(
 
 export async function getPublicHackBySlug(
   slug: string,
-  viewerUserId?: number,
+  viewer?: Pick<AuthUser, "id" | "role"> | number,
 ): Promise<PublicHack | null> {
   if (!canUseDatabase()) {
     return fallbackHacks.find((hack) => hack.slug === slug) ?? null;
@@ -342,10 +343,12 @@ export async function getPublicHackBySlug(
       },
     });
 
-    if (!hack || hack.status !== "published") {
+    if (!hack) {
       return null;
     }
 
+    const viewerUserId = typeof viewer === "number" ? viewer : viewer?.id;
+    const viewerRole = typeof viewer === "number" ? "user" : viewer?.role;
     const viewerMembership = viewerUserId
       ? await db.query.groupMembers.findFirst({
           where: and(
@@ -357,6 +360,14 @@ export async function getPublicHackBySlug(
           },
         })
       : null;
+
+    if (
+      hack.status !== "published" &&
+      viewerRole !== "admin" &&
+      !viewerMembership
+    ) {
+      return null;
+    }
 
     const comments: PublicHackComment[] = hack.comments.map((comment) => ({
       id: comment.id,

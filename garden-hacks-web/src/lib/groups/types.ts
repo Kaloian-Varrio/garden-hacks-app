@@ -23,13 +23,17 @@ export type GroupHackItem = {
   title: string;
   slug: string;
   excerpt: string | null;
+  authorId: number;
   author: string;
   category: string;
   difficulty: "easy" | "medium" | "hard";
+  status: "draft" | "published" | "archived";
   sweetTomatoesCount: number;
   bitterCucumbersCount: number;
   ratingScore: number;
   commentsCount: number;
+  createdAt: Date;
+  canManage: boolean;
 };
 
 export type UserGroupDetail = {
@@ -40,6 +44,7 @@ export type UserGroupDetail = {
   membersCount: number;
   hacksCount: number;
   viewerRole: "member" | "manager" | "admin";
+  viewerIsMember: boolean;
   canManage: boolean;
   managers: GroupMemberItem[];
   members: GroupMemberItem[];

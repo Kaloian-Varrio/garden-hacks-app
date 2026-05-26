@@ -96,7 +96,14 @@ export async function getUserGroupDetail(
       return "not-found";
     }
 
-    return buildGroupDetail(group, "admin", true);
+    const membership = await db.query.groupMembers.findFirst({
+      where: and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)),
+      columns: {
+        id: true,
+      },
+    });
+
+    return buildGroupDetail(group, user, "admin", Boolean(membership), true);
   }
 
   const membership = await db.query.groupMembers.findFirst({
@@ -131,7 +138,9 @@ export async function getUserGroupDetail(
 
   return buildGroupDetail(
     membership.group,
+    user,
     membership.groupRole,
+    true,
     membership.groupRole === "manager",
   );
 }
@@ -170,7 +179,9 @@ async function buildGroupDetail(
     membersCount: number;
     hacksCount: number;
   },
+  user: AuthUser,
   viewerRole: "member" | "manager" | "admin",
+  viewerIsMember: boolean,
   canManage: boolean,
 ): Promise<UserGroupDetail> {
   const [memberRows, hackRows] = await Promise.all([
@@ -192,21 +203,21 @@ async function buildGroupDetail(
       },
     }),
     db.query.gardeningHacks.findMany({
-      where: and(
-        eq(gardeningHacks.groupId, group.id),
-        eq(gardeningHacks.status, "published"),
-      ),
+      where: eq(gardeningHacks.groupId, group.id),
       orderBy: [desc(gardeningHacks.createdAt)],
       columns: {
         id: true,
         title: true,
         slug: true,
         excerpt: true,
+        authorId: true,
         difficulty: true,
+        status: true,
         sweetTomatoesCount: true,
         bitterCucumbersCount: true,
         ratingScore: true,
         commentsCount: true,
+        createdAt: true,
       },
       with: {
         author: {
@@ -235,13 +246,17 @@ async function buildGroupDetail(
     title: hack.title,
     slug: hack.slug,
     excerpt: hack.excerpt,
+    authorId: hack.authorId,
     author: hack.author.name,
     category: hack.category.title,
     difficulty: hack.difficulty,
+    status: hack.status,
     sweetTomatoesCount: hack.sweetTomatoesCount,
     bitterCucumbersCount: hack.bitterCucumbersCount,
     ratingScore: hack.ratingScore,
     commentsCount: hack.commentsCount,
+    createdAt: hack.createdAt,
+    canManage: isAdmin(user) || canManage || hack.authorId === user.id,
   }));
 
   return {
@@ -252,6 +267,7 @@ async function buildGroupDetail(
     membersCount: group.membersCount,
     hacksCount: group.hacksCount,
     viewerRole,
+    viewerIsMember,
     canManage,
     managers: members.filter((member) => member.groupRole === "manager"),
     members,

@@ -120,12 +120,14 @@ export default async function GroupDetailsPage({
                   Published ideas shared inside this group.
                 </p>
               </div>
-              <Link
-                href="/dashboard/hacks/new"
-                className="inline-flex min-h-11 items-center justify-center rounded-md bg-[#2f6f3e] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#285d35]"
-              >
-                Publish a hack
-              </Link>
+              {group.viewerIsMember ? (
+                <Link
+                  href={`/groups/${group.id}/hacks/new`}
+                  className="inline-flex min-h-11 items-center justify-center rounded-md bg-[#2f6f3e] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#285d35]"
+                >
+                  Create Hack
+                </Link>
+              ) : null}
             </div>
 
             {group.hacks.length > 0 ? (
@@ -150,14 +152,35 @@ export default async function GroupDetailsPage({
                         </p>
                         <p className="mt-3 text-sm font-semibold text-[#405046]">
                           By {hack.author} · {hack.category} · {hack.difficulty}
+                          <span className="block pt-1 text-[#59655c]">
+                            Status: {hack.status} · Created {formatDate(hack.createdAt)}
+                          </span>
                         </p>
                       </div>
-                      <Link
-                        href={`/hacks/${hack.slug}`}
-                        className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-md border border-[#b7c8ad] bg-white px-3 py-2 text-sm font-semibold text-[#203525] hover:bg-[#f1f7ed]"
-                      >
-                        View hack
-                      </Link>
+                      <div className="flex shrink-0 flex-wrap gap-2">
+                        <Link
+                          href={`/hacks/${hack.slug}`}
+                          className="inline-flex min-h-10 items-center justify-center rounded-md border border-[#b7c8ad] bg-white px-3 py-2 text-sm font-semibold text-[#203525] hover:bg-[#f1f7ed]"
+                        >
+                          View
+                        </Link>
+                        {hack.canManage ? (
+                          <>
+                            <Link
+                              href={`/groups/${group.id}/hacks/${hack.id}/edit`}
+                              className="inline-flex min-h-10 items-center justify-center rounded-md border border-[#b7c8ad] bg-white px-3 py-2 text-sm font-semibold text-[#203525] hover:bg-[#f1f7ed]"
+                            >
+                              Edit
+                            </Link>
+                            <Link
+                              href={`/groups/${group.id}/hacks/${hack.id}/delete`}
+                              className="inline-flex min-h-10 items-center justify-center rounded-md border border-[#efb5a8] bg-white px-3 py-2 text-sm font-semibold text-[#8a2d1c] hover:bg-[#fff0eb]"
+                            >
+                              Delete
+                            </Link>
+                          </>
+                        ) : null}
+                      </div>
                     </div>
                     <div className="mt-4 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
                       <Stat label="Sweet" value={hack.sweetTomatoesCount} />
@@ -173,8 +196,10 @@ export default async function GroupDetailsPage({
                 <EmptyState
                   title="No group hacks yet"
                   message="This group is ready for its first published gardening hack."
-                  actionHref="/dashboard/hacks/new"
-                  actionLabel="Create hack"
+                  actionHref={
+                    group.viewerIsMember ? `/groups/${group.id}/hacks/new` : undefined
+                  }
+                  actionLabel={group.viewerIsMember ? "Create hack" : undefined}
                 />
               </div>
             )}
@@ -283,4 +308,12 @@ function Stat({ label, value }: { label: string; value: number }) {
       {label}: <span className="text-[#18231c]">{value}</span>
     </span>
   );
+}
+
+function formatDate(date: Date) {
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
 }
