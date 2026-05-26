@@ -182,6 +182,124 @@ export async function leaveGroupAction(groupId: number) {
   redirect("/groups?left=1");
 }
 
+export async function removeGroupMemberAction(
+  groupId: number,
+  membershipId: number,
+) {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const canManage = await requireGroupManager(user, groupId);
+
+  if (!canManage) {
+    redirect(`/groups/${groupId}`);
+  }
+
+  const membership = await getMembershipForManagement(groupId, membershipId);
+
+  if (!membership) {
+    redirect(`/groups/${groupId}/members?error=member-not-found`);
+  }
+
+  if (membership.groupRole === "manager") {
+    const managerCount = await getGroupManagerCount(groupId);
+
+    if (managerCount <= 1) {
+      redirect(`/groups/${groupId}/members?error=last-manager`);
+    }
+  }
+
+  await db.delete(groupMembers).where(eq(groupMembers.id, membershipId));
+  await db
+    .update(groups)
+    .set({
+      membersCount: sql<number>`greatest(${groups.membersCount} - 1, 0)`,
+      updatedAt: new Date(),
+    })
+    .where(eq(groups.id, groupId));
+
+  revalidatePath(`/groups/${groupId}`);
+  revalidatePath(`/groups/${groupId}/members`);
+  redirect(`/groups/${groupId}/members?success=removed`);
+}
+
+export async function promoteGroupMemberAction(
+  groupId: number,
+  membershipId: number,
+) {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const canManage = await requireGroupManager(user, groupId);
+
+  if (!canManage) {
+    redirect(`/groups/${groupId}`);
+  }
+
+  const membership = await getMembershipForManagement(groupId, membershipId);
+
+  if (!membership) {
+    redirect(`/groups/${groupId}/members?error=member-not-found`);
+  }
+
+  await db
+    .update(groupMembers)
+    .set({
+      groupRole: "manager",
+    })
+    .where(eq(groupMembers.id, membershipId));
+
+  revalidatePath(`/groups/${groupId}`);
+  revalidatePath(`/groups/${groupId}/members`);
+  redirect(`/groups/${groupId}/members?success=promoted`);
+}
+
+export async function demoteGroupManagerAction(
+  groupId: number,
+  membershipId: number,
+) {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const canManage = await requireGroupManager(user, groupId);
+
+  if (!canManage) {
+    redirect(`/groups/${groupId}`);
+  }
+
+  const membership = await getMembershipForManagement(groupId, membershipId);
+
+  if (!membership) {
+    redirect(`/groups/${groupId}/members?error=member-not-found`);
+  }
+
+  const managerCount = await getGroupManagerCount(groupId);
+
+  if (membership.groupRole === "manager" && managerCount <= 1) {
+    redirect(`/groups/${groupId}/members?error=last-manager`);
+  }
+
+  await db
+    .update(groupMembers)
+    .set({
+      groupRole: "member",
+    })
+    .where(eq(groupMembers.id, membershipId));
+
+  revalidatePath(`/groups/${groupId}`);
+  revalidatePath(`/groups/${groupId}/members`);
+  redirect(`/groups/${groupId}/members?success=demoted`);
+}
+
 function readGroupFormValues(formData: FormData) {
   return {
     title: readFormString(formData, "title"),
@@ -245,4 +363,26 @@ function readFormString(formData: FormData, key: string) {
   const value = formData.get(key);
 
   return typeof value === "string" ? value.trim() : "";
+}
+
+async function getMembershipForManagement(groupId: number, membershipId: number) {
+  return db.query.groupMembers.findFirst({
+    where: and(eq(groupMembers.id, membershipId), eq(groupMembers.groupId, groupId)),
+    columns: {
+      id: true,
+      userId: true,
+      groupRole: true,
+    },
+  });
+}
+
+async function getGroupManagerCount(groupId: number) {
+  const [managerCountRow] = await db
+    .select({ count: count() })
+    .from(groupMembers)
+    .where(
+      and(eq(groupMembers.groupId, groupId), eq(groupMembers.groupRole, "manager")),
+    );
+
+  return Number(managerCountRow?.count ?? 0);
 }

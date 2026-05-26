@@ -93,7 +93,7 @@ export default async function GroupDetailsPage({
                   Delete
                 </Link>
                 <Link
-                  href="#members"
+                  href={`/groups/${group.id}/members`}
                   className="inline-flex min-h-11 items-center justify-center rounded-md bg-[#2f6f3e] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#285d35]"
                 >
                   Manage Members

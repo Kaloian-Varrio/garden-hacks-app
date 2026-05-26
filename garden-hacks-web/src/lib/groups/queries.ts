@@ -9,6 +9,7 @@ import type {
   GroupFormValues,
   GroupMemberItem,
   LeaveGroupInfo,
+  ManagedGroupMembers,
   UserGroupDetail,
   UserGroupListItem,
 } from "./types";
@@ -211,6 +212,63 @@ export async function getLeaveGroupInfo(
     membershipId: membership.id,
     groupRole: membership.groupRole,
     managerCount: Number(managerCountRow?.count ?? 0),
+  };
+}
+
+export async function getManagedGroupMembers(
+  currentUserId: number,
+  groupId: number,
+): Promise<ManagedGroupMembers | null> {
+  const group = await db.query.groups.findFirst({
+    where: eq(groups.id, groupId),
+    columns: {
+      id: true,
+      title: true,
+      membersCount: true,
+    },
+  });
+
+  if (!group) {
+    return null;
+  }
+
+  const memberRows = await db.query.groupMembers.findMany({
+    where: eq(groupMembers.groupId, groupId),
+    orderBy: [asc(groupMembers.groupRole), asc(groupMembers.joinedAt)],
+    columns: {
+      id: true,
+      groupRole: true,
+      joinedAt: true,
+      userId: true,
+    },
+    with: {
+      user: {
+        columns: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+  const managerCount = memberRows.filter(
+    (member) => member.groupRole === "manager",
+  ).length;
+
+  return {
+    id: group.id,
+    title: group.title,
+    membersCount: group.membersCount,
+    managerCount,
+    members: memberRows.map((member) => ({
+      membershipId: member.id,
+      userId: member.userId,
+      name: member.user.name,
+      email: member.user.email,
+      groupRole: member.groupRole,
+      joinedAt: member.joinedAt,
+      isCurrentUser: member.userId === currentUserId,
+    })),
   };
 }
 

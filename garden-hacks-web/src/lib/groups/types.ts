@@ -66,3 +66,21 @@ export type LeaveGroupInfo = {
   groupRole: "member" | "manager";
   managerCount: number;
 };
+
+export type ManagedGroupMemberItem = {
+  membershipId: number;
+  userId: number;
+  name: string;
+  email: string;
+  groupRole: "member" | "manager";
+  joinedAt: Date;
+  isCurrentUser: boolean;
+};
+
+export type ManagedGroupMembers = {
+  id: number;
+  title: string;
+  membersCount: number;
+  managerCount: number;
+  members: ManagedGroupMemberItem[];
+};
