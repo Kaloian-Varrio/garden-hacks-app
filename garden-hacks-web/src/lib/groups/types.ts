@@ -4,9 +4,10 @@ export type UserGroupListItem = {
   title: string;
   description: string | null;
   imageUrl: string | null;
-  groupRole: "member" | "manager";
+  groupRole: "member" | "manager" | "admin";
   membersCount: number;
   hacksCount: number;
+  canManage: boolean;
 };
 
 export type GroupMemberItem = {
@@ -38,8 +39,17 @@ export type UserGroupDetail = {
   imageUrl: string | null;
   membersCount: number;
   hacksCount: number;
-  viewerRole: "member" | "manager";
+  viewerRole: "member" | "manager" | "admin";
+  canManage: boolean;
   managers: GroupMemberItem[];
   members: GroupMemberItem[];
   hacks: GroupHackItem[];
+};
+
+export type GroupFormValues = {
+  id?: number;
+  title: string;
+  slug: string;
+  description: string;
+  imageUrl: string;
 };

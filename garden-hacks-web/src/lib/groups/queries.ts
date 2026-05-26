@@ -2,18 +2,47 @@ import "server-only";
 
 import { and, asc, desc, eq } from "drizzle-orm";
 import { db, gardeningHacks, groupMembers, groups } from "@/db";
+import type { AuthUser } from "@/lib/auth/session";
+import { isAdmin } from "./authorization";
 import type {
   GroupHackItem,
+  GroupFormValues,
   GroupMemberItem,
   UserGroupDetail,
   UserGroupListItem,
 } from "./types";
 
 export async function getUserGroups(
-  userId: number,
+  user: AuthUser,
 ): Promise<UserGroupListItem[]> {
+  if (isAdmin(user)) {
+    const groupRows = await db.query.groups.findMany({
+      orderBy: [desc(groups.createdAt)],
+      columns: {
+        id: true,
+        title: true,
+        description: true,
+        imageUrl: true,
+        membersCount: true,
+        hacksCount: true,
+      },
+    });
+
+    return groupRows.map((group) => ({
+      membershipId: group.id,
+      groupId: group.id,
+      title: group.title,
+      description: group.description,
+      imageUrl: group.imageUrl,
+      groupRole: "admin",
+      membersCount: group.membersCount,
+      hacksCount: group.hacksCount,
+      canManage: true,
+    }));
+  }
+
   const memberships = await db.query.groupMembers.findMany({
-    where: eq(groupMembers.userId, userId),
+    where: eq(groupMembers.userId, user.id),
     orderBy: [desc(groupMembers.joinedAt)],
     columns: {
       id: true,
@@ -42,15 +71,36 @@ export async function getUserGroups(
     groupRole: membership.groupRole,
     membersCount: membership.group.membersCount,
     hacksCount: membership.group.hacksCount,
+    canManage: membership.groupRole === "manager",
   }));
 }
 
 export async function getUserGroupDetail(
-  userId: number,
+  user: AuthUser,
   groupId: number,
 ): Promise<UserGroupDetail | "not-found" | "access-denied"> {
+  if (isAdmin(user)) {
+    const group = await db.query.groups.findFirst({
+      where: eq(groups.id, groupId),
+      columns: {
+        id: true,
+        title: true,
+        description: true,
+        imageUrl: true,
+        membersCount: true,
+        hacksCount: true,
+      },
+    });
+
+    if (!group) {
+      return "not-found";
+    }
+
+    return buildGroupDetail(group, "admin", true);
+  }
+
   const membership = await db.query.groupMembers.findFirst({
-    where: and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, userId)),
+    where: and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)),
     columns: {
       groupRole: true,
     },
@@ -79,9 +129,53 @@ export async function getUserGroupDetail(
     return group ? "access-denied" : "not-found";
   }
 
+  return buildGroupDetail(
+    membership.group,
+    membership.groupRole,
+    membership.groupRole === "manager",
+  );
+}
+
+export async function getEditableGroup(
+  groupId: number,
+): Promise<GroupFormValues | null> {
+  const group = await db.query.groups.findFirst({
+    where: eq(groups.id, groupId),
+    columns: {
+      id: true,
+      title: true,
+      slug: true,
+      description: true,
+      imageUrl: true,
+    },
+  });
+
+  return group
+    ? {
+        id: group.id,
+        title: group.title,
+        slug: group.slug,
+        description: group.description ?? "",
+        imageUrl: group.imageUrl ?? "",
+      }
+    : null;
+}
+
+async function buildGroupDetail(
+  group: {
+    id: number;
+    title: string;
+    description: string | null;
+    imageUrl: string | null;
+    membersCount: number;
+    hacksCount: number;
+  },
+  viewerRole: "member" | "manager" | "admin",
+  canManage: boolean,
+): Promise<UserGroupDetail> {
   const [memberRows, hackRows] = await Promise.all([
     db.query.groupMembers.findMany({
-      where: eq(groupMembers.groupId, groupId),
+      where: eq(groupMembers.groupId, group.id),
       orderBy: [asc(groupMembers.groupRole), asc(groupMembers.joinedAt)],
       columns: {
         groupRole: true,
@@ -99,7 +193,7 @@ export async function getUserGroupDetail(
     }),
     db.query.gardeningHacks.findMany({
       where: and(
-        eq(gardeningHacks.groupId, groupId),
+        eq(gardeningHacks.groupId, group.id),
         eq(gardeningHacks.status, "published"),
       ),
       orderBy: [desc(gardeningHacks.createdAt)],
@@ -151,13 +245,14 @@ export async function getUserGroupDetail(
   }));
 
   return {
-    id: membership.group.id,
-    title: membership.group.title,
-    description: membership.group.description,
-    imageUrl: membership.group.imageUrl,
-    membersCount: membership.group.membersCount,
-    hacksCount: membership.group.hacksCount,
-    viewerRole: membership.groupRole,
+    id: group.id,
+    title: group.title,
+    description: group.description,
+    imageUrl: group.imageUrl,
+    membersCount: group.membersCount,
+    hacksCount: group.hacksCount,
+    viewerRole,
+    canManage,
     managers: members.filter((member) => member.groupRole === "manager"),
     members,
     hacks,

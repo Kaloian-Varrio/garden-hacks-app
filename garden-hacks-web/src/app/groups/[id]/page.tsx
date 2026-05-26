@@ -36,7 +36,7 @@ export default async function GroupDetailsPage({
     notFound();
   }
 
-  const group = await getUserGroupDetail(user.id, groupId);
+  const group = await getUserGroupDetail(user, groupId);
 
   if (group === "not-found") {
     notFound();
@@ -77,6 +77,28 @@ export default async function GroupDetailsPage({
               <Metric label="Members" value={group.membersCount} />
               <Metric label="Published hacks" value={group.hacksCount} />
             </div>
+            {group.canManage ? (
+              <div className="mt-7 flex flex-wrap gap-2">
+                <Link
+                  href={`/groups/${group.id}/edit`}
+                  className="inline-flex min-h-11 items-center justify-center rounded-md border border-[#b7c8ad] bg-white px-5 py-2.5 text-sm font-semibold text-[#203525] hover:bg-[#f1f7ed]"
+                >
+                  Edit
+                </Link>
+                <Link
+                  href={`/groups/${group.id}/delete`}
+                  className="inline-flex min-h-11 items-center justify-center rounded-md border border-[#efb5a8] bg-white px-5 py-2.5 text-sm font-semibold text-[#8a2d1c] hover:bg-[#fff0eb]"
+                >
+                  Delete
+                </Link>
+                <Link
+                  href="#members"
+                  className="inline-flex min-h-11 items-center justify-center rounded-md bg-[#2f6f3e] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#285d35]"
+                >
+                  Manage Members
+                </Link>
+              </div>
+            ) : null}
           </div>
         </div>
       </section>
@@ -85,7 +107,7 @@ export default async function GroupDetailsPage({
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[340px_1fr]">
           <aside className="space-y-5">
             <PeoplePanel title="Group managers" people={group.managers} />
-            <PeoplePanel title="Group members" people={group.members} />
+            <PeoplePanel id="members" title="Group members" people={group.members} />
           </aside>
 
           <div>
@@ -191,14 +213,19 @@ function AccessDenied() {
 }
 
 function PeoplePanel({
+  id,
   people,
   title,
 }: {
+  id?: string;
   people: GroupMemberItem[];
   title: string;
 }) {
   return (
-    <div className="rounded-lg border border-[#dfe8d8] bg-white p-5 shadow-sm">
+    <div
+      id={id}
+      className="scroll-mt-24 rounded-lg border border-[#dfe8d8] bg-white p-5 shadow-sm"
+    >
       <h2 className="text-xl font-black text-[#18231c]">{title}</h2>
       {people.length > 0 ? (
         <div className="mt-4 grid gap-3">

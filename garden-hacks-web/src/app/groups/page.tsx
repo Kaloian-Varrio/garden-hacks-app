@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { EmptyState } from "@/components/ui/empty-state";
 import { SectionTitle } from "@/components/ui/section-title";
 import { getCurrentUser } from "@/lib/auth/session";
+import { isAdmin } from "@/lib/groups/authorization";
 import { getUserGroups } from "@/lib/groups/queries";
 
 export const metadata: Metadata = {
@@ -18,15 +19,26 @@ export default async function GroupsPage() {
     redirect("/login");
   }
 
-  const groups = await getUserGroups(user.id);
+  const groups = await getUserGroups(user);
+  const canCreateGroups = isAdmin(user);
 
   return (
     <div className="px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <SectionTitle eyebrow="Your groups" title="Groups you belong to">
-          View the gardening communities you have joined and open a group to see
-          its members, managers, and published hacks.
-        </SectionTitle>
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+          <SectionTitle eyebrow="Your groups" title="Groups you belong to">
+            View the gardening communities you have joined and open a group to see
+            its members, managers, and published hacks.
+          </SectionTitle>
+          {canCreateGroups ? (
+            <Link
+              href="/groups/new"
+              className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-md bg-[#2f6f3e] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#285d35]"
+            >
+              New
+            </Link>
+          ) : null}
+        </div>
 
         {groups.length > 0 ? (
           <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -71,6 +83,22 @@ export default async function GroupsPage() {
                   >
                     View group details
                   </Link>
+                  {group.canManage ? (
+                    <div className="mt-3 grid grid-cols-2 gap-2">
+                      <Link
+                        href={`/groups/${group.groupId}/edit`}
+                        className="inline-flex min-h-10 items-center justify-center rounded-md border border-[#b7c8ad] bg-white px-3 py-2 text-sm font-semibold text-[#203525] hover:bg-[#f1f7ed]"
+                      >
+                        Edit
+                      </Link>
+                      <Link
+                        href={`/groups/${group.groupId}/delete`}
+                        className="inline-flex min-h-10 items-center justify-center rounded-md border border-[#efb5a8] bg-white px-3 py-2 text-sm font-semibold text-[#8a2d1c] hover:bg-[#fff0eb]"
+                      >
+                        Delete
+                      </Link>
+                    </div>
+                  ) : null}
                 </div>
               </article>
             ))}
@@ -79,9 +107,7 @@ export default async function GroupsPage() {
           <div className="mt-10">
             <EmptyState
               title="You are not a member of any groups yet."
-              message="Join a group from the dashboard before private group details appear here."
-              actionHref="/dashboard/groups"
-              actionLabel="Open my groups"
+              message="Join a group before private group details appear here."
             />
           </div>
         )}

@@ -72,9 +72,7 @@ export default async function MyGroupsPage() {
         <div className="mt-6">
           <EmptyState
             title="No joined groups yet"
-            message="Join a gardening group later to see it here. For now, browse public groups."
-            actionHref="/groups"
-            actionLabel="Browse groups"
+            message="Join a gardening group later to see it here."
           />
         </div>
       )}
