@@ -126,6 +126,36 @@ export const groupMembers = pgTable(
   ],
 );
 
+export const groupInvitations = pgTable(
+  "group_invitations",
+  {
+    id: serial("id").primaryKey(),
+    groupId: integer("group_id")
+      .notNull()
+      .references(() => groups.id, { onDelete: "cascade" }),
+    inviteCode: varchar("invite_code", { length: 96 }).notNull(),
+    usedAt: timestamp("used_at", { withTimezone: true }),
+    usedByUserId: integer("used_by_user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    createdByUserId: integer("created_by_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("group_invitations_invite_code_unique").on(table.inviteCode),
+    index("group_invitations_group_id_idx").on(table.groupId),
+    index("group_invitations_used_at_idx").on(table.usedAt),
+    index("group_invitations_created_by_user_id_idx").on(
+      table.createdByUserId,
+    ),
+    index("group_invitations_used_by_user_id_idx").on(table.usedByUserId),
+  ],
+);
+
 export const gardeningHacks = pgTable(
   "gardening_hacks",
   {
@@ -303,6 +333,12 @@ export const usersRelations = relations(users, ({ many }) => ({
   gardeningHacks: many(gardeningHacks),
   comments: many(hackComments),
   groupMemberships: many(groupMembers),
+  createdGroupInvitations: many(groupInvitations, {
+    relationName: "createdGroupInvitations",
+  }),
+  usedGroupInvitations: many(groupInvitations, {
+    relationName: "usedGroupInvitations",
+  }),
   savedHacks: many(savedHacks),
   likes: many(hackLikes),
   votes: many(hackVotes),
@@ -316,6 +352,7 @@ export const groupsRelations = relations(groups, ({ one, many }) => ({
     references: [users.id],
   }),
   members: many(groupMembers),
+  invitations: many(groupInvitations),
   gardeningHacks: many(gardeningHacks),
 }));
 
@@ -329,6 +366,26 @@ export const groupMembersRelations = relations(groupMembers, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+export const groupInvitationsRelations = relations(
+  groupInvitations,
+  ({ one }) => ({
+    group: one(groups, {
+      fields: [groupInvitations.groupId],
+      references: [groups.id],
+    }),
+    createdByUser: one(users, {
+      fields: [groupInvitations.createdByUserId],
+      references: [users.id],
+      relationName: "createdGroupInvitations",
+    }),
+    usedByUser: one(users, {
+      fields: [groupInvitations.usedByUserId],
+      references: [users.id],
+      relationName: "usedGroupInvitations",
+    }),
+  }),
+);
 
 export const categoriesRelations = relations(categories, ({ many }) => ({
   gardeningHacks: many(gardeningHacks),

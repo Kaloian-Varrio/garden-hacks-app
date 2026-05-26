@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/auth/login-form";
 import { Button } from "@/components/ui/button";
+import { getSafeInternalRedirect } from "@/lib/auth/redirect";
 import { getCurrentUser } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
@@ -12,17 +13,19 @@ export const metadata: Metadata = {
 type LoginPageProps = {
   searchParams: Promise<{
     registered?: string;
+    redirect?: string | string[];
   }>;
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const user = await getCurrentUser();
 
-  if (user) {
-    redirect("/dashboard");
-  }
+  const { registered, redirect: redirectParam } = await searchParams;
+  const redirectTo = getSafeInternalRedirect(redirectParam);
 
-  const { registered } = await searchParams;
+  if (user) {
+    redirect(redirectTo ?? "/dashboard");
+  }
 
   return (
     <div className="px-4 py-16 sm:px-6 lg:px-8">
@@ -39,7 +42,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </p>
         ) : null}
         <div className="mt-7">
-          <LoginForm />
+          <LoginForm redirectTo={redirectTo ?? undefined} />
         </div>
         <p className="mt-6 text-center text-sm text-[#59655c]">
           New here?{" "}

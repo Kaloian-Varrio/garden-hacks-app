@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
+import { CreateInviteLink } from "@/components/garden/create-invite-link";
 import { EmptyState } from "@/components/ui/empty-state";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getUserGroupDetail } from "@/lib/groups/queries";
@@ -106,6 +107,7 @@ export default async function GroupDetailsPage({
       <section className="px-4 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[340px_1fr]">
           <aside className="space-y-5">
+            {group.canManage ? <CreateInviteLink groupId={group.id} /> : null}
             <PeoplePanel title="Group managers" people={group.managers} />
             <PeoplePanel id="members" title="Group members" people={group.members} />
           </aside>
