@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
@@ -52,16 +51,13 @@ export default async function GroupDetailsPage({
       <section className="bg-white px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
           <div className="relative aspect-[4/3] overflow-hidden rounded-lg border border-[#dfe8d8] bg-[#dfe8d8]">
-            <Image
+            <img
               src={
                 group.imageUrl ??
-                "https://placehold.co/1200x800/e8f5dc/31572c/png?text=Garden+Group"
+                "/images/groups/organic-vegetables.jpg"
               }
-              alt=""
-              fill
-              priority
-              sizes="(min-width: 1024px) 50vw, 100vw"
-              className="object-cover"
+              alt={`${group.title} garden group visual`}
+              className="h-full w-full object-cover"
             />
           </div>
           <div>
@@ -150,7 +146,18 @@ export default async function GroupDetailsPage({
                     className="rounded-lg border border-[#dfe8d8] bg-white p-5 shadow-sm"
                   >
                     <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                      <div>
+                      <div className="flex flex-1 flex-col gap-4 sm:flex-row">
+                        <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-[#dff8e9] sm:w-44 sm:shrink-0">
+                          <img
+                            src={
+                              hack.imageUrl ??
+                              "/images/hacks/small-garden-compost-pail-that-does-not-smell.jpg"
+                            }
+                            alt={`${hack.title} hack visual`}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div>
                         <h3 className="text-xl font-black text-[#18231c]">
                           <Link
                             href={`/hacks/${hack.slug}`}
@@ -168,6 +175,7 @@ export default async function GroupDetailsPage({
                             Status: {hack.status} · Created {formatDate(hack.createdAt)}
                           </span>
                         </p>
+                        </div>
                       </div>
                       <div className="flex shrink-0 flex-wrap gap-2">
                         <Link
@@ -270,12 +278,10 @@ function PeoplePanel({
             <div key={`${title}-${person.id}`} className="flex items-center gap-3">
               <div className="relative h-10 w-10 overflow-hidden rounded-md bg-[#edf5e9]">
                 {person.photoUrl ? (
-                  <Image
+                  <img
                     src={person.photoUrl}
-                    alt=""
-                    fill
-                    sizes="40px"
-                    className="object-cover"
+                    alt={person.name}
+                    className="h-full w-full object-cover"
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-sm font-black text-[#2f6f3e]">

@@ -5,6 +5,7 @@ import { DashboardHeader } from "../components/dashboard";
 import {
   GardenBadge,
   GardenCard,
+  HackVisual,
   StateNotice,
   gardenTheme,
 } from "../components/garden-ui";
@@ -78,6 +79,7 @@ function MyGroupsContent() {
       <View style={styles.list}>
         {dashboard?.joinedGroups.map((group) => (
           <GardenCard style={styles.item} key={group.membershipId}>
+            <HackVisual imageUrl={group.imageUrl} title={group.title} />
             <View style={styles.badges}>
               <GardenBadge tone="mint">{group.groupRole}</GardenBadge>
               <GardenBadge tone="sky">{group.membersCount} members</GardenBadge>

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { count, desc } from "drizzle-orm";
 import { db, groups } from "@/db";
 import { getOptionalApiUser, getPagination } from "@/lib/api/http";
+import { getGroupImageUrl } from "@/lib/garden-assets";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -46,6 +47,7 @@ export async function GET(request: Request) {
   return NextResponse.json({
     groups: rows.map((group) => ({
       ...group,
+      imageUrl: getGroupImageUrl({ imageUrl: group.imageUrl, slug: group.slug }),
       isJoined: joinedGroupIds.has(group.id),
     })),
     pagination: {

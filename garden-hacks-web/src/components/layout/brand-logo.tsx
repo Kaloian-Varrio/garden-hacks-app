@@ -12,15 +12,15 @@ export function BrandLogo({ className = "", compact = false }: BrandLogoProps) {
       className={`garden-focus group inline-flex items-center gap-3 rounded-2xl ${className}`}
       aria-label="Garden Hacks home"
     >
-      <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-[1.15rem] bg-white shadow-lg shadow-emerald-900/15 ring-1 ring-[#b7e7d1] transition duration-200 group-hover:-translate-y-0.5 group-hover:shadow-xl">
-        <GardenHacksMark className="h-9 w-9" />
+      <span className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-[1.25rem] transition duration-200 group-hover:-translate-y-0.5">
+        <GardenHacksMark className="h-full w-full" />
       </span>
       {!compact ? (
         <span className="grid leading-none">
-          <span className="text-lg font-black tracking-tight text-[#10231c]">
+          <span className="text-xl font-black text-[#10231c]">
             Garden Hacks
           </span>
-          <span className="mt-1 text-[11px] font-black uppercase tracking-[0.18em] text-[#0f766e]">
+          <span className="mt-1 text-[11px] font-black uppercase text-[#0f766e]">
             grow smarter
           </span>
         </span>
@@ -35,49 +35,44 @@ function GardenHacksMark({ className }: { className?: string }) {
       aria-hidden="true"
       className={className}
       fill="none"
-      viewBox="0 0 48 48"
+      viewBox="0 0 96 96"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <circle cx="24" cy="24" r="22" fill="url(#garden-mark-bg)" />
+      <rect width="96" height="96" rx="24" fill="#087f7d" />
       <path
-        d="M24 34V21"
-        stroke="#0f766e"
+        d="M48 81C45.7 68 46.8 57.6 49 48"
+        stroke="#ffffff"
         strokeLinecap="round"
-        strokeWidth="3.2"
+        strokeWidth="6.2"
       />
       <path
-        d="M23.4 22.8c-6.8-.4-11-4.9-11.8-11.6 6.8.4 11.2 4.7 11.8 11.6Z"
-        fill="#3dbb74"
-      />
-      <path
-        d="M25.1 22.5c6.7-.9 10.8-5.7 11-12.5-6.7.9-10.9 5.5-11 12.5Z"
-        fill="#5bd8d0"
-      />
-      <circle cx="24" cy="35" r="6.8" fill="#f0643c" />
-      <path
-        d="m24 28.2 1.7-4.1M24 28.2l-1.7-4.1M24 28.2l4-1.4M24 28.2l-4-1.4"
-        stroke="#176b49"
+        d="M48.2 47.5C39.8 36 41.4 24.2 48.4 14.8C55.6 24.5 56.6 36.5 48.2 47.5Z"
+        stroke="#ffffff"
         strokeLinecap="round"
-        strokeWidth="2"
+        strokeLinejoin="round"
+        strokeWidth="6.2"
       />
       <path
-        d="m36.5 27 1 2.7 2.7 1-2.7 1-1 2.7-1-2.7-2.7-1 2.7-1 1-2.7Z"
-        fill="#ffb35c"
+        d="M46.8 48.1C34.9 45.7 27.6 37.7 28.6 27.4C39 27 46.2 35 46.8 48.1Z"
+        stroke="#ffffff"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="6.2"
       />
-      <defs>
-        <linearGradient
-          id="garden-mark-bg"
-          x1="7"
-          x2="41"
-          y1="5"
-          y2="43"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stopColor="#e9fbff" />
-          <stop offset=".52" stopColor="#dff8e9" />
-          <stop offset="1" stopColor="#fff0d8" />
-        </linearGradient>
-      </defs>
+      <path
+        d="M49.2 48.1C61.1 45.7 68.4 37.7 67.4 27.4C57 27 49.8 35 49.2 48.1Z"
+        stroke="#ffffff"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="6.2"
+      />
+      <path
+        d="M33.8 67.2C41.4 64.6 46.7 57.4 48 48.6C51 57 57.2 64.1 64.7 67.2"
+        stroke="#ffffff"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="6.2"
+      />
     </svg>
   );
 }

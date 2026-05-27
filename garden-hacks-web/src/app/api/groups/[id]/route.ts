@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { and, desc, eq } from "drizzle-orm";
 import { db, gardeningHacks, groupMembers, groups } from "@/db";
 import { getOptionalApiUser, parseIdParam, type RouteContext } from "@/lib/api/http";
+import { getGroupImageUrl, getHackImageUrl } from "@/lib/garden-assets";
 
 export async function GET(request: Request, { params }: RouteContext) {
   const groupId = await parseIdParam(params);
@@ -104,8 +105,15 @@ export async function GET(request: Request, { params }: RouteContext) {
   return NextResponse.json({
     group: {
       ...groupFields,
+      imageUrl: getGroupImageUrl({
+        imageUrl: groupFields.imageUrl,
+        slug: groupFields.slug,
+      }),
       managers: members.map((membership) => membership.user),
-      recentHacks,
+      recentHacks: recentHacks.map((hack) => ({
+        ...hack,
+        imageUrl: getHackImageUrl({ imageUrl: hack.imageUrl, slug: hack.slug }),
+      })),
       isJoined: Boolean(viewerMembership),
     },
   });

@@ -23,6 +23,7 @@ export type GroupHackItem = {
   title: string;
   slug: string;
   excerpt: string | null;
+  imageUrl: string | null;
   authorId: number;
   author: string;
   category: string;

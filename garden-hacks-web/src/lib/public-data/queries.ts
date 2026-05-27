@@ -1,5 +1,6 @@
 import { and, count, desc, eq } from "drizzle-orm";
 import type { AuthUser } from "@/lib/auth/session";
+import { getGroupImageUrl, getHackImageUrl } from "@/lib/garden-assets";
 import { fallbackGroups, fallbackHacks } from "./fallback";
 import type {
   PublicGroup,
@@ -31,7 +32,7 @@ export async function getPublicGroups(limit?: number): Promise<PublicGroup[]> {
       title: group.title,
       slug: group.slug,
       description: group.description,
-      imageUrl: group.imageUrl,
+      imageUrl: getGroupImageUrl({ imageUrl: group.imageUrl, slug: group.slug }),
       membersCount: group.membersCount,
       hacksCount: group.hacksCount,
     }));
@@ -132,7 +133,7 @@ export async function getPublicGroupBySlug(
       title: group.title,
       slug: group.slug,
       description: group.description,
-      imageUrl: group.imageUrl,
+      imageUrl: getGroupImageUrl({ imageUrl: group.imageUrl, slug: group.slug }),
       membersCount: group.membersCount,
       hacksCount: group.hacksCount,
       managers: group.members.map((membership) => ({
@@ -146,7 +147,7 @@ export async function getPublicGroupBySlug(
         slug: hack.slug,
         excerpt: hack.excerpt,
         content: hack.content,
-        imageUrl: hack.imageUrl,
+        imageUrl: getHackImageUrl({ imageUrl: hack.imageUrl, slug: hack.slug }),
         category: hack.category.title,
         group: hack.group.title,
         groupId: hack.groupId,
@@ -283,7 +284,7 @@ export async function getPublicHacksPage(
         slug: hack.slug,
         excerpt: hack.excerpt,
         content: hack.content,
-        imageUrl: hack.imageUrl,
+        imageUrl: getHackImageUrl({ imageUrl: hack.imageUrl, slug: hack.slug }),
         category: hack.category.title,
         group: hack.group.title,
         groupId: hack.group.id,
@@ -421,7 +422,7 @@ export async function getPublicHackBySlug(
       slug: hack.slug,
       excerpt: hack.excerpt,
       content: hack.content,
-      imageUrl: hack.imageUrl,
+      imageUrl: getHackImageUrl({ imageUrl: hack.imageUrl, slug: hack.slug }),
       category: hack.category.title,
       group: hack.group.title,
       groupId: hack.group.id,

@@ -3,6 +3,7 @@ import "server-only";
 import { and, asc, count, desc, eq } from "drizzle-orm";
 import { db, gardeningHacks, groupMembers, groups } from "@/db";
 import type { AuthUser } from "@/lib/auth/session";
+import { getGroupImageUrl, getHackImageUrl } from "@/lib/garden-assets";
 import { isAdmin } from "./authorization";
 import type {
   GroupHackItem,
@@ -22,6 +23,7 @@ export async function getUserGroups(
       orderBy: [desc(groups.createdAt)],
       columns: {
         id: true,
+        slug: true,
         title: true,
         description: true,
         imageUrl: true,
@@ -35,7 +37,7 @@ export async function getUserGroups(
       groupId: group.id,
       title: group.title,
       description: group.description,
-      imageUrl: group.imageUrl,
+      imageUrl: getGroupImageUrl({ imageUrl: group.imageUrl, slug: group.slug }),
       groupRole: "admin",
       membersCount: group.membersCount,
       hacksCount: group.hacksCount,
@@ -54,6 +56,7 @@ export async function getUserGroups(
       group: {
         columns: {
           id: true,
+          slug: true,
           title: true,
           description: true,
           imageUrl: true,
@@ -69,7 +72,10 @@ export async function getUserGroups(
     groupId: membership.group.id,
     title: membership.group.title,
     description: membership.group.description,
-    imageUrl: membership.group.imageUrl,
+    imageUrl: getGroupImageUrl({
+      imageUrl: membership.group.imageUrl,
+      slug: membership.group.slug,
+    }),
     groupRole: membership.groupRole,
     membersCount: membership.group.membersCount,
     hacksCount: membership.group.hacksCount,
@@ -86,6 +92,7 @@ export async function getUserGroupDetail(
       where: eq(groups.id, groupId),
       columns: {
         id: true,
+        slug: true,
         title: true,
         description: true,
         imageUrl: true,
@@ -117,6 +124,7 @@ export async function getUserGroupDetail(
       group: {
         columns: {
           id: true,
+          slug: true,
           title: true,
           description: true,
           imageUrl: true,
@@ -275,6 +283,7 @@ export async function getManagedGroupMembers(
 async function buildGroupDetail(
   group: {
     id: number;
+    slug: string;
     title: string;
     description: string | null;
     imageUrl: string | null;
@@ -312,6 +321,7 @@ async function buildGroupDetail(
         title: true,
         slug: true,
         excerpt: true,
+        imageUrl: true,
         authorId: true,
         difficulty: true,
         status: true,
@@ -348,6 +358,7 @@ async function buildGroupDetail(
     title: hack.title,
     slug: hack.slug,
     excerpt: hack.excerpt,
+    imageUrl: getHackImageUrl({ imageUrl: hack.imageUrl, slug: hack.slug }),
     authorId: hack.authorId,
     author: hack.author.name,
     category: hack.category.title,
@@ -365,7 +376,7 @@ async function buildGroupDetail(
     id: group.id,
     title: group.title,
     description: group.description,
-    imageUrl: group.imageUrl,
+    imageUrl: getGroupImageUrl({ imageUrl: group.imageUrl, slug: group.slug }),
     membersCount: group.membersCount,
     hacksCount: group.hacksCount,
     viewerRole,

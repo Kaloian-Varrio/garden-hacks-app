@@ -7,6 +7,7 @@ import {
   GardenBadge,
   GardenButton,
   GardenCard,
+  HackVisual,
   StateNotice,
   gardenTheme,
 } from "../components/garden-ui";
@@ -90,6 +91,7 @@ function MyHacksContent() {
       <View style={styles.list}>
         {dashboard?.recentUserHacks.map((hack) => (
           <GardenCard style={styles.item} key={hack.id}>
+            <HackVisual imageUrl={hack.imageUrl} title={hack.title} />
             <View style={styles.badges}>
               <GardenBadge tone="sky">{hack.group.title}</GardenBadge>
               <GardenBadge tone="mint">{hack.category.title}</GardenBadge>

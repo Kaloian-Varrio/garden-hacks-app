@@ -1,6 +1,7 @@
 import { LightbulbIcon, SparkIcon } from "@/components/ui/garden-icons";
 
 type HackVisualProps = {
+  alt?: string;
   category?: string | null;
   className?: string;
   imageUrl?: string | null;
@@ -63,12 +64,14 @@ const visualStyles = {
 type VisualKey = keyof typeof visualStyles;
 
 export function HackVisual({
+  alt,
   category,
   className = "",
   imageUrl,
   title,
 }: HackVisualProps) {
   const visual = visualStyles[getHackVisualKey({ category, title })];
+  const imageAlt = alt ?? getHackImageAlt({ category, title });
 
   return (
     <div
@@ -77,7 +80,7 @@ export function HackVisual({
       {imageUrl ? (
         <img
           src={imageUrl}
-          alt=""
+          alt={imageAlt}
           className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
         />
       ) : (
@@ -140,4 +143,29 @@ function getHackVisualKey({
 
 function matches(value: string, keywords: string[]) {
   return keywords.some((keyword) => value.includes(keyword));
+}
+
+function getHackImageAlt({
+  category,
+  title,
+}: {
+  category?: string | null;
+  title: string;
+}) {
+  const visualKey = getHackVisualKey({ category, title });
+
+  const altByKey: Record<VisualKey, string> = {
+    balcony: "Cozy balcony garden with edible plants in warm daylight",
+    compost: "Rich compost and healthy soil in a home vegetable garden",
+    cucumber: "Fresh cucumber vines growing in a lush green garden",
+    garden: "Beautiful home garden with thriving plants and warm daylight",
+    greenhouse: "Warm greenhouse with seedlings in soft natural light",
+    herbs: "Fresh kitchen herbs growing in a bright home garden setting",
+    pests: "Healthy protected plants in an organic garden bed",
+    seeds: "Tiny seedlings and seeds starting in a home garden",
+    tomato: "Sunny tomato plants growing in a home vegetable garden",
+    watering: "Water-wise garden bed with fresh leaves and soft daylight",
+  };
+
+  return `${altByKey[visualKey]} for ${title}`;
 }

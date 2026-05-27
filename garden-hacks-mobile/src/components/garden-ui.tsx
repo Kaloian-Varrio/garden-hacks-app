@@ -9,6 +9,11 @@ import {
   View,
   type ViewStyle,
 } from "react-native";
+import Svg, {
+  Path,
+  Rect,
+} from "react-native-svg";
+import { getApiBaseUrl } from "../lib/auth";
 
 export const gardenTheme = {
   colors: {
@@ -53,17 +58,62 @@ export function BrandLogo({ compact = false }: { compact?: boolean }) {
   return (
     <View style={styles.logoRow}>
       <View style={styles.logoMark}>
-        <View style={styles.logoBulb} />
-        <View style={styles.logoLeafLeft} />
-        <View style={styles.logoLeafRight} />
+        <GardenHacksMark />
       </View>
       {!compact ? (
         <View>
           <Text style={styles.logoTitle}>Garden Hacks</Text>
-          <Text style={styles.logoSubtitle}>Smart growing ideas</Text>
+          <Text style={styles.logoSubtitle}>grow smarter</Text>
         </View>
       ) : null}
     </View>
+  );
+}
+
+function GardenHacksMark({ size = 54 }: { size?: number }) {
+  return (
+    <Svg accessible={false} height={size} viewBox="0 0 96 96" width={size}>
+      <Rect width="96" height="96" rx="24" fill="#087f7d" />
+      <Path
+        d="M48 81C45.7 68 46.8 57.6 49 48"
+        fill="none"
+        stroke="#ffffff"
+        strokeLinecap="round"
+        strokeWidth="6.2"
+      />
+      <Path
+        d="M48.2 47.5C39.8 36 41.4 24.2 48.4 14.8C55.6 24.5 56.6 36.5 48.2 47.5Z"
+        fill="none"
+        stroke="#ffffff"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="6.2"
+      />
+      <Path
+        d="M46.8 48.1C34.9 45.7 27.6 37.7 28.6 27.4C39 27 46.2 35 46.8 48.1Z"
+        fill="none"
+        stroke="#ffffff"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="6.2"
+      />
+      <Path
+        d="M49.2 48.1C61.1 45.7 68.4 37.7 67.4 27.4C57 27 49.8 35 49.2 48.1Z"
+        fill="none"
+        stroke="#ffffff"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="6.2"
+      />
+      <Path
+        d="M33.8 67.2C41.4 64.6 46.7 57.4 48 48.6C51 57 57.2 64.1 64.7 67.2"
+        fill="none"
+        stroke="#ffffff"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="6.2"
+      />
+    </Svg>
   );
 }
 
@@ -170,14 +220,17 @@ export function StateNotice({
 }
 
 export function HackVisual({
+  alt,
   imageUrl,
   title,
   size = "card",
 }: {
+  alt?: string;
   imageUrl?: string | null;
   size?: "card" | "hero";
   title: string;
 }) {
+  const resolvedImageUrl = resolveImageUrl(imageUrl);
   const initials = title
     .split(" ")
     .filter(Boolean)
@@ -187,11 +240,12 @@ export function HackVisual({
 
   return (
     <View style={[styles.hackVisual, size === "hero" && styles.hackVisualHero]}>
-      {imageUrl ? (
+      {resolvedImageUrl ? (
         <Image
           accessibilityIgnoresInvertColors
+          accessibilityLabel={alt ?? `${title} garden visual`}
           contentFit="cover"
-          source={{ uri: imageUrl }}
+          source={{ uri: resolvedImageUrl }}
           style={styles.hackVisualImage}
           transition={180}
         />
@@ -214,6 +268,23 @@ export function HackVisual({
       <View style={styles.hackVisualOverlay} />
     </View>
   );
+}
+
+function resolveImageUrl(imageUrl?: string | null) {
+  if (!imageUrl) {
+    return null;
+  }
+
+  if (/^(https?:|data:|file:)/.test(imageUrl)) {
+    return imageUrl;
+  }
+
+  try {
+    const baseUrl = getApiBaseUrl().replace(/\/api$/, "");
+    return `${baseUrl}${imageUrl.startsWith("/") ? imageUrl : `/${imageUrl}`}`;
+  } catch {
+    return imageUrl;
+  }
 }
 
 export function CommentIcon() {
@@ -524,46 +595,11 @@ const styles = StyleSheet.create({
     transform: [{ rotate: "18deg" }],
     width: 48,
   },
-  logoBulb: {
-    backgroundColor: gardenTheme.colors.tomato,
-    borderRadius: 999,
-    bottom: 7,
-    height: 18,
-    left: 10,
-    position: "absolute",
-    width: 18,
-  },
-  logoLeafLeft: {
-    backgroundColor: gardenTheme.colors.leaf,
-    borderBottomLeftRadius: 9,
-    borderTopRightRadius: 9,
-    height: 14,
-    left: 7,
-    position: "absolute",
-    top: 8,
-    transform: [{ rotate: "-28deg" }],
-    width: 19,
-  },
-  logoLeafRight: {
-    backgroundColor: gardenTheme.colors.primary,
-    borderBottomRightRadius: 9,
-    borderTopLeftRadius: 9,
-    height: 14,
-    position: "absolute",
-    right: 7,
-    top: 8,
-    transform: [{ rotate: "28deg" }],
-    width: 19,
-  },
   logoMark: {
-    backgroundColor: "#ffffff",
-    borderColor: "#b7e7d1",
-    borderRadius: 15,
-    borderWidth: 1,
-    height: 44,
-    position: "relative",
-    width: 44,
-    ...gardenTheme.shadow,
+    alignItems: "center",
+    height: 54,
+    justifyContent: "center",
+    width: 54,
   },
   logoRow: {
     alignItems: "center",
@@ -571,9 +607,10 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   logoSubtitle: {
-    color: gardenTheme.colors.muted,
-    fontSize: 12,
-    fontWeight: "700",
+    color: gardenTheme.colors.primaryDark,
+    fontSize: 11,
+    fontWeight: "900",
+    textTransform: "uppercase",
   },
   logoTitle: {
     color: gardenTheme.colors.text,

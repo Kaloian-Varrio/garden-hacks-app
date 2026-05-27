@@ -17,6 +17,7 @@ import {
 } from "@/lib/api/http";
 import { createUniqueHackSlug } from "@/lib/dashboard/slug";
 import { parseHackPayload } from "@/lib/dashboard/validation";
+import { getHackImageUrl } from "@/lib/garden-assets";
 
 const PUBLISHED_HACK_POINTS = 10;
 const DIFFICULTIES = ["easy", "medium", "hard"] as const;
@@ -133,6 +134,7 @@ export async function GET(request: Request) {
   return NextResponse.json({
     hacks: rows.map((hack) => ({
       ...hack,
+      imageUrl: getHackImageUrl({ imageUrl: hack.imageUrl, slug: hack.slug }),
       isLiked: likedHackIds.has(hack.id),
       isSaved: savedHackIds.has(hack.id),
       userVote: votesByHackId.get(hack.id) ?? null,

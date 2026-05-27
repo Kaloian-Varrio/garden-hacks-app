@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { and, count, desc, eq } from "drizzle-orm";
 import { db, gardeningHacks, groupMembers, savedHacks, userPointsLog } from "@/db";
 import { requireApiUser } from "@/lib/api/http";
+import { getGroupImageUrl, getHackImageUrl } from "@/lib/garden-assets";
 
 export async function GET(request: Request) {
   const { user, response } = await requireApiUser(request);
@@ -159,7 +160,10 @@ export async function GET(request: Request) {
     publishedHacksCount: Number(publishedHacksRows[0]?.count ?? 0),
     joinedGroupsCount: Number(joinedGroupsRows[0]?.count ?? 0),
     savedHacksCount: Number(savedHacksRows[0]?.count ?? 0),
-    recentUserHacks,
+    recentUserHacks: recentUserHacks.map((hack) => ({
+      ...hack,
+      imageUrl: getHackImageUrl({ imageUrl: hack.imageUrl, slug: hack.slug }),
+    })),
     recentActivity: recentActivity.map((item) => ({
       id: item.id,
       reason: item.reason,
@@ -170,13 +174,23 @@ export async function GET(request: Request) {
     savedHacks: savedHackItems.map((item) => ({
       id: item.id,
       savedAt: item.createdAt,
-      hack: item.hack,
+      hack: {
+        ...item.hack,
+        imageUrl: getHackImageUrl({
+          imageUrl: item.hack.imageUrl,
+          slug: item.hack.slug,
+        }),
+      },
     })),
     joinedGroups: joinedGroups.map((membership) => ({
       membershipId: membership.id,
       groupRole: membership.groupRole,
       joinedAt: membership.joinedAt,
       ...membership.group,
+      imageUrl: getGroupImageUrl({
+        imageUrl: membership.group.imageUrl,
+        slug: membership.group.slug,
+      }),
     })),
   });
 }

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { SproutIcon, UserIcon } from "@/components/ui/garden-icons";
@@ -8,12 +7,10 @@ export function GroupCard({ group }: { group: PublicGroup }) {
   return (
     <Card className="overflow-hidden">
       <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-[#dff8e9] to-[#c7f4ee]">
-        <Image
-          src={group.imageUrl ?? "https://placehold.co/1200x800/e8f5dc/31572c/png?text=Garden+Group"}
-          alt=""
-          fill
-          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-          className="object-cover transition duration-500 hover:scale-105"
+        <img
+          src={group.imageUrl ?? "/images/groups/organic-vegetables.jpg"}
+          alt={`${group.title} garden group visual`}
+          className="h-full w-full object-cover transition duration-500 hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#10231c]/35 to-transparent" />
       </div>

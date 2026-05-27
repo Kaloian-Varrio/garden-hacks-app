@@ -14,6 +14,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { getOptionalApiUser } from "@/lib/api/http";
 import { createUniqueHackSlug } from "@/lib/dashboard/slug";
 import { parseHackPayload } from "@/lib/dashboard/validation";
+import { getHackImageUrl } from "@/lib/garden-assets";
 
 const PUBLISHED_HACK_POINTS = 10;
 
@@ -113,6 +114,7 @@ export async function GET(request: Request, { params }: HackRouteContext) {
   return NextResponse.json({
     hack: {
       ...hack,
+      imageUrl: getHackImageUrl({ imageUrl: hack.imageUrl, slug: hack.slug }),
       comments: hack.comments.map((comment) => ({
         id: comment.id,
         text: comment.text,

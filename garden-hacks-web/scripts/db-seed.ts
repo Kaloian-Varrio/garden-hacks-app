@@ -29,6 +29,9 @@ const imageUrl = (label: string) =>
     label,
   )}`;
 
+const groupImageUrl = (slug: string) => `/images/groups/${slug}.jpg`;
+const hackImageUrl = (slug: string) => `/images/hacks/${slug}.jpg`;
+
 const seedUsers = [
   {
     email: "kaloianh@gmail.com",
@@ -485,7 +488,7 @@ const runSeed = async () => {
     .values(
       seedGroups.map((group) => ({
         ...group,
-        imageUrl: imageUrl(group.title),
+        imageUrl: groupImageUrl(group.slug),
         createdByAdminId: admin.id,
         hacksCount: hackSeeds.filter((hack) => hack.groupSlug === group.slug)
           .length,
@@ -577,7 +580,7 @@ const runSeed = async () => {
           slug: hack.slug,
           content: hack.content,
           excerpt: hack.excerpt,
-          imageUrl: imageUrl(hack.title),
+          imageUrl: hackImageUrl(hack.slug),
           sourceUrl: YOUTUBE_INSPIRATION_URL,
           authorId: requireRecord(usersByEmail, hack.authorEmail, "hack author")
             .id,
