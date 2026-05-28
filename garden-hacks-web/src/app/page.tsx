@@ -107,7 +107,7 @@ export default async function Home() {
               <HackCard
                 key={hack.id}
                 hack={hack}
-                isLoggedIn={Boolean(currentUser)}
+                currentUserId={currentUser?.id}
               />
             ))}
           </div>
