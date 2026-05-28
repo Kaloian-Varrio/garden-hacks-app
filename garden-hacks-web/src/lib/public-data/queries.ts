@@ -111,6 +111,7 @@ export async function getPublicGroupBySlug(
         with: {
           author: {
             columns: {
+              id: true,
               name: true,
             },
           },
@@ -130,15 +131,15 @@ export async function getPublicGroupBySlug(
       }),
       viewerUserId
         ? db.query.groupMembers.findFirst({
-            where: and(
-              eq(groupMembers.groupId, group.id),
-              eq(groupMembers.userId, viewerUserId),
-            ),
-            columns: {
-              id: true,
-              groupRole: true,
-            },
-          })
+          where: and(
+            eq(groupMembers.groupId, group.id),
+            eq(groupMembers.userId, viewerUserId),
+          ),
+          columns: {
+            id: true,
+            groupRole: true,
+          },
+        })
         : Promise.resolve(null),
     ]);
 
@@ -167,6 +168,7 @@ export async function getPublicGroupBySlug(
         groupId: hack.groupId,
         groupSlug: hack.group.slug,
         author: hack.author.name,
+        authorId: hack.author.id,
         difficulty: hack.difficulty,
         isOrganic: hack.isOrganic,
         isChemicalFree: hack.isChemicalFree,
@@ -181,9 +183,9 @@ export async function getPublicGroupBySlug(
       })),
       viewerMembership: viewerMembership
         ? {
-            id: viewerMembership.id,
-            groupRole: viewerMembership.groupRole,
-          }
+          id: viewerMembership.id,
+          groupRole: viewerMembership.groupRole,
+        }
         : null,
     };
   } catch {
@@ -213,8 +215,8 @@ export async function getPublicHacksPage(
       : DEFAULT_PUBLIC_HACKS_PAGE;
   const requestedPageSize =
     Number.isInteger(options.pageSize) &&
-    options.pageSize &&
-    options.pageSize > 0
+      options.pageSize &&
+      options.pageSize > 0
       ? options.pageSize
       : DEFAULT_PUBLIC_HACKS_PAGE_SIZE;
   const pageSize = Math.min(requestedPageSize, MAX_PUBLIC_HACKS_PAGE_SIZE);
@@ -235,6 +237,7 @@ export async function getPublicHacksPage(
       with: {
         author: {
           columns: {
+            id: true,
             name: true,
           },
         },
@@ -256,57 +259,58 @@ export async function getPublicHacksPage(
     const hackIds = rows.map((hack) => hack.id);
     const votes = options.viewerUserId && hackIds.length > 0
       ? await db.query.hackVotes.findMany({
-          where: (vote, { and: all, eq: equals, inArray: inValues }) =>
-            all(
-              equals(vote.userId, options.viewerUserId!),
-              inValues(vote.hackId, hackIds),
-            ),
-          columns: {
-            hackId: true,
-            voteType: true,
-          },
-        })
+        where: (vote, { and: all, eq: equals, inArray: inValues }) =>
+          all(
+            equals(vote.userId, options.viewerUserId!),
+            inValues(vote.hackId, hackIds),
+          ),
+        columns: {
+          hackId: true,
+          voteType: true,
+        },
+      })
       : [];
     const votesByHackId = new Map(
       votes.map((vote) => [vote.hackId, vote.voteType] as const),
     );
     const saves = options.viewerUserId && hackIds.length > 0
       ? await db.query.savedHacks.findMany({
-          where: (saved, { and: all, eq: equals, inArray: inValues }) =>
-            all(
-              equals(saved.userId, options.viewerUserId!),
-              inValues(saved.hackId, hackIds),
-            ),
-          columns: {
-            hackId: true,
-          },
-        })
+        where: (saved, { and: all, eq: equals, inArray: inValues }) =>
+          all(
+            equals(saved.userId, options.viewerUserId!),
+            inValues(saved.hackId, hackIds),
+          ),
+        columns: {
+          hackId: true,
+        },
+      })
       : [];
     const savedHackIds = new Set(saves.map((saved) => saved.hackId));
 
     const hacks = rows.map((hack) => ({
-        id: hack.id,
-        title: hack.title,
-        slug: hack.slug,
-        excerpt: hack.excerpt,
-        content: hack.content,
-        imageUrl: getHackImageUrl({ imageUrl: hack.imageUrl, slug: hack.slug }),
-        category: hack.category.title,
-        group: hack.group.title,
-        groupId: hack.group.id,
-        groupSlug: hack.group.slug,
-        author: hack.author.name,
-        difficulty: hack.difficulty,
-        isOrganic: hack.isOrganic,
-        isChemicalFree: hack.isChemicalFree,
-        sweetTomatoesCount: hack.sweetTomatoesCount,
-        bitterCucumbersCount: hack.bitterCucumbersCount,
-        ratingScore: hack.ratingScore,
-        commentsCount: hack.commentsCount,
-        comments: [],
-        isSaved: savedHackIds.has(hack.id),
-        userVote: votesByHackId.get(hack.id) ?? null,
-        viewerGroupRole: null,
+      id: hack.id,
+      title: hack.title,
+      slug: hack.slug,
+      excerpt: hack.excerpt,
+      content: hack.content,
+      imageUrl: getHackImageUrl({ imageUrl: hack.imageUrl, slug: hack.slug }),
+      category: hack.category.title,
+      group: hack.group.title,
+      groupId: hack.group.id,
+      groupSlug: hack.group.slug,
+      author: hack.author.name,
+      authorId: hack.author.id,
+      difficulty: hack.difficulty,
+      isOrganic: hack.isOrganic,
+      isChemicalFree: hack.isChemicalFree,
+      sweetTomatoesCount: hack.sweetTomatoesCount,
+      bitterCucumbersCount: hack.bitterCucumbersCount,
+      ratingScore: hack.ratingScore,
+      commentsCount: hack.commentsCount,
+      comments: [],
+      isSaved: savedHackIds.has(hack.id),
+      userVote: votesByHackId.get(hack.id) ?? null,
+      viewerGroupRole: null,
     }));
 
     return paginatePublicHacks(
@@ -339,6 +343,7 @@ export async function getPublicHackBySlug(
       with: {
         author: {
           columns: {
+            id: true,
             name: true,
           },
         },
@@ -379,34 +384,34 @@ export async function getPublicHackBySlug(
     const viewerRole = typeof viewer === "number" ? "user" : viewer?.role;
     const [viewerMembership, viewerVote, viewerSavedHack] = viewerUserId
       ? await Promise.all([
-          db.query.groupMembers.findFirst({
-            where: and(
-              eq(groupMembers.groupId, hack.group.id),
-              eq(groupMembers.userId, viewerUserId),
-            ),
-            columns: {
-              groupRole: true,
-            },
-          }),
-          db.query.hackVotes.findFirst({
-            where: and(
-              eq(hackVotes.hackId, hack.id),
-              eq(hackVotes.userId, viewerUserId),
-            ),
-            columns: {
-              voteType: true,
-            },
-          }),
-          db.query.savedHacks.findFirst({
-            where: and(
-              eq(savedHacks.hackId, hack.id),
-              eq(savedHacks.userId, viewerUserId),
-            ),
-            columns: {
-              id: true,
-            },
-          }),
-        ])
+        db.query.groupMembers.findFirst({
+          where: and(
+            eq(groupMembers.groupId, hack.group.id),
+            eq(groupMembers.userId, viewerUserId),
+          ),
+          columns: {
+            groupRole: true,
+          },
+        }),
+        db.query.hackVotes.findFirst({
+          where: and(
+            eq(hackVotes.hackId, hack.id),
+            eq(hackVotes.userId, viewerUserId),
+          ),
+          columns: {
+            voteType: true,
+          },
+        }),
+        db.query.savedHacks.findFirst({
+          where: and(
+            eq(savedHacks.hackId, hack.id),
+            eq(savedHacks.userId, viewerUserId),
+          ),
+          columns: {
+            id: true,
+          },
+        }),
+      ])
       : [null, null, null];
 
     if (
@@ -439,6 +444,7 @@ export async function getPublicHackBySlug(
       groupId: hack.group.id,
       groupSlug: hack.group.slug,
       author: hack.author.name,
+      authorId: hack.author.id,
       difficulty: hack.difficulty,
       isOrganic: hack.isOrganic,
       isChemicalFree: hack.isChemicalFree,

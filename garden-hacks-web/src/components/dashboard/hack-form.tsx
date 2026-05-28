@@ -40,6 +40,18 @@ export function HackForm({
   const [createdHackHref, setCreatedHackHref] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [imageSource, setImageSource] = useState<"url" | "upload" | "ai">("url");
+  const [aiImageUrl, setAiImageUrl] = useState("");
+
+  async function handleAiGenerate() {
+    const titleObj = document.querySelector<HTMLInputElement>('input[name="title"]');
+    const titleVal = titleObj?.value || "garden";
+    // TODO: Integrate actual AI image generation API here.
+    // For now, using a placeholder image generator service.
+    const generatedUrl = `https://picsum.photos/seed/${encodeURIComponent(titleVal + Date.now())}/800/600`;
+    setAiImageUrl(generatedUrl);
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
@@ -48,22 +60,36 @@ export function HackForm({
 
     const formData = new FormData(event.currentTarget);
     const imageFile = formData.get("imageFile");
+    let finalImageUrl = formData.get("imageUrl") as string;
 
-    if (imageFile instanceof File && imageFile.size > 0) {
+    if (imageSource === "ai") {
+      finalImageUrl = aiImageUrl;
+    } else if (imageSource === "upload" && imageFile instanceof File && imageFile.size > 0) {
       if (imageFile.size > 1024 * 1024) {
         setError("Image file must be up to 1 MB.");
         setIsSubmitting(false);
         return;
       }
 
-      // TODO: Persist uploaded image files when a web image upload API exists.
+      // Convert to Base64 using FileReader
+      finalImageUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          if (typeof reader.result === "string") resolve(reader.result);
+          else reject(new Error("Failed to read file"));
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(imageFile);
+      });
+    } else if (imageSource === "url") {
+      finalImageUrl = formData.get("imageUrl") as string;
     }
 
     const payload = {
       title: formData.get("title"),
       excerpt: formData.get("excerpt"),
       content: formData.get("content"),
-      imageUrl: formData.get("imageUrl"),
+      imageUrl: finalImageUrl,
       groupId: Number(formData.get("groupId")),
       categoryId: Number(formData.get("categoryId")),
       difficulty: formData.get("difficulty"),
@@ -149,24 +175,61 @@ export function HackForm({
           className="dashboard-input min-h-48 py-3"
         />
       </Field>
-      <div className="grid gap-5 md:grid-cols-2">
-        <Field label="Image URL">
-          <input
-            name="imageUrl"
-            type="url"
-            defaultValue={values.imageUrl ?? ""}
-            className="dashboard-input"
-          />
-        </Field>
-        <Field label="Upload image file (up to 1 MB)">
-          <input
-            name="imageFile"
-            type="file"
-            accept="image/*"
-            className="dashboard-input file:mr-4 file:rounded-md file:border-0 file:bg-[#dff8e9] file:px-3 file:py-2 file:text-sm file:font-bold file:text-[#0f766e]"
-          />
-        </Field>
+
+      <div className="space-y-4 rounded-xl border border-[#d9eee4] p-5 bg-[#fbfffd]">
+        <h3 className="text-sm font-black text-[#176b49] uppercase tracking-wider">Image Source</h3>
+        <div className="flex gap-4 mb-4">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="imageSourceOption" value="url" checked={imageSource === "url"} onChange={() => setImageSource("url")} className="garden-radio w-4 h-4 text-[#176b49] border-[#d9eee4] focus:ring-[#176b49]" />
+            <span className="text-sm font-semibold text-[#203525]">Image URL</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="imageSourceOption" value="upload" checked={imageSource === "upload"} onChange={() => setImageSource("upload")} className="garden-radio w-4 h-4 text-[#176b49] border-[#d9eee4] focus:ring-[#176b49]" />
+            <span className="text-sm font-semibold text-[#203525]">Upload File</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="imageSourceOption" value="ai" checked={imageSource === "ai"} onChange={() => setImageSource("ai")} className="garden-radio w-4 h-4 text-[#176b49] border-[#d9eee4] focus:ring-[#176b49]" />
+            <span className="text-sm font-semibold text-[#203525]">AI Generate</span>
+          </label>
+        </div>
+
+        {imageSource === "url" && (
+          <Field label="Image URL">
+            <input
+              name="imageUrl"
+              type="url"
+              defaultValue={values.imageUrl ?? ""}
+              className="dashboard-input"
+            />
+          </Field>
+        )}
+
+        {imageSource === "upload" && (
+          <Field label="Upload image file (up to 1 MB)">
+            <input
+              name="imageFile"
+              type="file"
+              accept="image/*"
+              className="dashboard-input file:mr-4 file:rounded-md file:border-0 file:bg-[#dff8e9] file:px-3 file:py-2 file:text-sm file:font-bold file:text-[#0f766e]"
+            />
+          </Field>
+        )}
+
+        {imageSource === "ai" && (
+          <div className="flex flex-col gap-3">
+            <button type="button" onClick={handleAiGenerate} className="garden-btn garden-btn-primary w-fit min-h-10 px-4 py-2 text-sm">
+              Generate AI Image
+            </button>
+            {aiImageUrl && (
+              <div className="mt-2">
+                <p className="text-xs font-bold text-[#176b49] mb-1">Preview:</p>
+                <img src={aiImageUrl} alt="Generated AI preview" className="h-32 rounded-md object-cover" />
+              </div>
+            )}
+          </div>
+        )}
       </div>
+
       <div className="grid gap-5 md:grid-cols-2">
         <Field label="Group">
           <select

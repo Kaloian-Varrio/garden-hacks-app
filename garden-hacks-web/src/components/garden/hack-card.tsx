@@ -3,17 +3,21 @@ import { HackTagLink } from "@/components/garden/hack-tag-link";
 import { HackVisual } from "@/components/garden/hack-visual";
 import { HackVotePanel } from "@/components/garden/hack-vote-panel";
 import { SaveHackButton } from "@/components/garden/save-hack-button";
+import { DeleteHackButton } from "@/components/dashboard/delete-hack-button";
 import { Card } from "@/components/ui/card";
 import { CommentIcon, SparkIcon } from "@/components/ui/garden-icons";
 import type { PublicHack } from "@/lib/public-data/types";
 
 export function HackCard({
   hack,
-  isLoggedIn,
+  currentUserId,
 }: {
   hack: PublicHack;
-  isLoggedIn: boolean;
+  currentUserId?: number;
 }) {
+  const isLoggedIn = Boolean(currentUserId);
+  const isOwner = currentUserId === hack.authorId;
+
   return (
     <Card className="grid overflow-hidden sm:grid-cols-[260px_1fr]">
       <HackVisual
@@ -73,12 +77,25 @@ export function HackCard({
           initialRatingScore={hack.ratingScore}
           isLoggedIn={isLoggedIn}
         />
-        <Link
-          href={`/hacks/${hack.slug}`}
-          className="garden-focus mt-5 w-fit rounded-full text-sm font-black text-[#0f766e] hover:text-[#f0643c]"
-        >
-          Read hack details
-        </Link>
+        <div className="flex flex-wrap gap-2 mt-5">
+          <Link
+            href={`/hacks/${hack.slug}`}
+            className="garden-focus w-fit rounded-full text-sm font-black text-[#0f766e] hover:text-[#f0643c] py-2"
+          >
+            Read hack details
+          </Link>
+          {isOwner && (
+            <div className="flex gap-2 ml-auto">
+              <Link
+                href={`/dashboard/hacks/${hack.id}/edit`}
+                className="inline-flex min-h-9 items-center justify-center rounded-md border border-[#b7c8ad] bg-white px-3 py-1.5 text-sm font-semibold text-[#203525] hover:bg-[#f1f7ed]"
+              >
+                Edit
+              </Link>
+              <DeleteHackButton hackId={hack.id} />
+            </div>
+          )}
+        </div>
       </div>
     </Card>
   );

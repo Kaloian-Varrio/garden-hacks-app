@@ -73,7 +73,9 @@ export default async function MyHacksPage({ searchParams }: MyHacksPageProps) {
               {hacks.map((hack) => (
                 <tr key={hack.id} className="align-top">
                   <td className="border-b border-[#edf2e8] py-4 pr-4 font-bold text-[#18231c]">
-                    {hack.title}
+                    <Link href={`/hacks/${hack.slug}`} className="hover:text-[#176b49] hover:underline">
+                      {hack.title}
+                    </Link>
                   </td>
                   <td className="border-b border-[#edf2e8] py-4 pr-4">
                     <StatusBadge status={hack.status} />
@@ -98,6 +100,12 @@ export default async function MyHacksPage({ searchParams }: MyHacksPageProps) {
                   </td>
                   <td className="border-b border-[#edf2e8] py-4">
                     <div className="flex gap-2">
+                      <Link
+                        href={`/hacks/${hack.slug}`}
+                        className="inline-flex min-h-10 items-center justify-center rounded-md border border-[#c4e6e9] bg-[#f2fbff] px-3 py-2 text-sm font-semibold text-[#0a5a60] hover:bg-[#e2f7ff]"
+                      >
+                        View
+                      </Link>
                       <Link
                         href={`/dashboard/hacks/${hack.id}/edit`}
                         className="inline-flex min-h-10 items-center justify-center rounded-md border border-[#b7c8ad] bg-white px-3 py-2 text-sm font-semibold text-[#203525] hover:bg-[#f1f7ed]"

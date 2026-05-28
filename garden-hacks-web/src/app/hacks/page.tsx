@@ -81,7 +81,7 @@ export default async function HacksPage({ searchParams }: HacksPageProps) {
                 <HackCard
                   key={hack.id}
                   hack={hack}
-                  isLoggedIn={Boolean(currentUser)}
+                  currentUserId={currentUser?.id}
                 />
               ))}
             </div>

@@ -33,6 +33,9 @@ export function HackComments({
   const [formError, setFormError] = useState<string | null>(null);
   const [commentError, setCommentError] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<string | null>(null);
+  const [replyingId, setReplyingId] = useState<number | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [replyMessage, setReplyMessage] = useState<string | null>(null);
 
   async function handleCreate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -102,6 +105,20 @@ export function HackComments({
     setCommentError(null);
     setEditingId(comment.id);
     setEditingText(comment.text);
+    setReplyingId(null);
+  }
+
+  function startReplying(comment: CommentItem) {
+    setReplyMessage(null);
+    setReplyingId(comment.id);
+    setReplyText("");
+    setEditingId(null);
+  }
+
+  async function handleReply(event: FormEvent<HTMLFormElement>, commentId: number) {
+    event.preventDefault();
+    setReplyMessage("TODO: API support for nested replies is missing. Cannot persist replies.");
+    // We do not pretend it saves.
   }
 
   return (
@@ -156,8 +173,18 @@ export function HackComments({
                         {formatDate(comment.createdAt)}
                       </p>
                     </div>
-                    {(comment.canEdit || comment.canDelete) && (
+                    {(isLoggedIn || comment.canEdit || comment.canDelete) && (
                       <div className="flex shrink-0 flex-wrap gap-2 sm:justify-end">
+                        {isLoggedIn && (
+                          <button
+                            type="button"
+                            onClick={() => startReplying(comment)}
+                            className="garden-focus inline-flex min-h-9 items-center justify-center gap-1.5 rounded-full border border-[#d9eee4] bg-[#fbfffd] px-3 py-1.5 text-sm font-bold text-[#176b49] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#e9fbef]"
+                          >
+                            <CommentIcon size={14} />
+                            Reply
+                          </button>
+                        )}
                         {comment.canEdit && (
                           <button
                             type="button"
@@ -233,6 +260,48 @@ export function HackComments({
                     <p className="mt-4 whitespace-pre-line rounded-2xl border border-[#edf2e8] bg-[#fbfffd] p-4 text-sm leading-7 text-[#405046]">
                       {comment.text}
                     </p>
+                  )}
+
+                  {replyingId === comment.id && !editingId && (
+                    <form
+                      onSubmit={(e) => handleReply(e, comment.id)}
+                      className="mt-4 ml-4 rounded-2xl border-l-[3px] border-[#d9eee4] bg-[#fdfdfd] p-4 shadow-sm"
+                    >
+                      <label
+                        htmlFor={`comment-reply-${comment.id}`}
+                        className="mb-2 block text-xs font-black uppercase tracking-[0.12em] text-[#176b49]"
+                      >
+                        Reply to {comment.authorName}
+                      </label>
+                      <textarea
+                        id={`comment-reply-${comment.id}`}
+                        value={replyText}
+                        onChange={(event) => setReplyText(event.target.value)}
+                        className="garden-textarea min-h-24 bg-white"
+                        placeholder="Type your reply here..."
+                        required
+                      />
+                      {replyMessage && (
+                        <p className="mt-2 text-sm font-semibold text-[#a33a20] bg-[#ffe4d6] p-2 rounded-lg inline-block">
+                          {replyMessage}
+                        </p>
+                      )}
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <button
+                          type="submit"
+                          className="garden-btn garden-btn-primary min-h-10 px-4 py-2 text-sm"
+                        >
+                          Post Reply
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setReplyingId(null)}
+                          className="garden-btn garden-btn-secondary min-h-10 px-4 py-2 text-sm"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
                   )}
                 </div>
               </div>

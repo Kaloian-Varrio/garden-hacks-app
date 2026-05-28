@@ -45,6 +45,7 @@ export type PublicHack = {
   groupId: number;
   groupSlug: string;
   author: string;
+  authorId: number;
   difficulty: "easy" | "medium" | "hard";
   isOrganic: boolean;
   isChemicalFree: boolean;

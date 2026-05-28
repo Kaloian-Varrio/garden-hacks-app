@@ -30,22 +30,32 @@ const sections = [
 
 export default function AboutPage() {
   return (
-    <div className="px-4 py-12 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-5xl">
-        <SectionTitle eyebrow="About" title="Grow better by learning together">
-          Garden Hacks is built around the idea that healthier food starts with
-          healthier soil, honest community knowledge, and practical care.
-        </SectionTitle>
-        <div className="mt-10 grid gap-5">
+    <div className="relative px-4 py-12 sm:px-6 lg:px-8 overflow-hidden min-h-screen">
+      <div
+        className="absolute inset-0 z-0 opacity-10 bg-[url('/images/garden-bg.webp')] md:bg-[url('https://images.unsplash.com/photo-1466692476877-339242ea0120?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center bg-no-repeat bg-fixed pointer-events-none"
+        style={{ mixBlendMode: 'multiply' }}
+      />
+      <div className="relative z-10 mx-auto max-w-7xl">
+        <div className="text-center mb-12 max-w-3xl mx-auto">
+          <SectionTitle eyebrow="About" title="Grow better by learning together">
+            Garden Hacks is built around the idea that healthier food starts with
+            healthier soil, honest community knowledge, and practical care.
+          </SectionTitle>
+          <p className="mt-6 text-xl text-[#2a4d3e] font-medium leading-relaxed italic">
+            "A healthy spirit in a healthy body begins with natural, clean food. For a fuller, more beautiful longevity with Garden Hacks."
+          </p>
+        </div>
+
+        <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {sections.map((section) => (
             <section
               key={section.title}
-              className="rounded-lg border border-[#dfe8d8] bg-white p-6 sm:p-8"
+              className="group rounded-2xl border border-[#dfe8d8]/80 bg-white/90 backdrop-blur-sm p-6 sm:p-8 shadow-sm hover:shadow-md transition-all duration-300 hover:border-[#F27830]/30 hover:translate-y-[-2px] flex flex-col"
             >
-              <h2 className="text-2xl font-black tracking-normal text-[#18231c]">
+              <h2 className="text-xl sm:text-2xl font-black tracking-normal text-[#18231c] leading-tight mb-4">
                 {section.title}
               </h2>
-              <p className="mt-4 text-base leading-8 text-[#59655c]">
+              <p className="text-base leading-relaxed text-[#59655c] flex-grow">
                 {section.text}
               </p>
             </section>

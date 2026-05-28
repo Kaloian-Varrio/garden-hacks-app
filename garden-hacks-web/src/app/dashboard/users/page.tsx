@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getDashboardUsersForAdmin } from "@/lib/dashboard/queries";
+import { AddUserButton, UserActions } from "@/components/dashboard/user-management-actions";
 
 export const metadata: Metadata = {
   title: "Users Management",
@@ -31,8 +32,11 @@ export default async function DashboardUsersPage() {
             Admin-only overview of registered Garden Hacks users.
           </p>
         </div>
-        <div className="rounded-2xl bg-[#e9fbef] px-4 py-3 text-sm font-black text-[#134c40]">
-          Total users: {totalUsers}
+        <div className="flex items-center gap-3">
+          <div className="rounded-2xl bg-[#e9fbef] px-4 py-3 text-sm font-black text-[#134c40]">
+            Total users: {totalUsers}
+          </div>
+          <AddUserButton />
         </div>
       </div>
 
@@ -73,10 +77,7 @@ export default async function DashboardUsersPage() {
                   })}
                 </td>
                 <td className="px-4 py-3">
-                  {/* TODO: Wire add, edit, and delete actions when admin user CRUD API endpoints exist. */}
-                  <span className="rounded-md border border-[#dfe8d8] bg-[#f8faf7] px-3 py-1.5 text-xs font-bold text-[#8a968d]">
-                    Read-only
-                  </span>
+                  <UserActions userId={dashboardUser.id} />
                 </td>
               </tr>
             ))}
