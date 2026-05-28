@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { HackCard } from "@/components/garden/hack-card";
+import { HacksFilters } from "@/components/garden/hacks-filters";
 import { EmptyState } from "@/components/ui/empty-state";
 import { SectionTitle } from "@/components/ui/section-title";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -12,10 +13,18 @@ export const metadata: Metadata = {
 };
 
 type HacksPageProps = {
-  searchParams?: Promise<{
-    page?: string | string[];
-    pageSize?: string | string[];
-  }>;
+  searchParams?: Promise<HacksSearchParams>;
+};
+
+type HacksSearchParams = {
+  page?: string | string[];
+  pageSize?: string | string[];
+  q?: string | string[];
+  tag?: string | string[];
+  category?: string | string[];
+  group?: string | string[];
+  difficulty?: string | string[];
+  rating?: string | string[];
 };
 
 export default async function HacksPage({ searchParams }: HacksPageProps) {
@@ -27,6 +36,12 @@ export default async function HacksPage({ searchParams }: HacksPageProps) {
       pageSize: parsePositiveInteger(
         readSearchParam(resolvedSearchParams?.pageSize),
       ),
+      q: readSearchParam(resolvedSearchParams?.q),
+      tag: readSearchParam(resolvedSearchParams?.tag),
+      category: readSearchParam(resolvedSearchParams?.category),
+      group: readSearchParam(resolvedSearchParams?.group),
+      difficulty: readSearchParam(resolvedSearchParams?.difficulty),
+      rating: readSearchParam(resolvedSearchParams?.rating),
       viewerUserId: currentUser?.id,
     }),
     getFilterOptions(),
@@ -45,12 +60,19 @@ export default async function HacksPage({ searchParams }: HacksPageProps) {
           group, difficulty, and rating.
         </SectionTitle>
 
-        <div className="garden-shell mt-10 grid gap-3 rounded-3xl p-4 md:grid-cols-4">
-          <FilterSelect label="Category" options={filters.categories} />
-          <FilterSelect label="Group" options={filters.groups} />
-          <FilterSelect label="Difficulty" options={filters.difficulties} />
-          <FilterSelect label="Rating" options={filters.ratings} />
-        </div>
+        <HacksFilters
+          categories={filters.categories}
+          groups={filters.groups}
+          difficulties={filters.difficulties}
+          ratings={filters.ratings}
+          selected={{
+            category: readSearchParam(resolvedSearchParams?.category),
+            group: readSearchParam(resolvedSearchParams?.group),
+            difficulty: readSearchParam(resolvedSearchParams?.difficulty),
+            tag: readSearchParam(resolvedSearchParams?.tag),
+            rating: readSearchParam(resolvedSearchParams?.rating),
+          }}
+        />
 
         {hacks.length > 0 ? (
           <div className="mt-8">
@@ -69,7 +91,11 @@ export default async function HacksPage({ searchParams }: HacksPageProps) {
               </p>
               <div className="flex items-center gap-2">
                 <PaginationLink
-                  href={getPageHref(currentPage - 1, pageSize)}
+                  href={getPageHref(
+                    currentPage - 1,
+                    pageSize,
+                    resolvedSearchParams,
+                  )}
                   disabled={currentPage <= 1}
                 >
                   Previous
@@ -78,7 +104,11 @@ export default async function HacksPage({ searchParams }: HacksPageProps) {
                   Page {currentPage} of {displayTotalPages}
                 </span>
                 <PaginationLink
-                  href={getPageHref(currentPage + 1, pageSize)}
+                  href={getPageHref(
+                    currentPage + 1,
+                    pageSize,
+                    resolvedSearchParams,
+                  )}
                   disabled={currentPage >= displayTotalPages}
                 >
                   Next
@@ -89,8 +119,8 @@ export default async function HacksPage({ searchParams }: HacksPageProps) {
         ) : (
           <div className="mt-10">
             <EmptyState
-              title="No published hacks yet"
-              message="Seed the database or publish gardening hacks to fill this public listing."
+              title="No matching hacks"
+              message="Try changing the search or filters to find more gardening ideas."
             />
           </div>
         )}
@@ -115,8 +145,25 @@ function parsePositiveInteger(value: string | undefined) {
     : undefined;
 }
 
-function getPageHref(page: number, pageSize: number) {
-  return `/hacks?page=${page}&pageSize=${pageSize}`;
+function getPageHref(
+  page: number,
+  pageSize: number,
+  searchParams: HacksSearchParams | undefined,
+) {
+  const params = new URLSearchParams();
+
+  for (const key of ["q", "tag", "category", "group", "difficulty", "rating"] as const) {
+    const value = readSearchParam(searchParams?.[key]);
+
+    if (value) {
+      params.set(key, value);
+    }
+  }
+
+  params.set("page", String(page));
+  params.set("pageSize", String(pageSize));
+
+  return `/hacks?${params.toString()}`;
 }
 
 function PaginationLink({
@@ -149,24 +196,5 @@ function PaginationLink({
     >
       {children}
     </Link>
-  );
-}
-
-function FilterSelect({ label, options }: { label: string; options: string[] }) {
-  return (
-    <label className="grid gap-2 text-sm font-bold text-[#405046]">
-      {label}
-      <select
-        className="h-11 rounded-2xl border border-[#b7e7d1] bg-white/80 px-3 text-sm text-[#10231c] outline-none focus:border-[#0f9f93] focus:ring-4 focus:ring-[#5bd8d0]/20"
-        defaultValue=""
-      >
-        <option value="">All {label.toLowerCase()}</option>
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
-    </label>
   );
 }

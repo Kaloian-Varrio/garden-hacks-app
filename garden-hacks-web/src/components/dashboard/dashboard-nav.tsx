@@ -4,19 +4,23 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const items = [
-  { href: "/dashboard", label: "Overview" },
+  { href: "/dashboard", label: "My Profile" },
   { href: "/dashboard/hacks", label: "My Hacks" },
   { href: "/dashboard/hacks/new", label: "Create Hack" },
   { href: "/dashboard/saved-hacks", label: "Saved Hacks" },
   { href: "/dashboard/groups", label: "My Groups" },
 ];
 
-export function DashboardNav() {
+export function DashboardNav({ role }: { role: "user" | "admin" }) {
   const pathname = usePathname();
+  const visibleItems =
+    role === "admin"
+      ? [...items, { href: "/dashboard/users", label: "Users Management" }]
+      : items;
 
   return (
     <nav className="grid gap-1" aria-label="Dashboard navigation">
-      {items.map((item) => {
+      {visibleItems.map((item) => {
         const isActive =
           item.href === "/dashboard"
             ? pathname === item.href

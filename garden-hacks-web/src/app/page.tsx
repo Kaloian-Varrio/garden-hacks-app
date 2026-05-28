@@ -40,7 +40,10 @@ export default async function Home() {
         <div className="mx-auto min-h-[calc(100vh-5rem)] max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="grid min-h-[calc(100vh-11rem)] items-center">
             <div className="max-w-3xl">
-              <Badge tone="amber">Smart gardening tricks</Badge>
+              <p className="inline-flex items-center gap-2 rounded-full border border-[#b7e7d1] bg-white/82 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-[#0f766e] shadow-sm shadow-emerald-900/5">
+                <SparkIcon size={15} />
+                Smart gardening tricks
+              </p>
               <h1 className="mt-6 text-5xl font-black tracking-tight text-[#10231c] sm:text-6xl lg:text-7xl">
                 Garden Hacks
                 <span className="garden-gradient-text block">
@@ -58,7 +61,7 @@ export default async function Home() {
                   Join the Community
                 </Button>
               </div>
-              <div className="mt-10 grid gap-3 sm:grid-cols-3">
+              <div className="mt-9 flex flex-wrap gap-x-5 gap-y-3">
                 <HeroStat icon={<LightbulbIcon />} label="Lazy-smart ideas" />
                 <HeroStat icon={<SproutIcon />} label="Healthy home gardens" />
                 <HeroStat icon={<TomatoIcon />} label="Community-tested tips" />
@@ -153,8 +156,8 @@ export default async function Home() {
 
 function HeroStat({ icon, label }: { icon: ReactNode; label: string }) {
   return (
-    <div className="garden-shell flex items-center gap-3 rounded-2xl p-4 text-sm font-black text-[#134c40]">
-      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#0f9f93] shadow-sm">
+    <div className="flex items-center gap-2 text-sm font-bold text-[#405046]">
+      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/82 text-[#0f9f93] shadow-sm">
         {icon}
       </span>
       {label}

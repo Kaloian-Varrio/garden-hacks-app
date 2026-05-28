@@ -17,6 +17,7 @@ import type {
   DashboardHackPage,
   DashboardHackFormValues,
   DashboardSavedHackItem,
+  DashboardUserItem,
   SelectOption,
 } from "./types";
 
@@ -253,6 +254,28 @@ export async function getDashboardGroups(
     membersCount: membership.group.membersCount,
     hacksCount: membership.group.hacksCount,
   }));
+}
+
+export async function getDashboardUsersForAdmin(): Promise<{
+  totalUsers: number;
+  users: DashboardUserItem[];
+}> {
+  const rows = await db.query.users.findMany({
+    orderBy: [desc(users.createdAt)],
+    columns: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      pointsBalance: true,
+      createdAt: true,
+    },
+  });
+
+  return {
+    totalUsers: rows.length,
+    users: rows,
+  };
 }
 
 export async function getHackFormOptions(): Promise<{

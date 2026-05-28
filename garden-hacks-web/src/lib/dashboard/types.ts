@@ -69,3 +69,12 @@ export type DashboardGroupItem = {
   membersCount: number;
   hacksCount: number;
 };
+
+export type DashboardUserItem = {
+  id: number;
+  name: string;
+  email: string;
+  role: "user" | "admin";
+  pointsBalance: number;
+  createdAt: Date;
+};

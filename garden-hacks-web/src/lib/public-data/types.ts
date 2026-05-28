@@ -53,6 +53,7 @@ export type PublicHack = {
   ratingScore: number;
   commentsCount: number;
   comments: PublicHackComment[];
+  isSaved: boolean;
   userVote: "sweet_tomato" | "bitter_cucumber" | null;
   viewerGroupRole: "member" | "manager" | null;
 };

@@ -3,7 +3,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { RegisterForm } from "@/components/auth/register-form";
 import { BrandLogo } from "@/components/layout/brand-logo";
-import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
@@ -39,11 +38,9 @@ export default async function RegisterPage() {
             Login
           </Link>
         </p>
-        <div className="mt-5 text-center">
-          <Button href="/groups" variant="ghost">
-            Explore groups first
-          </Button>
-        </div>
+        <p className="mt-5 rounded-2xl bg-[#e9fbef] px-4 py-3 text-center text-sm font-semibold text-[#2f6f3e]">
+          Welcome to the smart gardeners' community.
+        </p>
       </div>
     </div>
   );

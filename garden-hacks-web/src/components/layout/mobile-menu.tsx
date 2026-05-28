@@ -8,7 +8,6 @@ import { navLinks } from "./nav-links";
 
 export function MobileMenu({ user }: { user: { name: string } | null }) {
   const [isOpen, setIsOpen] = useState(false);
-  const visibleNavLinks = navLinks.filter((link) => user || !link.authRequired);
 
   return (
     <div className="md:hidden">
@@ -19,7 +18,15 @@ export function MobileMenu({ user }: { user: { name: string } | null }) {
         aria-label="Toggle navigation menu"
         onClick={() => setIsOpen((value) => !value)}
       >
-        <span className="text-xl leading-none">{isOpen ? "x" : "≡"}</span>
+        {isOpen ? (
+          <span className="text-lg font-black leading-none">x</span>
+        ) : (
+          <span className="grid gap-1" aria-hidden="true">
+            <span className="block h-0.5 w-5 rounded-full bg-current" />
+            <span className="block h-0.5 w-5 rounded-full bg-current" />
+            <span className="block h-0.5 w-5 rounded-full bg-current" />
+          </span>
+        )}
       </button>
       {isOpen ? (
         <div className="garden-card-glass absolute left-4 right-4 top-20 z-50 rounded-3xl p-4">
@@ -28,7 +35,7 @@ export function MobileMenu({ user }: { user: { name: string } | null }) {
             Garden menu
           </div>
           <nav className="grid gap-1" aria-label="Mobile navigation">
-            {visibleNavLinks.map((link) => (
+            {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}

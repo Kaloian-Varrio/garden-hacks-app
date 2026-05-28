@@ -88,10 +88,10 @@ export function HackVotePanel({
   }
 
   return (
-    <section className="garden-card-glass mt-6 rounded-3xl p-4">
+    <section className="garden-card-glass mt-4 rounded-2xl p-3">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-lg font-black text-[#18231c]">
+          <h2 className="text-base font-black text-[#18231c]">
             Vote for this hack
           </h2>
           {!compact ? (
@@ -101,12 +101,12 @@ export function HackVotePanel({
             </p>
           ) : null}
         </div>
-        <div className="rounded-full bg-white/80 px-3 py-1.5 text-sm font-black text-[#134c40] shadow-sm">
+        <div className="rounded-full bg-white/80 px-3 py-1.5 text-xs font-black text-[#134c40] shadow-sm">
           Rating {ratingScore}
         </div>
       </div>
 
-      <div className={`mt-4 grid gap-3 ${compact ? "" : "sm:grid-cols-2"}`}>
+      <div className={`mt-3 grid gap-2 ${compact ? "" : "sm:grid-cols-2"}`}>
         <VoteButton
           count={sweetTomatoesCount}
           icon={<TomatoIcon size={22} />}
@@ -128,11 +128,11 @@ export function HackVotePanel({
       </div>
 
       {error ? (
-        <p className="garden-error-state mt-3 py-3 text-sm font-semibold">{error}</p>
+        <p className="garden-error-state mt-3 py-2 text-sm font-semibold">{error}</p>
       ) : null}
 
       {!isLoggedIn ? (
-        <p className="mt-3 rounded-2xl border border-dashed border-[#b7e7d1] bg-white/65 px-4 py-3 text-sm text-[#59655c]">
+        <p className="mt-3 rounded-2xl border border-dashed border-[#b7e7d1] bg-white/65 px-3 py-2 text-sm text-[#59655c]">
           <Link href="/login" className="font-bold text-[#2f6f3e]">
             Log in
           </Link>{" "}
@@ -171,7 +171,7 @@ function VoteButton({
       aria-label={`${label}: ${count} votes${isActive ? ", your current vote" : ""}`}
       disabled={isDisabled || isPending}
       onClick={onClick}
-      className={`group relative flex min-h-20 items-center justify-between overflow-hidden rounded-3xl border px-4 py-3 text-left shadow-sm transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0f9f93] disabled:cursor-not-allowed disabled:opacity-60 ${
+      className={`group relative flex min-h-16 items-center justify-between overflow-hidden rounded-2xl border px-3 py-2 text-left shadow-sm transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0f9f93] disabled:cursor-not-allowed disabled:opacity-60 ${
         label === "Sweet Tomatoes"
           ? isActive
             ? "border-[#f0643c] bg-[#fff0eb] text-[#7a2d17] shadow-[#f0643c]/15"
@@ -188,7 +188,7 @@ function VoteButton({
       />
       <span className="relative flex min-w-0 items-center gap-3">
         <span
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
             label === "Sweet Tomatoes"
               ? "bg-[#fff0eb] text-[#f0643c]"
               : "bg-[#e9fbef] text-[#38a15f]"
@@ -205,7 +205,7 @@ function VoteButton({
           </span>
         </span>
       </span>
-      <span className="relative rounded-2xl bg-white/80 px-3 py-2 text-3xl font-black shadow-sm">
+      <span className="relative rounded-xl bg-white/80 px-2.5 py-1.5 text-2xl font-black shadow-sm">
         {isPending ? "..." : count}
       </span>
     </button>

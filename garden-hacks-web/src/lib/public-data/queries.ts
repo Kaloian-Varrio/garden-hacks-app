@@ -1,4 +1,4 @@
-import { and, count, desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import type { AuthUser } from "@/lib/auth/session";
 import { getGroupImageUrl, getHackImageUrl } from "@/lib/garden-assets";
 import { fallbackGroups, fallbackHacks } from "./fallback";
@@ -14,6 +14,18 @@ const canUseDatabase = () => Boolean(process.env.DATABASE_URL);
 const DEFAULT_PUBLIC_HACKS_PAGE = 1;
 const DEFAULT_PUBLIC_HACKS_PAGE_SIZE = 10;
 const MAX_PUBLIC_HACKS_PAGE_SIZE = 50;
+
+type PublicHacksPageOptions = {
+  page?: number;
+  pageSize?: number;
+  viewerUserId?: number;
+  q?: string;
+  tag?: string;
+  category?: string;
+  group?: string;
+  difficulty?: string;
+  rating?: string;
+};
 
 export async function getPublicGroups(limit?: number): Promise<PublicGroup[]> {
   if (!canUseDatabase()) {
@@ -55,7 +67,9 @@ export async function getPublicGroupBySlug(
     return {
       ...group,
       managers: [],
-      hacks: fallbackHacks.filter((hack) => hack.groupSlug === group.slug),
+      hacks: fallbackHacks
+        .filter((hack) => hack.groupSlug === group.slug)
+        .map(ensurePublicHackFlags),
       viewerMembership: null,
     };
   }
@@ -161,6 +175,7 @@ export async function getPublicGroupBySlug(
         ratingScore: hack.ratingScore,
         commentsCount: hack.commentsCount,
         comments: [],
+        isSaved: false,
         userVote: null,
         viewerGroupRole: null,
       })),
@@ -190,11 +205,7 @@ export async function getPublicHacks(
 }
 
 export async function getPublicHacksPage(
-  options: {
-    page?: number;
-    pageSize?: number;
-    viewerUserId?: number;
-  } = {},
+  options: PublicHacksPageOptions = {},
 ): Promise<PublicHackPage> {
   const requestedPage =
     Number.isInteger(options.page) && options.page && options.page > 0
@@ -209,35 +220,18 @@ export async function getPublicHacksPage(
   const pageSize = Math.min(requestedPageSize, MAX_PUBLIC_HACKS_PAGE_SIZE);
 
   if (!canUseDatabase()) {
-    const totalItems = fallbackHacks.length;
-    const totalPages = Math.ceil(totalItems / pageSize);
-    const currentPage = totalPages > 0 ? Math.min(requestedPage, totalPages) : 1;
-    const offset = (currentPage - 1) * pageSize;
-
-    return {
-      hacks: fallbackHacks.slice(offset, offset + pageSize),
-      currentPage,
+    return paginatePublicHacks(
+      applyPublicHackFilters(fallbackHacks.map(ensurePublicHackFlags), options),
+      requestedPage,
       pageSize,
-      totalItems,
-      totalPages,
-    };
+    );
   }
 
   try {
     const { db, gardeningHacks, hackVotes } = await import("@/db");
-    const totalRows = await db
-      .select({ count: count() })
-      .from(gardeningHacks)
-      .where(eq(gardeningHacks.status, "published"));
-    const totalItems = Number(totalRows[0]?.count ?? 0);
-    const totalPages = Math.ceil(totalItems / pageSize);
-    const currentPage = totalPages > 0 ? Math.min(requestedPage, totalPages) : 1;
-
     const rows = await db.query.gardeningHacks.findMany({
       where: eq(gardeningHacks.status, "published"),
       orderBy: [desc(gardeningHacks.ratingScore), desc(gardeningHacks.createdAt)],
-      limit: pageSize,
-      offset: (currentPage - 1) * pageSize,
       with: {
         author: {
           columns: {
@@ -276,9 +270,21 @@ export async function getPublicHacksPage(
     const votesByHackId = new Map(
       votes.map((vote) => [vote.hackId, vote.voteType] as const),
     );
+    const saves = options.viewerUserId && hackIds.length > 0
+      ? await db.query.savedHacks.findMany({
+          where: (saved, { and: all, eq: equals, inArray: inValues }) =>
+            all(
+              equals(saved.userId, options.viewerUserId!),
+              inValues(saved.hackId, hackIds),
+            ),
+          columns: {
+            hackId: true,
+          },
+        })
+      : [];
+    const savedHackIds = new Set(saves.map((saved) => saved.hackId));
 
-    return {
-      hacks: rows.map((hack) => ({
+    const hacks = rows.map((hack) => ({
         id: hack.id,
         title: hack.title,
         slug: hack.slug,
@@ -298,27 +304,22 @@ export async function getPublicHacksPage(
         ratingScore: hack.ratingScore,
         commentsCount: hack.commentsCount,
         comments: [],
+        isSaved: savedHackIds.has(hack.id),
         userVote: votesByHackId.get(hack.id) ?? null,
         viewerGroupRole: null,
-      })),
-      currentPage,
-      pageSize,
-      totalItems,
-      totalPages,
-    };
-  } catch {
-    const totalItems = fallbackHacks.length;
-    const totalPages = Math.ceil(totalItems / pageSize);
-    const currentPage = totalPages > 0 ? Math.min(requestedPage, totalPages) : 1;
-    const offset = (currentPage - 1) * pageSize;
+    }));
 
-    return {
-      hacks: fallbackHacks.slice(offset, offset + pageSize),
-      currentPage,
+    return paginatePublicHacks(
+      applyPublicHackFilters(hacks, options),
+      requestedPage,
       pageSize,
-      totalItems,
-      totalPages,
-    };
+    );
+  } catch {
+    return paginatePublicHacks(
+      applyPublicHackFilters(fallbackHacks.map(ensurePublicHackFlags), options),
+      requestedPage,
+      pageSize,
+    );
   }
 }
 
@@ -327,11 +328,12 @@ export async function getPublicHackBySlug(
   viewer?: Pick<AuthUser, "id" | "role"> | number,
 ): Promise<PublicHack | null> {
   if (!canUseDatabase()) {
-    return fallbackHacks.find((hack) => hack.slug === slug) ?? null;
+    const hack = fallbackHacks.find((item) => item.slug === slug);
+    return hack ? ensurePublicHackFlags(hack) : null;
   }
 
   try {
-    const { db, gardeningHacks, groupMembers, hackVotes } = await import("@/db");
+    const { db, gardeningHacks, groupMembers, hackVotes, savedHacks } = await import("@/db");
     const hack = await db.query.gardeningHacks.findFirst({
       where: eq(gardeningHacks.slug, slug),
       with: {
@@ -375,7 +377,7 @@ export async function getPublicHackBySlug(
 
     const viewerUserId = typeof viewer === "number" ? viewer : viewer?.id;
     const viewerRole = typeof viewer === "number" ? "user" : viewer?.role;
-    const [viewerMembership, viewerVote] = viewerUserId
+    const [viewerMembership, viewerVote, viewerSavedHack] = viewerUserId
       ? await Promise.all([
           db.query.groupMembers.findFirst({
             where: and(
@@ -395,8 +397,17 @@ export async function getPublicHackBySlug(
               voteType: true,
             },
           }),
+          db.query.savedHacks.findFirst({
+            where: and(
+              eq(savedHacks.hackId, hack.id),
+              eq(savedHacks.userId, viewerUserId),
+            ),
+            columns: {
+              id: true,
+            },
+          }),
         ])
-      : [null, null];
+      : [null, null, null];
 
     if (
       hack.status !== "published" &&
@@ -436,11 +447,13 @@ export async function getPublicHackBySlug(
       ratingScore: hack.ratingScore,
       commentsCount: hack.commentsCount,
       comments,
+      isSaved: Boolean(viewerSavedHack),
       userVote: viewerVote?.voteType ?? null,
       viewerGroupRole: viewerMembership?.groupRole ?? null,
     };
   } catch {
-    return fallbackHacks.find((hack) => hack.slug === slug) ?? null;
+    const hack = fallbackHacks.find((item) => item.slug === slug);
+    return hack ? ensurePublicHackFlags(hack) : null;
   }
 }
 
@@ -482,4 +495,122 @@ export async function getFilterOptions() {
       ratings: ["Highest rated", "Most sweet tomatoes", "Most discussed"],
     };
   }
+}
+
+function ensurePublicHackFlags(hack: PublicHack): PublicHack {
+  return {
+    ...hack,
+    isSaved: hack.isSaved ?? false,
+  };
+}
+
+function normalizeFilterValue(value: string | undefined) {
+  return value?.trim().toLowerCase() ?? "";
+}
+
+function matchesPublicHackFilters(
+  hack: PublicHack,
+  options: PublicHacksPageOptions,
+) {
+  const query = normalizeFilterValue(options.q);
+  const tag = normalizeFilterValue(options.tag);
+  const category = normalizeFilterValue(options.category);
+  const group = normalizeFilterValue(options.group);
+  const difficulty = normalizeFilterValue(options.difficulty);
+
+  if (query) {
+    const searchableText = [
+      hack.title,
+      hack.excerpt,
+      hack.content,
+      hack.category,
+      hack.group,
+      hack.difficulty,
+      hack.author,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    if (!searchableText.includes(query)) {
+      return false;
+    }
+  }
+
+  if (tag) {
+    const topicText = `${hack.category} ${hack.group} ${hack.title}`.toLowerCase();
+
+    if (!topicText.includes(tag)) {
+      return false;
+    }
+  }
+
+  if (category && hack.category.toLowerCase() !== category) {
+    return false;
+  }
+
+  if (group && hack.group.toLowerCase() !== group) {
+    return false;
+  }
+
+  if (difficulty && hack.difficulty.toLowerCase() !== difficulty) {
+    return false;
+  }
+
+  return true;
+}
+
+function applyPublicHackFilters(
+  hacks: PublicHack[],
+  options: PublicHacksPageOptions,
+) {
+  const rating = normalizeFilterValue(options.rating);
+  const filteredHacks = hacks.filter((hack) =>
+    matchesPublicHackFilters(hack, options),
+  );
+
+  if (rating === "most sweet tomatoes") {
+    return [...filteredHacks].sort(
+      (firstHack, secondHack) =>
+        secondHack.sweetTomatoesCount - firstHack.sweetTomatoesCount ||
+        secondHack.ratingScore - firstHack.ratingScore,
+    );
+  }
+
+  if (rating === "most discussed") {
+    return [...filteredHacks].sort(
+      (firstHack, secondHack) =>
+        secondHack.commentsCount - firstHack.commentsCount ||
+        secondHack.ratingScore - firstHack.ratingScore,
+    );
+  }
+
+  if (rating === "highest rated") {
+    return [...filteredHacks].sort(
+      (firstHack, secondHack) =>
+        secondHack.ratingScore - firstHack.ratingScore ||
+        secondHack.sweetTomatoesCount - firstHack.sweetTomatoesCount,
+    );
+  }
+
+  return filteredHacks;
+}
+
+function paginatePublicHacks(
+  hacks: PublicHack[],
+  requestedPage: number,
+  pageSize: number,
+): PublicHackPage {
+  const totalItems = hacks.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const currentPage = totalPages > 0 ? Math.min(requestedPage, totalPages) : 1;
+  const offset = (currentPage - 1) * pageSize;
+
+  return {
+    hacks: hacks.slice(offset, offset + pageSize),
+    currentPage,
+    pageSize,
+    totalItems,
+    totalPages,
+  };
 }

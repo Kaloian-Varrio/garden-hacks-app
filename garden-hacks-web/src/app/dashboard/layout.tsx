@@ -23,7 +23,7 @@ export default async function DashboardLayout({
             <p className="mt-1 truncate text-xs text-[#59655c]">{user.email}</p>
           </div>
           <div className="pt-3">
-            <DashboardNav />
+            <DashboardNav role={user.role} />
           </div>
         </aside>
         <section>{children}</section>

@@ -75,6 +75,23 @@ export function CommentIcon(props: IconProps) {
   );
 }
 
+export function BookmarkIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <path d="M6 4.8A2.8 2.8 0 0 1 8.8 2h6.4A2.8 2.8 0 0 1 18 4.8V22l-6-3.6L6 22V4.8Z" />
+    </IconBase>
+  );
+}
+
+export function SearchIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m16 16 4 4" />
+    </IconBase>
+  );
+}
+
 export function UserIcon(props: IconProps) {
   return (
     <IconBase {...props}>

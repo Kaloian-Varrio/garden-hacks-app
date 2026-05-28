@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { DashboardHackFormValues, SelectOption } from "@/lib/dashboard/types";
@@ -36,20 +37,33 @@ export function HackForm({
   const router = useRouter();
   const values = { ...defaultValues, ...initialValues };
   const [error, setError] = useState("");
+  const [createdHackHref, setCreatedHackHref] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+    setCreatedHackHref("");
     setIsSubmitting(true);
 
     const formData = new FormData(event.currentTarget);
+    const imageFile = formData.get("imageFile");
+
+    if (imageFile instanceof File && imageFile.size > 0) {
+      if (imageFile.size > 1024 * 1024) {
+        setError("Image file must be up to 1 MB.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // TODO: Persist uploaded image files when a web image upload API exists.
+    }
+
     const payload = {
       title: formData.get("title"),
       excerpt: formData.get("excerpt"),
       content: formData.get("content"),
       imageUrl: formData.get("imageUrl"),
-      sourceUrl: formData.get("sourceUrl"),
       groupId: Number(formData.get("groupId")),
       categoryId: Number(formData.get("categoryId")),
       difficulty: formData.get("difficulty"),
@@ -66,12 +80,24 @@ export function HackForm({
     });
     const result = (await response.json().catch(() => null)) as {
       error?: string;
+      hack?: {
+        slug?: string;
+      };
     } | null;
 
     setIsSubmitting(false);
 
     if (!response.ok) {
       setError(result?.error ?? "Unable to save this hack.");
+      return;
+    }
+
+    if (mode === "create") {
+      if (result?.hack?.slug) {
+        setCreatedHackHref(`/hacks/${result.hack.slug}`);
+      }
+
+      router.refresh();
       return;
     }
 
@@ -85,6 +111,17 @@ export function HackForm({
         <p className="rounded-md border border-[#efb5a8] bg-[#fff0eb] px-4 py-3 text-sm font-semibold text-[#8a2d1c]">
           {error}
         </p>
+      ) : null}
+      {createdHackHref ? (
+        <div className="rounded-md border border-[#b7e7d1] bg-[#e9fbef] px-4 py-3 text-sm font-semibold text-[#134c40]">
+          Hack created successfully.
+          <Link
+            href={createdHackHref}
+            className="ml-2 inline-flex font-black text-[#0f766e] hover:text-[#f0643c]"
+          >
+            View hack
+          </Link>
+        </div>
       ) : null}
       <Field label="Title">
         <input
@@ -121,12 +158,12 @@ export function HackForm({
             className="dashboard-input"
           />
         </Field>
-        <Field label="Source URL">
+        <Field label="Upload image file (up to 1 MB)">
           <input
-            name="sourceUrl"
-            type="url"
-            defaultValue={values.sourceUrl ?? ""}
-            className="dashboard-input"
+            name="imageFile"
+            type="file"
+            accept="image/*"
+            className="dashboard-input file:mr-4 file:rounded-md file:border-0 file:bg-[#dff8e9] file:px-3 file:py-2 file:text-sm file:font-bold file:text-[#0f766e]"
           />
         </Field>
       </div>

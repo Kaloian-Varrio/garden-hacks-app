@@ -3,8 +3,10 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { HackComments } from "@/components/garden/hack-comments";
+import { HackTagLink } from "@/components/garden/hack-tag-link";
 import { HackVisual } from "@/components/garden/hack-visual";
 import { HackVotePanel } from "@/components/garden/hack-vote-panel";
+import { SaveHackButton } from "@/components/garden/save-hack-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CommentIcon, SparkIcon, TomatoIcon, CucumberIcon } from "@/components/ui/garden-icons";
@@ -64,28 +66,48 @@ export default async function HackDetailsPage({ params }: HackDetailsPageProps) 
             title={hack.title}
           />
           <div>
-            <div className="flex flex-wrap gap-2">
-              <Badge>{hack.category}</Badge>
-              <Badge tone="sky">{hack.group}</Badge>
-              <Badge tone="slate">{hack.difficulty}</Badge>
-              {hack.isOrganic ? <Badge tone="green">Organic</Badge> : null}
-              {hack.isChemicalFree ? (
-                <Badge tone="amber">Chemical-free</Badge>
-              ) : null}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap gap-2">
+                <HackTagLink param="tag" value={hack.category}>
+                  {hack.category}
+                </HackTagLink>
+                <HackTagLink param="group" value={hack.group} tone="sky">
+                  {hack.group}
+                </HackTagLink>
+                <HackTagLink param="difficulty" value={hack.difficulty} tone="slate">
+                  {hack.difficulty}
+                </HackTagLink>
+              </div>
+              <SaveHackButton
+                hackId={hack.id}
+                initialIsSaved={hack.isSaved}
+                isLoggedIn={Boolean(currentUser)}
+              />
             </div>
             <h1 className="mt-5 text-4xl font-black tracking-tight text-[#10231c] sm:text-6xl">
               {hack.title}
             </h1>
             <p className="mt-4 text-base font-semibold text-[#405046]">
               By {hack.author} in{" "}
-              <Link href={`/groups/${hack.groupId}`} className="text-[#2f6f3e]">
+              <Link href={`/groups/${hack.groupSlug}`} className="text-[#2f6f3e]">
                 {hack.group}
               </Link>
             </p>
             <p className="mt-5 text-lg leading-8 text-[#59655c]">
               {hack.excerpt}
             </p>
-            <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="mt-6 rounded-3xl border border-[#d9eee4] bg-white/72 p-5 shadow-sm">
+              <div className="mb-3 flex flex-wrap gap-2">
+                {hack.isOrganic ? <Badge tone="green">Organic</Badge> : null}
+                {hack.isChemicalFree ? (
+                  <Badge tone="amber">Chemical-free</Badge>
+                ) : null}
+              </div>
+              <p className="whitespace-pre-line text-base leading-8 text-[#405046]">
+                {hack.content}
+              </p>
+            </div>
+            <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
               <Metric icon={<TomatoIcon />} label="Sweet Tomatoes" value={hack.sweetTomatoesCount} />
               <Metric icon={<CucumberIcon />} label="Bitter Cucumbers" value={hack.bitterCucumbersCount} />
               <Metric icon={<SparkIcon />} label="Rating" value={hack.ratingScore} />
@@ -110,15 +132,6 @@ export default async function HackDetailsPage({ params }: HackDetailsPageProps) 
           }`}
         >
           <div className="space-y-8">
-            <div className="garden-shell rounded-3xl p-6 sm:p-8">
-              <h2 className="text-2xl font-black tracking-tight text-[#10231c]">
-                The hack
-              </h2>
-              <p className="mt-5 whitespace-pre-line text-base leading-8 text-[#405046]">
-                {hack.content}
-              </p>
-            </div>
-
             <HackComments
               hackId={hack.id}
               comments={comments}
@@ -161,11 +174,11 @@ function Metric({
   value: number;
 }) {
   return (
-    <div className="rounded-3xl border border-[#d9eee4] bg-white/78 p-4 shadow-sm">
-      <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-2xl bg-[#dff8e9] text-[#0f766e]">
+    <div className="rounded-2xl border border-[#d9eee4] bg-white/78 p-3 shadow-sm">
+      <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-xl bg-[#dff8e9] text-[#0f766e]">
         {icon}
       </div>
-      <p className="text-3xl font-black text-[#10231c]">{value}</p>
+      <p className="text-2xl font-black text-[#10231c]">{value}</p>
       <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] text-[#59655c]">
         {label}
       </p>
