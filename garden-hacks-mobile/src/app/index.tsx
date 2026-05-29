@@ -71,7 +71,7 @@ export default function HomeScreen() {
 
       {user ? (
         <ScrollView contentContainerStyle={styles.dashboardContainer}>
-          <DashboardHeader title="Overview" />
+          <DashboardHeader title="My Profile" />
 
           <GardenCard style={styles.userPanel}>
             <View style={styles.avatar}>
@@ -161,25 +161,26 @@ export default function HomeScreen() {
             <BrandLogo />
             <HackVisual size="hero" title="Garden Hacks" />
             <View style={styles.content}>
-              <GardenBadge tone="sky">Smart garden ideas</GardenBadge>
-              <Text style={styles.title}>Grow more with clever garden hacks</Text>
+              <GardenBadge tone="mint">Smart gardening tricks</GardenBadge>
+              <Text style={styles.title}>Garden Hacks for clever growers.</Text>
               <Text style={styles.copy}>
-                Practical, sustainable, low-fuss ideas for healthier vegetables,
-                calmer weekends, and happier garden beds.
+                Practical, low-fuss ideas for vegetables, soil, water, pests,
+                compost, and cozy outdoor living, shared by people who actually
+                try them.
               </Text>
             </View>
             <View style={styles.heroActions}>
               <Link href="/hacks" asChild>
                 <GardenButton>Browse Hacks</GardenButton>
               </Link>
-              <Link href="/login" asChild>
-                <GardenButton variant="secondary">Login</GardenButton>
+              <Link href="/register" asChild>
+                <GardenButton variant="secondary">Join the Community</GardenButton>
               </Link>
             </View>
-            <Link href="/register" asChild>
+            <Link href="/login" asChild>
               <Pressable style={styles.registerPrompt}>
                 <Text style={styles.registerPromptText}>
-                  New here? Create a free account.
+                  Already have an account? Login here.
                 </Text>
               </Pressable>
             </Link>

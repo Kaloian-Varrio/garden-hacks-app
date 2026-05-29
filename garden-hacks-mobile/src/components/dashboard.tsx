@@ -18,7 +18,7 @@ type DashboardRoute =
   | "/my-groups";
 
 const navItems: Array<{ href: DashboardRoute; icon: string; label: string }> = [
-  { href: "/", icon: "GH", label: "Overview" },
+  { href: "/", icon: "GH", label: "My Profile" },
   { href: "/my-hacks", icon: "H", label: "My Hacks" },
   { href: "/add-new-hack", icon: "+", label: "Create Hack" },
   { href: "/saved-hacks", icon: "S", label: "Saved Hacks" },
@@ -134,9 +134,41 @@ export function DashboardHeader({ title }: { title: string }) {
                   </Pressable>
                 );
               })}
-            </View>
 
-            <GardenButton onPress={handleLogout} style={styles.logoutButton} variant="secondary">
+              {user?.role === "admin" && (
+                <Pressable
+                  key="/users"
+                  onPress={() => navigateTo("/users" as any)}
+                  style={StyleSheet.flatten([
+                    styles.drawerItem,
+                    pathname.startsWith("/users") ? styles.drawerItemActive : null,
+                  ])}
+                >
+                  <View
+                    style={StyleSheet.flatten([
+                      styles.drawerItemIcon,
+                      pathname.startsWith("/users") ? styles.drawerItemIconActive : null,
+                    ])}
+                  >
+                    <Text
+                      style={StyleSheet.flatten([
+                        styles.drawerItemIconText,
+                        pathname.startsWith("/users") ? styles.drawerItemIconTextActive : null,
+                      ])}
+                    >
+                      A
+                    </Text>
+                  </View>
+                  <Text
+                    style={StyleSheet.flatten([
+                      styles.drawerItemText,
+                      pathname.startsWith("/users") ? styles.drawerItemTextActive : null,
+                    ])}
+                  >
+                    Users
+                  </Text>
+                </Pressable>
+              )}
               Logout
             </GardenButton>
           </View>

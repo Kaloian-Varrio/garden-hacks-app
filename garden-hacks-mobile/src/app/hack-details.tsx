@@ -18,6 +18,7 @@ import {
   SectionHeader,
   StateNotice,
   VoteButton,
+  SaveButton,
   gardenTheme,
 } from "../components/garden-ui";
 import { getApiBaseUrl, useAuth } from "../lib/auth";
@@ -51,6 +52,7 @@ type HackDetail = {
   bitterCucumbersCount: number;
   ratingScore: number;
   userVote: VoteType | null;
+  isSaved?: boolean;
   author: {
     name: string;
   };
@@ -114,8 +116,8 @@ function HackDetailsContent() {
       try {
         const headers = token
           ? {
-              Authorization: `Bearer ${token}`,
-            }
+            Authorization: `Bearer ${token}`,
+          }
           : undefined;
         const [hackResponse, commentsResponse] = await Promise.all([
           fetch(`${getApiBaseUrl()}/hacks/${id}`, {
@@ -204,9 +206,9 @@ function HackDetailsContent() {
       setHack((currentHack) =>
         currentHack
           ? {
-              ...currentHack,
-              commentsCount: currentHack.commentsCount + 1,
-            }
+            ...currentHack,
+            commentsCount: currentHack.commentsCount + 1,
+          }
           : currentHack,
       );
       setNewCommentText("");
@@ -254,12 +256,12 @@ function HackDetailsContent() {
       setHack((currentHack) =>
         currentHack
           ? {
-              ...currentHack,
-              userVote: data.userVote,
-              sweetTomatoesCount: data.sweetTomatoesCount,
-              bitterCucumbersCount: data.bitterCucumbersCount,
-              ratingScore: data.ratingScore,
-            }
+            ...currentHack,
+            userVote: data.userVote,
+            sweetTomatoesCount: data.sweetTomatoesCount,
+            bitterCucumbersCount: data.bitterCucumbersCount,
+            ratingScore: data.ratingScore,
+          }
           : currentHack,
       );
     } catch (voteSubmitError) {
@@ -267,6 +269,48 @@ function HackDetailsContent() {
         voteSubmitError instanceof Error
           ? voteSubmitError.message
           : "Unable to save your vote.",
+      );
+    } finally {
+      setPendingVote(null);
+    }
+  }
+
+  async function handleSave() {
+    if (!id || !token) {
+      setVoteError("Log in to save hacks.");
+      return;
+    }
+
+    setVoteError("");
+    setPendingVote("save");
+
+    try {
+      const response = await fetch(`${getApiBaseUrl()}/hacks/${id}/save`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Unable to save hack.");
+      }
+
+      const data = await response.json() as { isSaved: boolean };
+
+      setHack((currentHack) =>
+        currentHack
+          ? {
+            ...currentHack,
+            isSaved: data.isSaved,
+          }
+          : currentHack,
+      );
+    } catch (error) {
+      setVoteError(
+        error instanceof Error
+          ? error.message
+          : "Unable to save hack.",
       );
     } finally {
       setPendingVote(null);
@@ -318,10 +362,10 @@ function HackDetailsContent() {
         currentComments.map((comment) =>
           comment.id === data.comment.id
             ? {
-                ...comment,
-                text: data.comment.text,
-                updatedAt: data.comment.updatedAt,
-              }
+              ...comment,
+              text: data.comment.text,
+              updatedAt: data.comment.updatedAt,
+            }
             : comment,
         ),
       );
@@ -387,6 +431,11 @@ function HackDetailsContent() {
               title="Vote for this hack"
             />
             <View style={styles.voteActions}>
+              <SaveButton
+                isPending={pendingVote === "save"}
+                isSaved={!!hack.isSaved}
+                onPress={handleSave}
+              />
               <VoteButton
                 canVote={Boolean(token)}
                 count={hack.sweetTomatoesCount}
@@ -453,7 +502,7 @@ function HackDetailsContent() {
                           style={({ pressed }) => [
                             styles.smallButton,
                             (pressed || commentAction !== null) &&
-                              styles.buttonPressed,
+                            styles.buttonPressed,
                           ]}
                         >
                           <Text style={styles.smallButtonText}>Edit</Text>

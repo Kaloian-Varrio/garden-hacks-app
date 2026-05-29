@@ -1,7 +1,7 @@
-import { Link } from "expo-router";
+import { Link, useLocalSearchParams, router } from "expo-router";
 import Head from "expo-router/head";
 import { useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View, TextInput } from "react-native";
 import { DashboardHeader } from "../components/dashboard";
 import {
   GardenBadge,
@@ -11,6 +11,7 @@ import {
   SectionHeader,
   StateNotice,
   VoteButton,
+  SaveButton,
   gardenTheme,
 } from "../components/garden-ui";
 import { getApiBaseUrl, useAuth } from "../lib/auth";
@@ -29,6 +30,8 @@ type HackListItem = {
   sweetTomatoesCount: number;
   bitterCucumbersCount: number;
   userVote: VoteType | null;
+  authorId?: number;
+  isSaved?: boolean;
   group: {
     title: string;
   };
@@ -51,11 +54,18 @@ export default function HacksScreen() {
 
 export function HacksContent() {
   const { token, user } = useAuth();
+  const searchParams = useLocalSearchParams();
   const [hacks, setHacks] = useState<HackListItem[]>([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [voteError, setVoteError] = useState("");
   const [pendingVoteKey, setPendingVoteKey] = useState<string | null>(null);
+
+  const q = typeof searchParams.q === "string" ? searchParams.q : "";
+  const groupQuery = typeof searchParams.group === "string" ? searchParams.group : "";
+  const categoryQuery = typeof searchParams.category === "string" ? searchParams.category : "";
+
+  const [searchInput, setSearchInput] = useState(q);
 
   useEffect(() => {
     let isActive = true;
@@ -64,193 +74,210 @@ export function HacksContent() {
       setError("");
       setIsLoading(true);
 
+      const params = new URLSearchParams();
+      params.set("page", "1");
+      params.set("pageSize", "20");
+      params.set("sort", "top");
+      if (q) params.set("q", q);
+      if (groupQuery) params.set("group", groupQuery);
+      if (categoryQuery) params.set("category", categoryQuery);
+
       try {
         const response = await fetch(
-          `${getApiBaseUrl()}/hacks?page=1&pageSize=20&sort=top`,
-          {
-            headers: token
+          `${getApiBaseUrl()}/hacks?${params.toString()}`,
               ? {
-                  Authorization: `Bearer ${token}`,
-                }
-              : undefined,
-          },
+            Authorization: `Bearer ${token}`,
+          }
+          : undefined,
+      },
         );
 
-        if (!response.ok) {
-          throw new Error("Unable to load hacks.");
-        }
-
-        const data = (await response.json()) as { hacks: HackListItem[] };
-
-        if (isActive) {
-          setHacks(data.hacks);
-        }
-      } catch {
-        if (isActive) {
-          setError(
-            "Unable to load hacks. Make sure the Garden Hacks API is running.",
-          );
-        }
-      } finally {
-        if (isActive) {
-          setIsLoading(false);
-        }
-      }
-    }
-
-    loadHacks();
-
-    return () => {
-      isActive = false;
-    };
-  }, [token]);
-
-  async function handleVote(hackId: number, voteType: VoteType) {
-    if (!token) {
-      setVoteError("Log in to vote.");
-      return;
-    }
-
-    setVoteError("");
-    setPendingVoteKey(`${hackId}-${voteType}`);
-
-    try {
-      const response = await fetch(`${getApiBaseUrl()}/hacks/${hackId}/vote`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ voteType }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Unable to save your vote.");
-      }
-
-      const data = (await response.json()) as {
-        userVote: VoteType;
-        sweetTomatoesCount: number;
-        bitterCucumbersCount: number;
-        ratingScore: number;
-      };
-
-      setHacks((currentHacks) =>
-        currentHacks.map((hack) =>
-          hack.id === hackId
-            ? {
-                ...hack,
-                userVote: data.userVote,
-                sweetTomatoesCount: data.sweetTomatoesCount,
-                bitterCucumbersCount: data.bitterCucumbersCount,
-                ratingScore: data.ratingScore,
-              }
-            : hack,
-        ),
-      );
-    } catch (voteSubmitError) {
-      setVoteError(
-        voteSubmitError instanceof Error
-          ? voteSubmitError.message
-          : "Unable to save your vote.",
-      );
-    } finally {
-      setPendingVoteKey(null);
-    }
+  if (!response.ok) {
+    throw new Error("Unable to load hacks.");
   }
 
-  return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {user ? <DashboardHeader title="Garden Hacks" /> : null}
+  const data = (await response.json()) as { hacks: HackListItem[] };
 
-      <View style={styles.hero}>
-        <SectionHeader
-          copy="Browse practical ideas from the Garden Hacks community."
-          eyebrow="Explore"
-          title="Garden Hacks"
-        />
-        <View style={styles.menu}>
-          {user ? (
-            <>
-              <Link href="/saved-hacks" asChild>
-                <GardenButton variant="secondary">Saved Hacks</GardenButton>
-              </Link>
-              <Link href="/add-new-hack" asChild>
-                <GardenButton>Add Hack</GardenButton>
-              </Link>
-            </>
-          ) : (
-            <Text style={styles.message}>Log in to vote and save ideas.</Text>
-          )}
-        </View>
-      </View>
+  if (isActive) {
+    setHacks(data.hacks);
+  }
+} catch {
+  if (isActive) {
+    setError(
+      "Unable to load hacks. Make sure the Garden Hacks API is running.",
+    );
+  }
+} finally {
+  if (isActive) {
+    setIsLoading(false);
+  }
+}
+    }
 
-      {isLoading ? <StateNotice tone="loading" title="Loading hacks..." /> : null}
-      {error ? <StateNotice tone="error" title={error} /> : null}
-      {voteError ? <StateNotice tone="error" title={voteError} /> : null}
+loadHacks();
 
-      {!isLoading && !error && hacks.length === 0 ? (
-        <StateNotice title="No published hacks yet" />
-      ) : null}
+return () => {
+  isActive = false;
+};
+  }, [token]);
 
-      <View style={styles.list}>
-        {hacks.map((hack) => (
-          <GardenCard style={styles.hackItem} key={hack.id}>
-            <Link
-              asChild
-              href={{
-                pathname: "/hack-details",
-                params: { id: String(hack.id) },
-              }}
-            >
-              <Pressable style={({ pressed }) => pressed && styles.pressed}>
-                <HackVisual imageUrl={hack.imageUrl} title={hack.title} />
-                <View style={styles.cardContent}>
-                  <View style={styles.badges}>
-                    <GardenBadge tone="mint">{hack.category.title}</GardenBadge>
-                    <GardenBadge tone="cream">{hack.difficulty}</GardenBadge>
-                  </View>
-                  <Text style={styles.hackTitle}>{hack.title}</Text>
-                  <Text style={styles.hackMeta}>{hack.group.title}</Text>
-                  {hack.excerpt ? (
-                    <Text style={styles.excerpt}>{hack.excerpt}</Text>
-                  ) : null}
-                  <View style={styles.statsRow}>
-                    <Text style={styles.statText}>Rating {hack.ratingScore}</Text>
-                    <Text style={styles.statText}>{hack.commentsCount} comments</Text>
-                  </View>
+async function handleVote(hackId: number, voteType: VoteType) {
+  if (!token) {
+    setVoteError("Log in to vote.");
+    return;
+  }
+
+  setVoteError("");
+  setPendingVoteKey(`${hackId}-${voteType}`);
+
+  try {
+    const response = await fetch(`${getApiBaseUrl()}/hacks/${hackId}/vote`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ voteType }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Unable to save your vote.");
+    }
+
+    const data = (await response.json()) as {
+      userVote: VoteType;
+      sweetTomatoesCount: number;
+      bitterCucumbersCount: number;
+      ratingScore: number;
+    };
+
+    setHacks((currentHacks) =>
+      currentHacks.map((hack) =>
+        hack.id === hackId
+          ? {
+            ...hack,
+            userVote: data.userVote,
+            sweetTomatoesCount: data.sweetTomatoesCount,
+            bitterCucumbersCount: data.bitterCucumbersCount,
+            ratingScore: data.ratingScore,
+          }
+          : hack,
+      ),
+    );
+  } catch (voteSubmitError) {
+    setVoteError(
+      voteSubmitError instanceof Error
+        ? voteSubmitError.message
+        : "Unable to save your vote.",
+    );
+  } finally {
+    setPendingVoteKey(null);
+  }
+}
+
+async function handleSave(hackId: number) {
+  if (!token) {
+    setVoteError("Log in to save hacks.");
+    return;
+  }
+
+  setVoteError("");
+  setPendingVoteKey(`${hackId}-save`);
+
+  try {
+    const response = await fetch(`${getApiBaseUrl()}/hacks/${hackId}/save`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Unable to save hack.");
+    }
+
+    const data = await response.json() as { isSaved: boolean };
+
+    setHacks((currentHacks) =>
+      currentHacks.map((hack) =>
+        hack.id === hackId
+          ? {
+            ...hack,
+            isSaved: data.isSaved,
+          }
+          : hack,
+      ),
+    );
+  } catch (error) {
+    setVoteError(
+      error instanceof Error
+        ? error.message
+        : "Unable to save hack.",
+    );
+  } finally {
+    setPendingVoteKey(null);
+  }
+}
+          <Link
+            asChild
+            href={{
+              pathname: "/hack-details",
+              params: { id: String(hack.id) },
+            }}
+          >
+            <Pressable style={({ pressed }) => pressed && styles.pressed}>
+              <HackVisual imageUrl={hack.imageUrl} title={hack.title} />
+              <View style={styles.cardContent}>
+                <View style={styles.badges}>
+                  <GardenBadge tone="mint">{hack.category.title}</GardenBadge>
+                  <GardenBadge tone="cream">{hack.difficulty}</GardenBadge>
                 </View>
-              </Pressable>
-            </Link>
-            <View style={styles.voteActions}>
-              <VoteButton
-                canVote={Boolean(token)}
-                count={hack.sweetTomatoesCount}
-                isActive={hack.userVote === "sweet_tomato"}
-                isPending={pendingVoteKey === `${hack.id}-sweet_tomato`}
-                label="Sweet Tomatoes"
-                onPress={() => handleVote(hack.id, "sweet_tomato")}
-                type="positive"
-              />
-              <VoteButton
-                canVote={Boolean(token)}
-                count={hack.bitterCucumbersCount}
-                isActive={hack.userVote === "bitter_cucumber"}
-                isPending={pendingVoteKey === `${hack.id}-bitter_cucumber`}
-                label="Bitter Cucumbers"
-                onPress={() => handleVote(hack.id, "bitter_cucumber")}
-                type="negative"
-              />
-            </View>
-          </GardenCard>
-        ))}
-      </View>
+                <Text style={styles.hackTitle}>{hack.title}</Text>
+                <Text style={styles.hackMeta}>{hack.group.title}</Text>
+                {hack.excerpt ? (
+                  <Text style={styles.excerpt}>{hack.excerpt}</Text>
+                ) : null}
+                <View style={styles.statsRow}>
+                  <Text style={styles.statText}>Rating {hack.ratingScore}</Text>
+                  <Text style={styles.statText}>{hack.commentsCount} comments</Text>
+                </View>
+              </View>
+            </Pressable>
+          </Link>
+          <View style={styles.voteActions}>
+            <SaveButton
+              isPending={pendingVoteKey === `${hack.id}-save`}
+              isSaved={!!hack.isSaved}
+              onPress={() => handleSave(hack.id)}
+            />
+            <VoteButton
+              canVote={Boolean(token)}
+              count={hack.sweetTomatoesCount}
+              isActive={hack.userVote === "sweet_tomato"}
+              isPending={pendingVoteKey === `${hack.id}-sweet_tomato`}
+              label="Sweet Tomatoes"
+              onPress={() => handleVote(hack.id, "sweet_tomato")}
+              type="positive"
+            />
+            <VoteButton
+              canVote={Boolean(token)}
+              count={hack.bitterCucumbersCount}
+              isActive={hack.userVote === "bitter_cucumber"}
+              isPending={pendingVoteKey === `${hack.id}-bitter_cucumber`}
+              label="Bitter Cucumbers"
+              onPress={() => handleVote(hack.id, "bitter_cucumber")}
+              type="negative"
+            />
+          </View>
+        </GardenCard >
+      ))}
+    </View >
 
-      <Link href="/" asChild>
-        <GardenButton variant="secondary">Back to Home</GardenButton>
-      </Link>
-    </ScrollView>
-  );
+  <Link href="/" asChild>
+    <GardenButton variant="secondary">Back to Home</GardenButton>
+  </Link>
+  </ScrollView >
+);
 }
 
 const styles = StyleSheet.create({
@@ -302,6 +329,28 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 10,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  searchInput: {
+    flex: 1,
+    backgroundColor: gardenTheme.colors.background,
+    borderColor: gardenTheme.colors.border,
+    borderWidth: 1,
+    borderRadius: gardenTheme.radius.sm,
+    paddingHorizontal: 12,
+    height: 44,
+    color: gardenTheme.colors.text,
+  },
+  clearFilters: {
+    padding: 8,
+  },
+  clearFiltersText: {
+    color: gardenTheme.colors.danger,
+    fontWeight: '700',
   },
   message: {
     color: gardenTheme.colors.muted,

@@ -12,6 +12,12 @@ import {
 import Svg, {
   Path,
   Rect,
+  Defs,
+  LinearGradient,
+  RadialGradient,
+  Stop,
+  Ellipse,
+  Circle,
 } from "react-native-svg";
 import { getApiBaseUrl } from "../lib/auth";
 
@@ -73,46 +79,60 @@ export function BrandLogo({ compact = false }: { compact?: boolean }) {
 function GardenHacksMark({ size = 54 }: { size?: number }) {
   return (
     <Svg accessible={false} height={size} viewBox="0 0 96 96" width={size}>
-      <Rect width="96" height="96" rx="24" fill="#087f7d" />
-      <Path
-        d="M48 81C45.7 68 46.8 57.6 49 48"
-        fill="none"
-        stroke="#ffffff"
-        strokeLinecap="round"
-        strokeWidth="6.2"
-      />
-      <Path
-        d="M48.2 47.5C39.8 36 41.4 24.2 48.4 14.8C55.6 24.5 56.6 36.5 48.2 47.5Z"
-        fill="none"
-        stroke="#ffffff"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="6.2"
-      />
-      <Path
-        d="M46.8 48.1C34.9 45.7 27.6 37.7 28.6 27.4C39 27 46.2 35 46.8 48.1Z"
-        fill="none"
-        stroke="#ffffff"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="6.2"
-      />
-      <Path
-        d="M49.2 48.1C61.1 45.7 68.4 37.7 67.4 27.4C57 27 49.8 35 49.2 48.1Z"
-        fill="none"
-        stroke="#ffffff"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="6.2"
-      />
-      <Path
-        d="M33.8 67.2C41.4 64.6 46.7 57.4 48 48.6C51 57 57.2 64.1 64.7 67.2"
-        fill="none"
-        stroke="#ffffff"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="6.2"
-      />
+      <Defs>
+        <LinearGradient id="bgG" x1="0" y1="0" x2="96" y2="96" gradientUnits="userSpaceOnUse">
+          <Stop stopColor="#E9F7EF" />
+          <Stop offset="1" stopColor="#CDE7D3" />
+        </LinearGradient>
+
+        <RadialGradient id="tomBody" cx="38" cy="42" r="44" gradientUnits="userSpaceOnUse">
+          <Stop stopColor="#FF6B6B" />
+          <Stop offset="0.5" stopColor="#EE3131" />
+          <Stop offset="1" stopColor="#A81515" />
+        </RadialGradient>
+
+        <LinearGradient id="leafFront" x1="48" y1="36" x2="72" y2="10" gradientUnits="userSpaceOnUse">
+          <Stop stopColor="#6EE7B7" />
+          <Stop offset="1" stopColor="#059669" />
+        </LinearGradient>
+
+        <LinearGradient id="leafLeft" x1="48" y1="32" x2="20" y2="24" gradientUnits="userSpaceOnUse">
+          <Stop stopColor="#34D399" />
+          <Stop offset="1" stopColor="#047857" />
+        </LinearGradient>
+      </Defs>
+
+      {/* App Icon Base */}
+      <Rect width="96" height="96" rx="22" fill="url(#bgG)" />
+
+      {/* Soft Shadow under tomato */}
+      <Ellipse cx="48" cy="82" rx="28" ry="5" fill="#A3C2A9" opacity="0.8" />
+
+      {/* Main Tomato */}
+      <Circle cx="48" cy="56" r="28" fill="url(#tomBody)" />
+
+      {/* Glossy Highlights */}
+      <Ellipse cx="36" cy="42" rx="7" ry="14" transform="rotate(-35 36 42)" fill="#FFFFFF" opacity="0.4" />
+      <Path d="M 68 72 C 60 80, 36 80, 30 72 C 40 76, 58 76, 68 72" fill="#FFC9C9" opacity="0.25" />
+
+      {/* Back little leaf */}
+      <Path d="M 48 32 C 40 18, 56 18, 48 32 Z" fill="#6EE7B7" />
+
+      {/* Left bright leaf */}
+      <Path d="M 48 32 C 30 20, 16 34, 24 44 C 32 38, 44 36, 48 32 Z" fill="url(#leafLeft)" />
+
+      {/* Right prominent leaf */}
+      <Path d="M 48 32 C 72 16, 84 28, 76 44 C 64 36, 52 36, 48 32 Z" fill="url(#leafFront)" />
+
+      {/* Leaf veins */}
+      <Path d="M 48 32 Q 38 28 26 34" stroke="#064E3B" strokeWidth="1.5" strokeLinecap="round" opacity="0.3" fill="none" />
+      <Path d="M 48 32 Q 62 26 72 32" stroke="#064E3B" strokeWidth="1.5" strokeLinecap="round" opacity="0.3" fill="none" />
+
+      {/* Stem Star / Sepal center */}
+      <Path d="M 48 28 L 44 34 L 48 36 L 52 34 Z" fill="#047857" />
+
+      {/* Curly green stem */}
+      <Path d="M 48 30 Q 52 14 62 10" stroke="#059669" strokeWidth="3" strokeLinecap="round" fill="none" />
     </Svg>
   );
 }
@@ -305,12 +325,58 @@ export function TomatoIcon() {
   );
 }
 
+export function BookmarkIcon() {
+  return (
+    <Svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <Path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+    </Svg>
+  );
+}
+
 export function CucumberIcon() {
   return (
     <View style={styles.cucumberIcon}>
       <View style={styles.cucumberSeed} />
       <View style={[styles.cucumberSeed, styles.cucumberSeedTwo]} />
     </View>
+  );
+}
+
+export function SaveButton({
+  canSave,
+  isSaved,
+  isPending,
+  onPress,
+}: {
+  canSave: boolean;
+  isSaved: boolean;
+  isPending: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      accessibilityLabel={isSaved ? "Saved hack" : "Save hack"}
+      disabled={!canSave || isPending}
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.saveButton,
+        isSaved ? styles.saveButtonActive : styles.saveButtonInactive,
+        (pressed || isPending) && styles.pressed,
+      ]}
+    >
+      <Text style={[
+        styles.saveButtonIconText,
+        isSaved ? styles.saveButtonTextActive : styles.saveButtonTextInactive
+      ]}>
+        {isSaved ? "★" : "☆"}
+      </Text>
+      <Text style={[
+        styles.saveButtonText,
+        isSaved ? styles.saveButtonTextActive : styles.saveButtonTextInactive
+      ]}>
+        {isPending ? "Saving..." : isSaved ? "Saved" : "Save"}
+      </Text>
+    </Pressable>
   );
 }
 
@@ -657,6 +723,36 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.72,
     transform: [{ scale: 0.99 }],
+  },
+  saveButton: {
+    alignItems: "center",
+    borderRadius: 22,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  saveButtonActive: {
+    backgroundColor: "#fff7df",
+    borderColor: "#f6a13d",
+  },
+  saveButtonInactive: {
+    backgroundColor: "#ffffff",
+    borderColor: gardenTheme.colors.border,
+  },
+  saveButtonIconText: {
+    fontSize: 16,
+  },
+  saveButtonText: {
+    fontSize: 13,
+    fontWeight: "900",
+  },
+  saveButtonTextActive: {
+    color: "#9a4b12",
+  },
+  saveButtonTextInactive: {
+    color: gardenTheme.colors.primaryDark,
   },
   sectionCopy: {
     color: gardenTheme.colors.muted,

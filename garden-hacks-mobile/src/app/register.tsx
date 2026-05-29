@@ -214,6 +214,12 @@ export default function RegisterScreen() {
                 </Text>
               </Pressable>
             </Link>
+
+            <View style={styles.welcomeContainer}>
+              <Text style={styles.welcomeText}>
+                Welcome to the smart gardeners' community.
+              </Text>
+            </View>
           </GardenCard>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -282,6 +288,15 @@ const styles = StyleSheet.create({
     color: gardenTheme.colors.primaryDark,
     fontSize: 16,
     fontWeight: "800",
+    textAlign: "center",
+  },
+  welcomeContainer: {
+    alignItems: "center",
+    marginTop: 10,
+  },
+  welcomeText: {
+    color: gardenTheme.colors.muted,
+    fontSize: 15,
     textAlign: "center",
   },
   title: {
